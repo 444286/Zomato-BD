@@ -43,7 +43,15 @@ button{
 <div class="card">
     <h3>Balance: <span id="balance">0</span> ৳</h3>
 </div>
+// Rewarded Popup
 
+show_10636717('pop').then(() => {
+    // user watch ad till the end or close it in interstitial format
+    // your code to reward user for rewarded format
+}).catch(e => {
+    // user get error during playing ad
+    // do nothing or whatever you want
+})
 <div class="card">
     <h3>Watch Ad & Earn</h3>
     <button onclick="earn()">📺 Watch Ad</button>
