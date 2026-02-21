@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earn Mini App</title>
+
+<!-- 🔥 AD SCRIPT START (Ekhane paste korba) -->
+<script>
+/* Ad company script ekhane paste korba */
+</script>
+<!-- 🔥 AD SCRIPT END -->
+
+<style>
+body{
+    font-family: Arial;
+    text-align:center;
+    background:#0f172a;
+    color:white;
+}
+.card{
+    background:#1e293b;
+    padding:20px;
+    margin:20px;
+    border-radius:15px;
+}
+button{
+    padding:12px 20px;
+    border:none;
+    border-radius:10px;
+    background:#22c55e;
+    color:white;
+    font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>💰 Earn Money App</h2>
+
+<div class="card">
+    <h3>Balance: <span id="balance">0</span> ৳</h3>
+</div>
+
+<div class="card">
+    <h3>Watch Ad & Earn</h3>
+    <button onclick="earn()">📺 Watch Ad</button>
+</div>
+
+<script>
+let balance = 0;
+
+function earn(){
+    balance += 0.20;
+    document.getElementById("balance").innerText = balance.toFixed(2);
+    alert("Ad watched! 0.20৳ added.");
+}
+</script>
+
+</body>
+</html>
