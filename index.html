@@ -1,71 +1,881 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <script src='//libtl.com/sdk.js' data-zone='10636717' data-sdk='show_10636717'></script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Earn Mini App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EarnX</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<!-- 🔥 AD SCRIPT START (Ekhane paste korba) -->
-<script>
-/* Ad company script ekhane paste korba */
-</script>
-<!-- 🔥 AD SCRIPT END -->
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <style>
-body{
-    font-family: Arial;
-    text-align:center;
-    background:#0f172a;
-    color:white;
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg:#07080d; --bg2:#0f111a; --bg3:#171a26; --card:#111420;
+  --border:rgba(255,255,255,0.07); --accent:#7c6ffd;
+  --accent-soft:rgba(124,111,253,0.12);
+  --green:#00e096; --green-soft:rgba(0,224,150,0.12);
+  --yellow:#ffc84a; --yellow-soft:rgba(255,200,74,0.12);
+  --red:#ff5f5f; --red-soft:rgba(255,95,95,0.12);
+  --text:#e2e4ef; --muted:#5a6280; --r:16px;
 }
-.card{
-    background:#1e293b;
-    padding:20px;
-    margin:20px;
-    border-radius:15px;
-}
-button{
-    padding:12px 20px;
-    border:none;
-    border-radius:10px;
-    background:#22c55e;
-    color:white;
-    font-size:16px;
-}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;padding-bottom:90px}
+::-webkit-scrollbar{display:none}
+
+/* ── LOADING SCREEN ── */
+#loadScreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.load-logo{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.load-sub{font-size:13px;color:var(--muted)}
+.load-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,12,18,0.97);backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;z-index:100;padding:10px 0 16px}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:2px 0;position:relative}
+.ni-ic{font-size:22px;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.ni-lb{font-size:10px;font-weight:500;color:var(--muted);transition:color .2s}
+.ni.active .ni-lb{color:var(--accent)}
+.ni.active .ni-ic{transform:translateY(-3px)}
+.ni-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:0;transition:opacity .2s;margin-top:-3px}
+.ni.active .ni-dot{opacity:1}
+
+/* ── PAGES ── */
+.page{display:none;padding:0 16px;animation:fadein .28s ease}
+.page.active{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.pg-top{padding:20px 0 10px;display:flex;align-items:center;justify-content:space-between}
+.pg-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(120deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ── PROFILE ── */
+.prof-row{display:flex;align-items:center;gap:14px;padding:22px 0 16px}
+.ava{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#b06bff);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800;font-family:'Syne',sans-serif;color:#fff;flex-shrink:0;overflow:hidden;border:2px solid rgba(124,111,253,.3)}
+.ava img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.pname{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:#fff}
+.pid{font-size:11px;color:var(--muted);margin-top:3px;font-family:monospace}
+
+/* ── BALANCE CARD ── */
+.bal-card{background:linear-gradient(140deg,#100e30,#1c1060 55%,#2e1285);border-radius:22px;padding:22px 20px;margin-bottom:13px;position:relative;overflow:hidden;border:1px solid rgba(124,111,253,.25)}
+.bal-card::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(124,111,253,.2),transparent 70%)}
+.bal-card::after{content:'';position:absolute;bottom:-60px;left:-20px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(176,107,255,.12),transparent 70%)}
+.bal-lbl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;font-weight:600}
+.bal-amt{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:#fff;line-height:1.1;margin:8px 0 4px;position:relative;z-index:1}
+.bal-cur{font-size:15px;font-weight:400;color:rgba(255,255,255,.45)}
+.bal-row{display:flex;gap:10px;margin-top:16px;position:relative;z-index:1}
+.bal-s{flex:1;background:rgba(255,255,255,.08);border-radius:12px;padding:10px;text-align:center}
+.bal-sv{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff}
+.bal-sl{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px}
+
+/* ── ADS CARD ── */
+.ads-card{background:linear-gradient(135deg,#0d1220,#131b2e);border-radius:20px;padding:18px;margin-bottom:13px;border:1px solid rgba(255,200,74,.15)}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff}
+.chip{border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700}
+.chip-yellow{background:var(--yellow-soft);color:var(--yellow);border:1px solid rgba(255,200,74,.25)}
+.chip-green{background:var(--green-soft);color:var(--green);border:1px solid rgba(0,224,150,.25)}
+.chip-accent{background:var(--accent-soft);color:var(--accent);border:1px solid rgba(124,111,253,.25)}
+
+.ad-item{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.04);border-radius:13px;padding:12px;margin-bottom:8px;cursor:pointer;transition:background .18s;border:1px solid transparent}
+.ad-item:last-child{margin-bottom:0}
+.ad-item:active{background:rgba(255,255,255,.08)}
+.ad-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ad-info{flex:1;min-width:0}
+.ad-nm{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ad-ds{font-size:11px;color:var(--muted);margin-top:2px}
+.ad-rw{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--yellow);white-space:nowrap}
+.watch-btn{background:linear-gradient(135deg,var(--accent),#b06bff);color:#fff;border:none;border-radius:9px;padding:8px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:transform .15s;flex-shrink:0}
+.watch-btn:active{transform:scale(.93)}
+
+/* ── TASKS ── */
+.sec-title2{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+.task-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all .18s}
+.task-item:active{transform:scale(.98)}
+.task-item.done{opacity:.5;pointer-events:none}
+.task-ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.task-info{flex:1;min-width:0}
+.task-nm{font-size:13px;font-weight:600;color:#fff}
+.task-ds{font-size:11px;color:var(--muted);margin-top:2px}
+.task-rw{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--green);white-space:nowrap}
+.task-btn{background:var(--green-soft);color:var(--green);border:1px solid rgba(0,224,150,.25);border-radius:8px;padding:6px 13px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px}
+.task-done-ic{width:28px;height:28px;border-radius:50%;background:var(--green-soft);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--green);flex-shrink:0}
+
+/* ── SUPPORT ── */
+.video-card{background:#000;border-radius:20px;overflow:hidden;margin-bottom:14px;border:1px solid var(--border)}
+.video-ph{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a1a,#141428);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;position:relative;overflow:hidden}
+.video-ph iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.play-ic{width:62px;height:62px;border-radius:50%;background:rgba(124,111,253,.75);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,.2);transition:transform .2s;z-index:2}
+.play-ic:active{transform:scale(.92)}
+.play-lbl{font-size:13px;color:rgba(255,255,255,.5);z-index:2}
+.video-bar{padding:12px 16px;background:var(--bg2)}
+.video-bar-t{font-size:13px;font-weight:600;color:#fff}
+
+.sup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.sup-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;cursor:pointer;transition:all .2s;text-decoration:none}
+.sup-card:active{transform:scale(.96);background:var(--bg3)}
+.sup-ic{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.sup-t{font-size:13px;font-weight:600;color:#fff}
+.sup-d{font-size:11px;color:var(--muted)}
+
+/* ── REFERRAL ── */
+.ref-hero{background:linear-gradient(135deg,#0d1117,#1a1f35);border:1px solid rgba(124,111,253,.2);border-radius:20px;padding:24px 20px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden}
+.ref-hero::before{content:'👥';position:absolute;font-size:110px;opacity:.04;top:-10px;right:-20px}
+.ref-emo{font-size:40px;margin-bottom:8px}
+.ref-ht{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;margin-bottom:5px}
+.ref-hs{font-size:12px;color:var(--muted)}
+.ref-stats{display:flex;gap:10px;margin-top:18px}
+.ref-stat{flex:1;background:var(--accent-soft);border:1px solid rgba(124,111,253,.2);border-radius:12px;padding:12px;text-align:center}
+.ref-sv{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent)}
+.ref-sl{font-size:11px;color:var(--muted);margin-top:3px}
+
+.ref-link-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px}
+.form-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px;display:block}
+.ref-box{display:flex;gap:8px;align-items:center}
+.ref-txt{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--accent);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copy-btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;flex-shrink:0}
+.copy-btn:active{transform:scale(.94);opacity:.85}
+.share-btn{width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;transition:all .2s}
+.share-btn:active{transform:scale(.98)}
+
+.ref-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.ref-item:last-child{border-bottom:none}
+.ref-ava{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#b06bff);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.ref-uname{font-size:13px;font-weight:600;color:#fff}
+.ref-udate{font-size:11px;color:var(--muted);margin-top:2px}
+.ref-earn{font-size:13px;font-weight:700;color:var(--green);margin-left:auto;white-space:nowrap}
+
+/* ── WALLET ── */
+.wallet-bal{background:linear-gradient(135deg,#0d1117,#0a1f18);border:1px solid rgba(0,224,150,.2);border-radius:20px;padding:22px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden}
+.wallet-bal::before{content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,224,150,.07),transparent 70%)}
+.wbal-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-weight:600}
+.wbal-amt{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;color:var(--green);margin:8px 0 4px;line-height:1;position:relative;z-index:1}
+.wbal-sub{font-size:13px;color:var(--muted)}
+
+.wd-form{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px}
+.form-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.fg{margin-bottom:14px}
+.sel-wrap{position:relative}
+select.finput,input.finput{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-size:14px;color:#fff;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none}
+select.finput:focus,input.finput:focus{border-color:rgba(124,111,253,.5)}
+select.finput option{background:#1a1d26}
+.sel-arr{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:12px}
+.wd-btn{width:100%;background:linear-gradient(135deg,var(--green),#00b377);color:#fff;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;transition:all .2s;margin-top:4px}
+.wd-btn:active{transform:scale(.98)}
+.wd-btn:disabled{opacity:.5;pointer-events:none}
+
+/* History */
+.hist-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:9px}
+.hist-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.hist-wallet{display:flex;align-items:center;gap:8px}
+.hist-wic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.hist-wn{font-size:13px;font-weight:600;color:#fff}
+.hist-amt{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff}
+.hist-btm{display:flex;align-items:center;justify-content:space-between}
+.hist-acc{font-size:11px;color:var(--muted);font-family:monospace}
+.sbadge{border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700}
+.s-pending{background:var(--yellow-soft);color:var(--yellow);border:1px solid rgba(255,200,74,.25)}
+.s-approved{background:var(--green-soft);color:var(--green);border:1px solid rgba(0,224,150,.25)}
+.s-rejected{background:var(--red-soft);color:var(--red);border:1px solid rgba(255,95,95,.25)}
+.hist-time{font-size:11px;color:var(--muted);margin-top:6px}
+.rej-reason{background:var(--red-soft);border:1px solid rgba(255,95,95,.2);border-radius:8px;padding:8px 10px;font-size:11.5px;color:var(--red);margin-top:8px;display:flex;gap:6px}
+
+/* Modal */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:flex-end;justify-content:center;padding:0}
+.modal-ov.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;padding:28px 20px 36px;width:100%;max-width:480px;animation:slideUp .32s cubic-bezier(.34,1.2,.64,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-drag{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;text-align:center;margin-bottom:6px}
+.modal-rw{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:var(--yellow);text-align:center}
+.modal-rl{font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px}
+.prog-bar{background:var(--bg3);border-radius:10px;height:8px;overflow:hidden;margin:16px 0}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#b06bff);border-radius:10px;transition:width 1s linear;width:0%}
+.modal-timer{font-size:13px;color:var(--muted);text-align:center}
+.modal-claim{width:100%;background:linear-gradient(135deg,var(--yellow),#ff9f2a);color:#000;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;margin-top:16px;opacity:0;transition:opacity .4s;pointer-events:none}
+.modal-claim.vis{opacity:1;pointer-events:all}
+
+/* Toast */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(20,24,38,.97);border:1px solid rgba(124,111,253,.3);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:999;transition:transform .3s cubic-bezier(.34,1.4,.64,1);backdrop-filter:blur(20px);white-space:nowrap;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Empty */
+.empty{text-align:center;padding:28px 20px;color:var(--muted);font-size:13px}
+.empty-ic{font-size:36px;margin-bottom:8px}
 </style>
 </head>
-
 <body>
 
-<h2>💰 Earn Money App</h2>
-
-<div class="card">
-    <h3>Balance: <span id="balance">0</span> ৳</h3>
-</div>
-// Rewarded Popup
-
-show_10636717('pop').then(() => {
-    // user watch ad till the end or close it in interstitial format
-    // your code to reward user for rewarded format
-}).catch(e => {
-    // user get error during playing ad
-    // do nothing or whatever you want
-})
-<div class="card">
-    <h3>Watch Ad & Earn</h3>
-    <button onclick="earn()">📺 Watch Ad</button>
+<!-- Loading -->
+<div id="loadScreen">
+  <div class="load-logo">EarnX</div>
+  <div class="load-sub">Loading your account...</div>
+  <div class="load-spinner"></div>
 </div>
 
+<!-- ══════════ HOME ══════════ -->
+<div class="page active" id="page-home">
+  <div class="prof-row">
+    <div class="ava" id="userAva">U</div>
+    <div style="flex:1">
+      <div class="pname" id="userName">—</div>
+      <div class="pid" id="userId">ID: —</div>
+    </div>
+    <div class="chip chip-accent">⭐ Active</div>
+  </div>
+
+  <!-- Balance Card -->
+  <div class="bal-card">
+    <div class="bal-lbl">Total Balance</div>
+    <div class="bal-amt" id="homeBalance">0 <span class="bal-cur">Coins</span></div>
+    <div class="bal-row">
+      <div class="bal-s"><div class="bal-sv" id="statEarned">0</div><div class="bal-sl">Earned</div></div>
+      <div class="bal-s"><div class="bal-sv" id="statWithdrawn">0</div><div class="bal-sl">Withdrawn</div></div>
+      <div class="bal-s"><div class="bal-sv" id="statRefs">0</div><div class="bal-sl">Referrals</div></div>
+    </div>
+  </div>
+
+  <!-- Ads -->
+  <div class="ads-card">
+    <div class="sec-hd">
+      <div class="sec-title">📺 Watch & Earn</div>
+      <div class="chip chip-yellow">Earn Coins</div>
+    </div>
+    <div id="adsList"><div class="empty"><div class="empty-ic">📭</div>No ads available</div></div>
+  </div>
+
+  <!-- Tasks -->
+  <div class="sec-title2">⚡ Tasks</div>
+  <div id="tasksList"><div class="empty"><div class="empty-ic">📋</div>No tasks yet</div></div>
+</div>
+
+<!-- ══════════ SUPPORT ══════════ -->
+<div class="page" id="page-support">
+  <div class="pg-top"><div class="pg-title">Support</div></div>
+
+  <div class="video-card" id="videoCard">
+    <div class="video-ph" id="videoPh">
+      <div class="play-ic">▶</div>
+      <div class="play-lbl">Tutorial Video</div>
+    </div>
+    <div class="video-bar"><div class="video-bar-t" id="videoTitle">How to use EarnX</div></div>
+  </div>
+
+  <div class="sec-title2">🛟 Get Help</div>
+  <div class="sup-grid" id="supGrid"><div class="empty" style="grid-column:span 2">Loading...</div></div>
+</div>
+
+<!-- ══════════ REFERRAL ══════════ -->
+<div class="page" id="page-referral">
+  <div class="pg-top"><div class="pg-title">Referral</div></div>
+
+  <div class="ref-hero">
+    <div class="ref-emo">🤝</div>
+    <div class="ref-ht">Invite & Earn Together</div>
+    <div class="ref-hs">Earn <span id="refBonusLbl" style="color:var(--accent);font-weight:700">100</span> coins per friend you invite</div>
+    <div class="ref-stats">
+      <div class="ref-stat"><div class="ref-sv" id="refTotal">0</div><div class="ref-sl">Total Refs</div></div>
+      <div class="ref-stat"><div class="ref-sv" id="refCoins">0</div><div class="ref-sl">Coins Earned</div></div>
+      <div class="ref-stat"><div class="ref-sv" id="refActive">0</div><div class="ref-sl">Active</div></div>
+    </div>
+  </div>
+
+  <div class="ref-link-card">
+    <span class="form-lbl">Your Referral Link</span>
+    <div class="ref-box">
+      <div class="ref-txt" id="refLink">Loading...</div>
+      <button class="copy-btn" onclick="copyRef()">Copy</button>
+    </div>
+    <button class="share-btn" onclick="shareRef()">📤 Share on Telegram</button>
+  </div>
+
+  <div class="sec-title2">👥 Your Referrals</div>
+  <div class="card" id="refListWrap" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:4px 16px">
+    <div id="refList"><div class="empty"><div class="empty-ic">👤</div>No referrals yet</div></div>
+  </div>
+</div>
+
+<!-- ══════════ WALLET ══════════ -->
+<div class="page" id="page-wallet">
+  <div class="pg-top"><div class="pg-title">Wallet</div></div>
+
+  <div class="wallet-bal">
+    <div class="wbal-lbl">Available Balance</div>
+    <div class="wbal-amt" id="walletBal">0</div>
+    <div class="wbal-sub">Coins</div>
+  </div>
+
+  <div class="wd-form">
+    <div class="form-title">💸 Withdraw Request</div>
+    <div class="fg">
+      <span class="form-lbl">Select Wallet</span>
+      <div class="sel-wrap">
+        <select class="finput" id="wdWallet">
+          <option value="">— Choose Payment Method —</option>
+          <option value="bkash">📱 bKash</option>
+          <option value="nagad">💚 Nagad</option>
+          <option value="rocket">🚀 Rocket</option>
+          <option value="binance">🟡 Binance (USDT TRC20)</option>
+          <option value="crypto">₿ Crypto Wallet</option>
+        </select>
+        <span class="sel-arr">▾</span>
+      </div>
+    </div>
+    <div class="fg">
+      <span class="form-lbl">Account / Wallet Number</span>
+      <input class="finput" type="text" id="wdAccount" placeholder="Enter your number..." />
+    </div>
+    <div class="fg">
+      <span class="form-lbl">Amount (Coins)</span>
+      <input class="finput" type="number" id="wdAmount" placeholder="Minimum shown below..." />
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Minimum: <span id="minWdLbl" style="color:var(--yellow)">500</span> Coins</div>
+    </div>
+    <button class="wd-btn" id="wdBtn" onclick="submitWithdraw()">Withdraw Now →</button>
+  </div>
+
+  <div class="sec-title2">📋 Withdraw History</div>
+  <div id="wdHistory"><div class="empty"><div class="empty-ic">📭</div>No withdrawals yet</div></div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bnav">
+  <div class="ni active" onclick="showPage('home',this)"><div class="ni-ic">🏠</div><div class="ni-lb">Home</div><div class="ni-dot"></div></div>
+  <div class="ni" onclick="showPage('support',this)"><div class="ni-ic">🛟</div><div class="ni-lb">Support</div><div class="ni-dot"></div></div>
+  <div class="ni" onclick="showPage('referral',this)"><div class="ni-ic">🤝</div><div class="ni-lb">Referral</div><div class="ni-dot"></div></div>
+  <div class="ni" onclick="showPage('wallet',this)"><div class="ni-ic">💰</div><div class="ni-lb">Wallet</div><div class="ni-dot"></div></div>
+</nav>
+
+<!-- Ad Watch Modal -->
+<div class="modal-ov" id="adModal">
+  <div class="modal">
+    <div class="modal-drag"></div>
+    <div class="modal-title" id="mAdTitle">Watching Ad...</div>
+    <div class="modal-rw" id="mAdRw">+50</div>
+    <div class="modal-rl">Coins reward</div>
+    <div class="modal-timer" id="mTimer">Please wait...</div>
+    <div class="prog-bar"><div class="prog-fill" id="mProg"></div></div>
+    <button class="modal-claim" id="mClaim" onclick="claimAd()">🎉 Claim Coins!</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════ -->
 <script>
-let balance = 0;
+// ══════════════════════════════════════════
+// FIREBASE CONFIG — REPLACE WITH YOURS
+// ══════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyCS9W1gnMSaIV2KjH1QMBTLgTt-ew0mnTo",
+  authDomain: "zomato-platform.firebaseapp.com",
+  databaseURL: "https://zomato-platform-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "zomato-platform",
+  storageBucket: "zomato-platform.firebasestorage.app",
+  messagingSenderId: "183991686104",
+  appId: "1:183991686104:web:247a3edcd71a1148f418ad"
+};
 
-function earn(){
-    balance += 0.20;
-    document.getElementById("balance").innerText = balance.toFixed(2);
-    alert("Ad watched! 0.20৳ added.");
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ══════════════════════════════════════════
+// APP STATE
+// ══════════════════════════════════════════
+let APP = {
+  userId: null,
+  userName: null,
+  userPhoto: null,
+  balance: 0,
+  totalEarned: 0,
+  totalWithdrawn: 0,
+  referralCode: null,
+  referrals: [],
+  completedTasks: [],
+  watchedAds: [],
+  settings: {
+    referralBonus: 100,
+    minWithdraw: 500,
+    welcomeBonus: 50,
+    ads: [],
+    tasks: [],
+    supportCards: [],
+    video: { url: '', title: 'How to use EarnX' }
+  }
+};
+
+let currentAd = null;
+let adTimer = null;
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  const tg = window.Telegram?.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  const user = tg?.initDataUnsafe?.user;
+  if (user) {
+    APP.userId = String(user.id);
+    APP.userName = [user.first_name, user.last_name].filter(Boolean).join(' ');
+    APP.userPhoto = user.photo_url || null;
+  } else {
+    // Demo mode fallback
+    APP.userId = 'demo_001';
+    APP.userName = 'Demo User';
+    APP.userPhoto = null;
+  }
+  APP.referralCode = APP.userId;
+
+  // Check for referral param (from bot deeplink ?start=USERID)
+  const startParam = tg?.initDataUnsafe?.start_param;
+
+  try {
+    // Load settings realtime
+    db.ref('settings').on('value', snap => {
+      const s = snap.val() || {};
+      APP.settings = { ...APP.settings, ...s };
+      renderAds();
+      renderTasks();
+      renderSupportCards();
+      renderVideo();
+      document.getElementById('refBonusLbl').textContent = APP.settings.referralBonus;
+      document.getElementById('minWdLbl').textContent = APP.settings.minWithdraw;
+    });
+
+    // Load or create user
+    const userRef = db.ref('users/' + APP.userId);
+    const snap = await userRef.get();
+
+    if (!snap.exists()) {
+      // New user — create account
+      const newUser = {
+        userId: APP.userId,
+        userName: APP.userName,
+        balance: APP.settings.welcomeBonus || 50,
+        totalEarned: APP.settings.welcomeBonus || 50,
+        totalWithdrawn: 0,
+        referredBy: startParam || null,
+        referrals: [],
+        completedTasks: [],
+        watchedAds: [],
+        joinedAt: new Date().toISOString()
+      };
+      await userRef.set(newUser);
+
+      // Give referral bonus to referrer
+      if (startParam && startParam !== APP.userId) {
+        const refBonus = APP.settings.referralBonus || 100;
+        const refRef = db.ref('users/' + startParam);
+        const refSnap = await refRef.get();
+        if (refSnap.exists()) {
+          const refData = refSnap.val();
+          const newRefs = [...(refData.referrals || []), { userId: APP.userId, name: APP.userName, date: new Date().toISOString() }];
+          await refRef.update({
+            balance: (refData.balance || 0) + refBonus,
+            totalEarned: (refData.totalEarned || 0) + refBonus,
+            referrals: newRefs
+          });
+        }
+      }
+    }
+
+    // Listen to user data realtime
+    userRef.on('value', snap => {
+      const d = snap.val();
+      if (!d) return;
+      APP.balance = d.balance || 0;
+      APP.totalEarned = d.totalEarned || 0;
+      APP.totalWithdrawn = d.totalWithdrawn || 0;
+      APP.referrals = d.referrals || [];
+      APP.completedTasks = d.completedTasks || [];
+      APP.watchedAds = d.watchedAds || [];
+      updateUI();
+    });
+
+    // Listen to withdraw history realtime
+    db.ref('withdrawals').orderByChild('userId').equalTo(APP.userId).on('value', snap => {
+      const items = [];
+      snap.forEach(c => items.push({ id: c.key, ...c.val() }));
+      items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      renderWithdrawHistory(items);
+    });
+
+  } catch (err) {
+    console.error(err);
+    showToast('⚠️ Firebase connection error');
+  }
+
+  // UI init
+  updateProfileUI();
+  document.getElementById('refLink').textContent = `https://t.me/YourBotUsername?start=${APP.referralCode}`;
+  document.getElementById('loadScreen').style.display = 'none';
+});
+
+// ══════════════════════════════════════════
+// UI UPDATE
+// ══════════════════════════════════════════
+function updateProfileUI() {
+  document.getElementById('userName').textContent = APP.userName;
+  document.getElementById('userId').textContent = 'ID: ' + APP.userId;
+  const av = document.getElementById('userAva');
+  if (APP.userPhoto) {
+    av.innerHTML = `<img src="${APP.userPhoto}" alt="avatar">`;
+  } else {
+    av.textContent = APP.userName.charAt(0).toUpperCase();
+  }
 }
-</script>
 
+function updateUI() {
+  document.getElementById('homeBalance').innerHTML = `${APP.balance.toLocaleString()} <span class="bal-cur">Coins</span>`;
+  document.getElementById('statEarned').textContent = APP.totalEarned.toLocaleString();
+  document.getElementById('statWithdrawn').textContent = APP.totalWithdrawn.toLocaleString();
+  document.getElementById('statRefs').textContent = APP.referrals.length;
+  document.getElementById('walletBal').textContent = APP.balance.toLocaleString();
+  document.getElementById('refTotal').textContent = APP.referrals.length;
+  document.getElementById('refCoins').textContent = (APP.referrals.length * (APP.settings.referralBonus || 100)).toLocaleString();
+  document.getElementById('refActive').textContent = APP.referrals.length;
+  renderReferralList();
+  renderTasks(); // re-render to update completed state
+}
+
+// ══════════════════════════════════════════
+// RENDER: ADS
+// ══════════════════════════════════════════
+function renderAds() {
+  const ads = (APP.settings.ads || []).filter(a => a.active !== false);
+  const el = document.getElementById('adsList');
+  if (!ads.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ic">📭</div>No ads available right now</div>`;
+    return;
+  }
+  const today = new Date().toDateString();
+  el.innerHTML = ads.map(ad => {
+    const watched = (APP.watchedAds || []).some(w => w.adId === ad.id && new Date(w.date).toDateString() === today);
+    return `
+    <div class="ad-item" onclick="watchAd('${ad.id}')">
+      <div class="ad-ic" style="background:${ad.bg||'rgba(124,111,253,.15)'}">${ad.icon||'📺'}</div>
+      <div class="ad-info">
+        <div class="ad-nm">${ad.name}</div>
+        <div class="ad-ds">${ad.desc||''} · ${ad.duration||15}s</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <div class="ad-rw">+${ad.reward}</div>
+        ${watched
+          ? `<div class="chip chip-green" style="font-size:10px">✓ Done</div>`
+          : `<button class="watch-btn" onclick="event.stopPropagation();watchAd('${ad.id}')">Watch</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// RENDER: TASKS
+// ══════════════════════════════════════════
+function renderTasks() {
+  const tasks = (APP.settings.tasks || []).filter(t => t.active !== false);
+  const el = document.getElementById('tasksList');
+  if (!tasks.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ic">📋</div>No tasks yet</div>`;
+    return;
+  }
+  el.innerHTML = tasks.map(task => {
+    const done = (APP.completedTasks || []).includes(task.id);
+    return `
+    <div class="task-item ${done ? 'done' : ''}" onclick="${done ? '' : `doTask('${task.id}')`}">
+      <div class="task-ic" style="background:${task.bg||'rgba(0,224,150,.12)'}">${task.icon||'✅'}</div>
+      <div class="task-info">
+        <div class="task-nm">${task.name}</div>
+        <div class="task-ds">${task.desc||''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="task-rw">+${task.reward}</div>
+        ${done
+          ? `<div class="task-done-ic">✓</div>`
+          : `<button class="task-btn" onclick="event.stopPropagation();doTask('${task.id}')">Start</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// RENDER: SUPPORT
+// ══════════════════════════════════════════
+function renderSupportCards() {
+  const cards = APP.settings.supportCards || [];
+  const el = document.getElementById('supGrid');
+  if (!cards.length) {
+    el.innerHTML = `<div class="empty" style="grid-column:span 2">No support links yet</div>`;
+    return;
+  }
+  el.innerHTML = cards.map(c => `
+    <a href="${c.link||'#'}" class="sup-card" target="_blank">
+      <div class="sup-ic" style="background:${c.bg||'var(--accent-soft)'}">${c.icon||'💬'}</div>
+      <div class="sup-t">${c.title}</div>
+      <div class="sup-d">${c.desc||''}</div>
+    </a>`).join('');
+}
+
+function renderVideo() {
+  const v = APP.settings.video || {};
+  document.getElementById('videoTitle').textContent = v.title || 'How to use EarnX';
+  const ph = document.getElementById('videoPh');
+  if (v.url) {
+    let url = v.url;
+    const yt = url.match(/(?:youtu\.be\/|v=)([^&?#\s]+)/);
+    if (yt) url = `https://www.youtube.com/embed/${yt[1]}?rel=0`;
+    ph.innerHTML = `<iframe src="${url}" allow="autoplay;fullscreen" allowfullscreen></iframe>`;
+  }
+}
+
+// ══════════════════════════════════════════
+// RENDER: REFERRAL LIST
+// ══════════════════════════════════════════
+function renderReferralList() {
+  const el = document.getElementById('refList');
+  if (!APP.referrals.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ic">👤</div>No referrals yet. Share your link!</div>`;
+    return;
+  }
+  el.innerHTML = [...APP.referrals].reverse().map(r => `
+    <div class="ref-item">
+      <div class="ref-ava">${(r.name||'?').charAt(0).toUpperCase()}</div>
+      <div>
+        <div class="ref-uname">${r.name}</div>
+        <div class="ref-udate">${timeAgo(r.date)}</div>
+      </div>
+      <div class="ref-earn">+${APP.settings.referralBonus} coins</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// RENDER: WITHDRAW HISTORY
+// ══════════════════════════════════════════
+function renderWithdrawHistory(items) {
+  const el = document.getElementById('wdHistory');
+  if (!items.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ic">📭</div>No withdrawals yet</div>`;
+    return;
+  }
+  const walletMeta = {
+    bkash:   { icon:'📱', bg:'rgba(220,50,120,.15)' },
+    nagad:   { icon:'💚', bg:'rgba(0,130,70,.15)' },
+    rocket:  { icon:'🚀', bg:'rgba(138,0,230,.15)' },
+    binance: { icon:'🟡', bg:'rgba(240,185,11,.15)' },
+    crypto:  { icon:'₿',  bg:'rgba(247,147,26,.15)' }
+  };
+  el.innerHTML = items.map(h => {
+    const m = walletMeta[h.wallet] || { icon:'💰', bg:'rgba(255,255,255,.08)' };
+    const sMap = { pending:'s-pending', approved:'s-approved', rejected:'s-rejected' };
+    const sLbl = { pending:'⏳ Pending', approved:'✓ Approved', rejected:'✗ Rejected' };
+    return `
+    <div class="hist-item">
+      <div class="hist-top">
+        <div class="hist-wallet">
+          <div class="hist-wic" style="background:${m.bg}">${m.icon}</div>
+          <div class="hist-wn">${h.walletLabel||h.wallet}</div>
+        </div>
+        <div class="hist-amt">${Number(h.amount).toLocaleString()} Coins</div>
+      </div>
+      <div class="hist-btm">
+        <div class="hist-acc">${h.account}</div>
+        <div class="sbadge ${sMap[h.status]||'s-pending'}">${sLbl[h.status]||'Pending'}</div>
+      </div>
+      <div class="hist-time">🕐 ${formatDate(h.createdAt)}</div>
+      ${h.status==='rejected'&&h.reason ? `<div class="rej-reason">⚠️ <span>${h.reason}</span></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// ACTIONS: WATCH AD
+// ══════════════════════════════════════════
+function watchAd(adId) {
+  const ad = (APP.settings.ads || []).find(a => a.id === adId);
+  if (!ad) return;
+  const today = new Date().toDateString();
+  const already = (APP.watchedAds || []).some(w => w.adId === adId && new Date(w.date).toDateString() === today);
+  if (already) { showToast('✅ Already watched today!'); return; }
+
+  currentAd = ad;
+  document.getElementById('mAdTitle').textContent = '📺 ' + ad.name;
+  document.getElementById('mAdRw').textContent = '+' + ad.reward;
+  document.getElementById('mProg').style.width = '0%';
+  document.getElementById('mClaim').classList.remove('vis');
+  document.getElementById('adModal').classList.add('open');
+
+  let elapsed = 0;
+  const dur = ad.duration || 15;
+  document.getElementById('mTimer').textContent = `Please wait ${dur}s...`;
+  clearInterval(adTimer);
+  adTimer = setInterval(() => {
+    elapsed++;
+    document.getElementById('mProg').style.width = (elapsed / dur * 100) + '%';
+    const left = dur - elapsed;
+    document.getElementById('mTimer').textContent = left > 0 ? `Please wait ${left}s...` : '✅ Ad complete! Claim your reward';
+    if (elapsed >= dur) {
+      clearInterval(adTimer);
+      document.getElementById('mClaim').classList.add('vis');
+    }
+  }, 1000);
+}
+
+async function claimAd() {
+  clearInterval(adTimer);
+  document.getElementById('adModal').classList.remove('open');
+  if (!currentAd) return;
+
+  const reward = Number(currentAd.reward);
+  const userRef = db.ref('users/' + APP.userId);
+  const snap = await userRef.get();
+  const d = snap.val();
+  const newWatched = [...(d.watchedAds || []), { adId: currentAd.id, date: new Date().toISOString() }];
+  await userRef.update({
+    balance: (d.balance || 0) + reward,
+    totalEarned: (d.totalEarned || 0) + reward,
+    watchedAds: newWatched
+  });
+  showToast(`🎉 +${reward} Coins earned!`);
+  currentAd = null;
+}
+
+// ══════════════════════════════════════════
+// ACTIONS: TASKS
+// ══════════════════════════════════════════
+async function doTask(taskId) {
+  const task = (APP.settings.tasks || []).find(t => t.id === taskId);
+  if (!task) return;
+  if ((APP.completedTasks || []).includes(taskId)) return;
+
+  if (task.link) {
+    window.open(task.link, '_blank');
+    await new Promise(r => setTimeout(r, 1800));
+  }
+
+  const reward = Number(task.reward);
+  const userRef = db.ref('users/' + APP.userId);
+  const snap = await userRef.get();
+  const d = snap.val();
+  await userRef.update({
+    balance: (d.balance || 0) + reward,
+    totalEarned: (d.totalEarned || 0) + reward,
+    completedTasks: [...(d.completedTasks || []), taskId]
+  });
+  showToast(`✅ +${reward} Coins earned!`);
+}
+
+// ══════════════════════════════════════════
+// ACTIONS: REFERRAL
+// ══════════════════════════════════════════
+function copyRef() {
+  const link = document.getElementById('refLink').textContent;
+  navigator.clipboard?.writeText(link).catch(() => {});
+  showToast('📋 Referral link copied!');
+}
+
+function shareRef() {
+  const link = document.getElementById('refLink').textContent;
+  const tg = window.Telegram?.WebApp;
+  const text = encodeURIComponent('🚀 Join EarnX & earn coins daily!\nUse my referral link:');
+  const url = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
+  if (tg) tg.openTelegramLink(url);
+  else window.open(url, '_blank');
+}
+
+// ══════════════════════════════════════════
+// ACTIONS: WITHDRAW
+// ══════════════════════════════════════════
+async function submitWithdraw() {
+  const wallet = document.getElementById('wdWallet').value;
+  const account = document.getElementById('wdAccount').value.trim();
+  const amount = parseInt(document.getElementById('wdAmount').value);
+  const minWd = APP.settings.minWithdraw || 500;
+
+  if (!wallet) return showToast('⚠️ Select a payment method');
+  if (!account) return showToast('⚠️ Enter account number');
+  if (!amount || amount < minWd) return showToast(`⚠️ Minimum ${minWd} coins`);
+  if (amount > APP.balance) return showToast('⚠️ Insufficient balance');
+
+  const btn = document.getElementById('wdBtn');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  const walletLabels = { bkash:'bKash', nagad:'Nagad', rocket:'Rocket', binance:'Binance (USDT)', crypto:'Crypto' };
+
+  try {
+    // Deduct balance first
+    await db.ref('users/' + APP.userId).update({
+      balance: APP.balance - amount,
+      totalWithdrawn: APP.totalWithdrawn + amount
+    });
+
+    // Create withdrawal record
+    const wdRef = db.ref('withdrawals').push();
+    await wdRef.set({
+      userId: APP.userId,
+      userName: APP.userName,
+      wallet,
+      walletLabel: walletLabels[wallet] || wallet,
+      account,
+      amount,
+      status: 'pending',
+      reason: '',
+      createdAt: new Date().toISOString()
+    });
+
+    // Reset form
+    document.getElementById('wdWallet').value = '';
+    document.getElementById('wdAccount').value = '';
+    document.getElementById('wdAmount').value = '';
+    showToast('✅ Withdraw request submitted!');
+  } catch (e) {
+    showToast('❌ Error: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Withdraw Now →';
+}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+function showPage(p, el) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  el.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('en-BD', { dateStyle:'medium', timeStyle:'short' });
+}
+
+// Close ad modal on backdrop click
+document.getElementById('adModal').addEventListener('click', function(e) {
+  if (e.target === this) { clearInterval(adTimer); this.classList.remove('open'); }
+});
+</script>
 </body>
 </html>
