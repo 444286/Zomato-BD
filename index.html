@@ -702,34 +702,58 @@ function playSlot() {
 
 function playAdsgram(net) {
   if (!net.blockId) { onSlotSkip(); return; }
+  // Guard: prevent double advance
+  const guardIdx = CS.idx;
+  let called = false;
+  const advance = (ok) => {
+    if (called || CS.idx !== guardIdx) return;
+    called = true;
+    ok ? onSlotDone() : onSlotSkip();
+  };
   try {
     const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
-    if (!ctrl) { onSlotSkip(); return; }
+    if (!ctrl) { advance(false); return; }
     ctrl.show()
-      .then(r => { r.done ? onSlotDone() : onSlotSkip(); })
-      .catch(() => onSlotSkip());
-  } catch(e) { onSlotSkip(); }
+      .then(r => advance(r.done))
+      .catch(() => advance(false));
+  } catch(e) { advance(false); }
 }
 
 function playMonetag(net) {
   if (!net.zoneId) { onSlotSkip(); return; }
+  // Guard: prevent multiple calls from onload + setTimeout
+  const guardIdx = CS.idx;
+  let called = false;
+  const advance = (ok) => {
+    if (called || CS.idx !== guardIdx) return;
+    called = true;
+    ok ? onSlotDone() : onSlotSkip();
+  };
   try {
     const sc = document.createElement('script');
     sc.src = `https://oplowerq.com/401/${net.zoneId}/invoke.js`;
     sc.async = true; sc.setAttribute('data-cfasync','false');
-    sc.onload = () => setTimeout(onSlotDone, 1500);
-    sc.onerror = () => onSlotSkip();
+    sc.onload = () => setTimeout(() => advance(true), 1500);
+    sc.onerror = () => advance(false);
     document.body.appendChild(sc);
-    setTimeout(() => { if (CS.active && CS.idx === (CS.total - (CS.total - CS.idx))) onSlotDone(); }, 5000);
-  } catch(e) { onSlotSkip(); }
+    setTimeout(() => advance(true), 5000); // fallback
+  } catch(e) { advance(false); }
 }
 
 function playAdsterra(net) {
   if (!net.link && !net.script) { onSlotSkip(); return; }
+  // Guard: prevent double advance
+  const guardIdx = CS.idx;
+  let called = false;
+  const advance = (ok) => {
+    if (called || CS.idx !== guardIdx) return;
+    called = true;
+    ok ? onSlotDone() : onSlotSkip();
+  };
   try {
     if (net.link) {
       window.open(net.link, '_blank', 'noopener');
-      setTimeout(onSlotDone, 3000);
+      setTimeout(() => advance(true), 3000);
     } else {
       const div = document.createElement('div');
       div.innerHTML = net.script;
@@ -738,13 +762,15 @@ function playAdsterra(net) {
         const ns = document.createElement('script');
         if (sc.src) ns.src = sc.src; else ns.textContent = sc.textContent;
         document.body.appendChild(ns);
-        setTimeout(onSlotDone, 3500);
-      } else onSlotSkip();
+        setTimeout(() => advance(true), 3500);
+      } else advance(false);
     }
-  } catch(e) { onSlotSkip(); }
+  } catch(e) { advance(false); }
 }
 
+// Guard in onSlotDone/Skip — prevent double increment
 function onSlotDone() {
+  if (!CS.active) return;
   const el = document.getElementById('as_'+CS.idx);
   if (el) el.className = 'adov-s done';
   document.getElementById('adovStatus').textContent = `Ad ${CS.idx+1} complete ✅`;
@@ -753,6 +779,7 @@ function onSlotDone() {
 }
 
 function onSlotSkip() {
+  if (!CS.active) return;
   const el = document.getElementById('as_'+CS.idx);
   if (el) el.className = 'adov-s skip';
   CS.idx++;
@@ -763,7 +790,11 @@ function onSlotSkip() {
 // AUTO COMPLETE — no claim button
 // ════════════════════════════════════
 async function chainAllDone() {
+  // Prevent double execution
+  if (CS.done) return;
   CS.done = true;
+  CS.active = false; // stop any pending slot calls
+
   document.getElementById('adovStepLbl').textContent = 'Done!';
   document.getElementById('adovNetName').textContent = '';
   document.getElementById('adovStatus').textContent = '';
@@ -772,7 +803,7 @@ async function chainAllDone() {
   });
 
   if (CS.type === 'watch') {
-    // AUTO add balance — no button needed
+    // AUTO add balance — ONCE — no button needed
     const reward = CS.reward;
     const cooldownSec = APP.settings.watchChain?.cooldownSec || 30;
     const newCooldownEnd = Date.now() + (cooldownSec * 1000);
@@ -780,11 +811,16 @@ async function chainAllDone() {
     try {
       const snap = await db.ref('users/' + APP.userId).get();
       const d = snap.val();
-      const nw = [...(d.watchedAds||[]), { date: new Date().toISOString(), reward, type: 'watch_chain' }];
+      // Single entry for the entire watch session (not per ad)
+      const nw = [...(d.watchedAds||[]), {
+        date: new Date().toISOString(),
+        reward,          // total session reward only
+        type: 'watch_chain'
+      }];
       await db.ref('users/' + APP.userId).update({
-        balance: (d.balance||0) + reward,
-        totalEarned: (d.totalEarned||0) + reward,
-        watchedAds: nw,
+        balance: (d.balance||0) + reward,       // add once
+        totalEarned: (d.totalEarned||0) + reward, // add once
+        watchedAds: nw,                          // 1 entry per session
         cooldownEndTime: newCooldownEnd
       });
       cooldownEndTime = newCooldownEnd;
