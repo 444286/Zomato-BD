@@ -236,8 +236,8 @@ select.fi option{background:#1a1d26}
 <!-- BLOCKED SCREEN -->
 <div id="blockedScreen">
   <div class="blocked-ic">🚫</div>
-  <div class="blocked-title">অ্যাকাউন্ট ব্লক করা হয়েছে</div>
-  <div class="blocked-sub">আপনার অ্যাকাউন্ট সাময়িকভাবে স্থগিত করা হয়েছে।<br>সহায়তার জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।</div>
+  <div class="blocked-title">No internet connection...</div>
+  <div class="blocked-sub">দয়া করে ইন্টারনেট কানেকশন চেক করুন</div>
 </div>
 
 <div id="ls"><div class="ll">EarnX</div><div class="lsub">লোড হচ্ছে...</div><div class="lsp"></div></div>
@@ -283,11 +283,11 @@ select.fi option{background:#1a1d26}
     </div>
     <div class="wcinfo">
       <div class="wcstat"><div class="wcsv" id="wcAds">0</div><div class="wcsl">প্রতি সেশনে</div></div>
-      <div class="wcstat"><div class="wcsv" id="wcToday">0</div><div class="wcsl">আজ দেখেছি</div></div>
-      <div class="wcstat"><div class="wcsv" id="wcLimit">5</div><div class="wcsl">দৈনিক সীমা</div></div>
+      <div class="wcstat"><div class="wcsv" id="wcToday">0</div><div class="wcsl">Today watched</div></div>
+      <div class="wcstat"><div class="wcsv" id="wcLimit">5</div><div class="wcsl">Daily limit</div></div>
     </div>
 
-    <button class="bigbtn watchbtn" id="watchBtn" onclick="startChain('watch')">▶ বিজ্ঞাপন দেখুন ও আয় করুন</button>
+    <button class="bigbtn watchbtn" id="watchBtn" onclick="startChain('watch')">▶ বিজ্ঞাপন দেখুন</button>
 
     <!-- Cooldown bar -->
     <div class="cooldown-bar-wrap" id="cooldownBarWrap">
@@ -296,7 +296,7 @@ select.fi option{background:#1a1d26}
 
     <!-- Daily limit progress -->
     <div class="limit-info">
-      <span class="limit-txt">আজকের অগ্রগতি</span>
+      <span class="limit-txt">Today Ads</span>
       <span class="limit-val" id="limitProgress">0 / 5</span>
     </div>
   </div>
@@ -344,19 +344,19 @@ select.fi option{background:#1a1d26}
 <div class="page" id="page-wallet">
   <div class="pgt"><div class="pgtitle">ওয়ালেট</div></div>
   <div class="wbal">
-    <div class="wbl">উপলব্ধ ব্যালেন্স</div>
+    <div class="wbl">Total Balance</div>
     <div class="wba-wrap">
       <div class="wba" id="wdBal">0.00</div>
       <div class="wba-taka">টাকা</div>
     </div>
-    <div class="wbs">উত্তোলনযোগ্য</div>
+    <div class="wbs">Withdrawable</div>
   </div>
   <div class="wdform">
-    <div class="ftitle">💸 উত্তোলনের অনুরোধ</div>
+    <div class="ftitle">💸 withdraw request</div>
     <div class="fg"><span class="flbl">পেমেন্ট পদ্ধতি</span>
       <div class="sw">
         <select class="fi" id="wdWallet">
-          <option value="">— পদ্ধতি বেছে নিন —</option>
+          <option value="">— Select Method —</option>
           <option value="bkash">📱 bKash</option>
           <option value="nagad">💚 Nagad</option>
           <option value="rocket">🚀 Rocket</option>
@@ -373,7 +373,7 @@ select.fi option{background:#1a1d26}
       <div style="font-size:12px;color:var(--muted);margin-top:5px">সর্বনিম্ন: <span id="minWd" style="color:var(--taka)">৳ 50</span></div>
     </div>
     <button class="bigbtn wdbtn-main" id="wdBtn" onclick="handleWithdraw()">উত্তোলন করুন →</button>
-    <div class="wd-ad-info" id="wdAdInfo">⚡ <span id="wdAdInfoTxt">উত্তোলনের আগে বিজ্ঞাপন দেখুন</span></div>
+    <div class="wd-ad-info" id="wdAdInfo">⚡ <span id="wdAdInfoTxt"> </span></div>
   </div>
   <div class="sec2">📋 উত্তোলনের ইতিহাস</div>
   <div id="wdHist"><div class="empty"><div class="eic">📭</div>কোনো উত্তোলন নেই</div></div>
@@ -397,10 +397,10 @@ select.fi option{background:#1a1d26}
     <div class="adov-reward" id="adovReward">0.50</div>
     <div class="adov-taka">টাকা</div>
   </div>
-  <div class="adov-rsub" id="adovRSub">পুরস্কার</div>
+  <div class="adov-rsub" id="adovRSub">Reward</div>
   <div class="adov-msg" id="adovMsg"></div>
-  <div class="adov-status" id="adovStatus">লোড হচ্ছে...</div>
-  <button class="adov-claim" id="adovClaim" onclick="onChainComplete()">🎉 টাকা নিন!</button>
+  <div class="adov-status" id="adovStatus">Loading...</div>
+  <button class="adov-claim" id="adovClaim" onclick="onChainComplete()">🎉 claim reward!</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -592,7 +592,7 @@ function clearCooldownUI() {
 
   btn.disabled = false;
   btn.className = 'bigbtn watchbtn';
-  btn.textContent = '▶ বিজ্ঞাপন দেখুন ও আয় করুন';
+  btn.textContent = '▶ বিজ্ঞাপন দেখুন;
   barWrap.style.display = 'none';
 }
 
@@ -682,9 +682,9 @@ function startChain(type, wdData=null) {
     typeEl.textContent = '📺 বিজ্ঞাপন দেখুন';
     typeEl.className = 'adov-type watch';
     document.getElementById('adovReward').textContent = CS.reward.toFixed(2);
-    document.getElementById('adovRSub').textContent = 'টাকা পুরস্কার';
+    document.getElementById('adovRSub').textContent = 'টাকা Reward;
     claim.className = 'adov-claim watch-c';
-    claim.textContent = '🎉 টাকা নিন!';
+    claim.textContent = '🎉 claim reward!';
     msg.style.display = 'none';
   } else {
     typeEl.textContent = '💸 উত্তোলন';
@@ -692,7 +692,7 @@ function startChain(type, wdData=null) {
     document.getElementById('adovReward').textContent = (wdData?.amount||0).toFixed(2);
     document.getElementById('adovRSub').textContent = 'টাকা উত্তোলন হবে';
     claim.className = 'adov-claim wd-c';
-    claim.textContent = '✅ উত্তোলন সম্পন্ন করুন!';
+    claim.textContent = '✅ Claim!';
     const wdMsg = APP.settings.withdrawChain?.message||'উত্তোলনের আগে বিজ্ঞাপন দেখুন';
     msg.textContent = wdMsg; msg.style.display = 'block';
   }
@@ -701,7 +701,7 @@ function startChain(type, wdData=null) {
   document.getElementById('adovSteps').innerHTML =
     queue.map((_,i)=>`<div class="adov-s" id="as_${i}"></div>`).join('');
   claim.classList.remove('vis');
-  document.getElementById('adovTitle').textContent = type==='watch' ? 'বিজ্ঞাপন চলছে...' : 'বিজ্ঞাপন দেখুন উত্তোলনের জন্য...';
+  document.getElementById('adovTitle').textContent = type==='watch' ? 'watching ads..' : 'বিজ্ঞাপন দেখুন উত্তোলনের জন্য...';
   document.getElementById('adOverlay').classList.add('open');
 
   playSlot();
@@ -717,7 +717,7 @@ function playSlot() {
 
   document.getElementById('adovStepLbl').textContent = `বিজ্ঞাপন ${idx+1} / ${CS.total}`;
   document.getElementById('adovNetName').textContent = `${nd.icon} ${nd.label}`;
-  document.getElementById('adovStatus').textContent = `${nd.label} লোড হচ্ছে...`;
+  document.getElementById('adovStatus').textContent = `${nd.label} Loading...`;
   document.querySelectorAll('.adov-s').forEach((el,i) => {
     el.className = 'adov-s' + (i<idx?' done':i===idx?' active':'');
   });
@@ -798,9 +798,9 @@ function chainAllDone() {
   CS.done = true;
   if (CS.type === 'watch') {
     document.getElementById('adovTitle').textContent = '🎉 সব বিজ্ঞাপন দেখা শেষ!';
-    document.getElementById('adovStatus').textContent = 'টাকা নিতে নিচের বাটনে চাপুন!';
+    document.getElementById('adovStatus').textContent = 'Claime Reward';
   } else {
-    document.getElementById('adovTitle').textContent = '✅ বিজ্ঞাপন দেখা সম্পন্ন!';
+    document.getElementById('adovTitle').textContent = '✅ Ads completed';
     document.getElementById('adovStatus').textContent = 'উত্তোলন সম্পন্ন করতে চাপুন!';
   }
   document.getElementById('adovStepLbl').textContent = 'সম্পন্ন!';
@@ -833,7 +833,7 @@ async function onChainComplete() {
     });
     cooldownEndTime = newCooldownEnd;
     startCooldownUI(cooldownSec * 1000);
-    showToast(`🎉 +৳ ${reward.toFixed(2)} টাকা পেয়েছেন!`);
+    showToast(`🎉 +৳ ${reward.toFixed(2)} Claimed`);
   } else {
     await submitWithdrawDirect(CS.wdData);
   }
@@ -851,12 +851,12 @@ function updateWdBtn() {
   if (wdc.enabled && (wdc.slots||[]).length > 0) {
     info.style.display = 'block';
     document.getElementById('wdAdInfoTxt').textContent =
-      `${wdc.message||'উত্তোলনের আগে বিজ্ঞাপন দেখুন'} (${(wdc.slots||[]).length}টি বিজ্ঞাপন)`;
-    btn.textContent = '▶ বিজ্ঞাপন দেখুন ও উত্তোলন করুন';
+      `${wdc.message||'Withdraw'} (${(wdc.slots||[]).length}টি বিজ্ঞাপন)`;
+    btn.textContent = '▶ Withdraw ';
     btn.className = 'bigbtn wdbtn-ad';
   } else {
     info.style.display = 'none';
-    btn.textContent = 'উত্তোলন করুন →';
+    btn.textContent = 'Withdraw →';
     btn.className = 'bigbtn wdbtn-main';
   }
 }
@@ -866,9 +866,9 @@ function handleWithdraw() {
   const account = document.getElementById('wdAcc').value.trim();
   const amount = parseFloat(document.getElementById('wdAmt').value);
   const minWd = APP.settings.minWithdraw||50;
-  if (!wallet) return showToast('⚠️ পেমেন্ট পদ্ধতি বেছে নিন');
+  if (!wallet) return showToast('⚠️ Select Method');
   if (!account) return showToast('⚠️ অ্যাকাউন্ট নম্বর দিন');
-  if (!amount || amount < minWd) return showToast(`⚠️ সর্বনিম্ন ৳ ${minWd.toFixed(2)}`);
+  if (!amount || amount < minWd) return showToast(`⚠️ Minimum ৳ ${minWd.toFixed(2)}`);
   if (amount > APP.balance) return showToast('⚠️ পর্যাপ্ত ব্যালেন্স নেই');
   const wlMap={bkash:'bKash',nagad:'Nagad',rocket:'Rocket',binance:'Binance (USDT)',crypto:'Crypto'};
   const wdData = { wallet, walletLabel:wlMap[wallet]||wallet, account, amount };
@@ -883,7 +883,7 @@ function handleWithdraw() {
 async function submitWithdrawDirect(wdData) {
   if (!wdData) return;
   const btn = document.getElementById('wdBtn');
-  const orig = btn.textContent; btn.disabled=true; btn.textContent='প্রক্রিয়া হচ্ছে...';
+  const orig = btn.textContent; btn.disabled=true; btn.textContent='Processing...';
   try {
     await db.ref('users/'+APP.userId).update({
       balance: APP.balance - wdData.amount,
@@ -896,8 +896,8 @@ async function submitWithdrawDirect(wdData) {
     document.getElementById('wdWallet').value='';
     document.getElementById('wdAcc').value='';
     document.getElementById('wdAmt').value='';
-    showToast('✅ উত্তোলনের অনুরোধ জমা হয়েছে!');
-  } catch(e) { showToast('❌ ত্রুটি: '+e.message); }
+    showToast('✅ Withdraw Successful');
+  } catch(e) { showToast('❌ Failed: '+e.message); }
   btn.disabled=false; btn.textContent=orig;
 }
 
