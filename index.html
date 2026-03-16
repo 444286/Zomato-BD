@@ -315,7 +315,7 @@ select.fi option{background:#1a1d26}
 <div class="page" id="page-support">
   <div class="pgt"><div class="pgtitle" style="font-family:'Hind Siliguri',sans-serif">সাপোর্ট</div></div>
   <div class="vcard">
-    <div class="vph" id="vph">
+    <div class="vph" id="vph"onclick="openTutorial()">
       <div class="vplay">▶</div>
       <div style="font-size:13px;color:rgba(255,255,255,.5);z-index:2;font-family:'Hind Siliguri',sans-serif">টিউটোরিয়াল ভিডিও</div>
     </div>
@@ -977,6 +977,22 @@ function renderVideo() {
   }
 }
 
+function openTutorial(){
+  const v = APP.settings.video || {};
+
+  if(!v.url){
+    showToast("⚠️ Tutorial link not set");
+    return;
+  }
+
+  const tg = window.Telegram?.WebApp;
+
+  if(tg){
+    tg.openTelegramLink(v.url);
+  }else{
+    window.open(v.url,'_blank');
+  }
+}
 // ═══════════
 // REFERRAL
 // ═══════════
