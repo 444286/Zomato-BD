@@ -370,9 +370,9 @@ select.fi option{background:#1a1d26}
       <div class="sw">
         <select class="fi" id="wdWallet">
           <option value="">— Select method —</option>
-          <option value="bkash">📱 bKash</option>
-          <option value="nagad">💚 Nagad</option>
-          <option value="rocket">🚀 Rocket</option>
+          <option value="bkash">💰 bKash</option>
+          <option value="nagad">💰 Nagad</option>
+          <option value="rocket">💰 Rocket</option>
           <option value="binance">🟡 Binance (USDT)</option>
           <option value="crypto">₿ Crypto</option>
         </select>
@@ -401,7 +401,7 @@ select.fi option{background:#1a1d26}
 
 <nav class="bnav">
   <div class="ni active" onclick="showPage('home',this)"><div class="ni-ic">🏠</div><div class="ni-lb">Home</div><div class="ni-dot"></div></div>
-  <div class="ni" onclick="showPage('support',this)"><div class="ni-ic">🛟</div><div class="ni-lb">Support</div><div class="ni-dot"></div></div>
+  <div class="ni" onclick="showPage('support',this)"><div class="ni-ic">☎️</div><div class="ni-lb">Support</div><div class="ni-dot"></div></div>
   <div class="ni" onclick="showPage('referral',this)"><div class="ni-ic">🤝</div><div class="ni-lb">Referral</div><div class="ni-dot"></div></div>
   <div class="ni" onclick="showPage('wallet',this)"><div class="ni-ic">💰</div><div class="ni-lb">Wallet</div><div class="ni-dot"></div></div>
 </nav>
@@ -1010,7 +1010,7 @@ function shareRef() {
 function renderWdHist(items) {
   const el = document.getElementById('wdHist');
   if (!items.length) { el.innerHTML=`<div class="empty"><div class="eic">📭</div>No withdrawals yet</div>`; return; }
-  const wm = { bkash:{ic:'📱',bg:'rgba(220,50,120,.15)'}, nagad:{ic:'💚',bg:'rgba(0,130,70,.15)'}, rocket:{ic:'🚀',bg:'rgba(138,0,230,.15)'}, binance:{ic:'🟡',bg:'rgba(240,185,11,.15)'}, crypto:{ic:'₿',bg:'rgba(247,147,26,.15)'} };
+  const wm = { bkash:{ic:'💰',bg:'rgba(220,50,120,.15)'}, nagad:{ic:'💰',bg:'rgba(0,130,70,.15)'}, rocket:{ic:'💰',bg:'rgba(138,0,230,.15)'}, binance:{ic:'🟡',bg:'rgba(240,185,11,.15)'}, crypto:{ic:'₿',bg:'rgba(247,147,26,.15)'} };
   const sm = { pending:'sp', approved:'sa', rejected:'sr' };
   const sl = { pending:'⏳ Pending', approved:'✓ Approved', rejected:'✗ Rejected' };
   el.innerHTML = items.map(h => {
