@@ -965,17 +965,7 @@ function renderSupport() {
     </a>`).join('');
 }
 
-function renderVideo() {
-  const v = APP.settings.video || {};
-  document.getElementById('vtitle').textContent = v.title || 'EarnX কিভাবে ব্যবহার করবেন';
-  const ph = document.getElementById('vph');
-  if (v.url) {
-    let u = v.url;
-    const y = u.match(/(?:youtu\.be\/|v=)([^&?#\s]+)/);
-    if (y) u = `https://www.youtube.com/embed/${y[1]}?rel=0`;
-    ph.innerHTML = `<iframe src="${u}" allow="autoplay;fullscreen" allowfullscreen></iframe>`;
-  }
-}
+
 
 function openTutorial(){
   const v = APP.settings.video || {};
