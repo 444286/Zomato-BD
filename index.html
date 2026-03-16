@@ -8,8 +8,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<!-- Bengali + Latin Font -->
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<!-- Inter for English (standard US), Hind Siliguri for Bengali টাকা only -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&family=Hind+Siliguri:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#07080d;--bg2:#0f111a;--bg3:#171a26;--card:#111420;
@@ -17,23 +17,21 @@
   --as:rgba(124,111,253,0.12);--green:#00e096;--gs:rgba(0,224,150,0.12);
   --yellow:#ffc84a;--ys:rgba(255,200,74,0.12);--red:#ff5f5f;
   --rs:rgba(255,95,95,0.12);--text:#e2e4ef;--muted:#5a6280;
-  /* ৳ Taka color */
   --taka:#ffc84a;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
-  font-family:'Hind Siliguri',sans-serif;
+  font-family:'Inter',sans-serif;
   background:var(--bg);color:var(--text);
   min-height:100vh;overflow-x:hidden;padding-bottom:90px;
-  font-size:15px;
+  font-size:14px;
 }
+/* Bengali text class */
+.bn{font-family:'Hind Siliguri',sans-serif}
 ::-webkit-scrollbar{display:none}
 
-/* BLOCKED SCREEN */
-#blockedScreen{
-  position:fixed;inset:0;background:var(--bg);z-index:99999;
-  display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:32px;
-}
+/* BLOCKED */
+#blockedScreen{position:fixed;inset:0;background:var(--bg);z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:32px}
 .blocked-ic{font-size:64px}
 .blocked-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--red);text-align:center}
 .blocked-sub{font-size:14px;color:var(--muted);text-align:center;line-height:1.7}
@@ -41,7 +39,7 @@ body{
 /* LOADING */
 #ls{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
 .ll{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.lsub{font-size:14px;color:var(--muted)}
+.lsub{font-size:13px;color:var(--muted)}
 .lsp{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 
@@ -49,7 +47,7 @@ body{
 .bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,12,18,0.97);backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;z-index:100;padding:10px 0 16px}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:2px 0}
 .ni-ic{font-size:22px;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
-.ni-lb{font-size:11px;font-weight:600;color:var(--muted);transition:color .2s}
+.ni-lb{font-size:10px;font-weight:600;color:var(--muted);transition:color .2s;letter-spacing:.3px}
 .ni.active .ni-lb{color:var(--accent)}
 .ni.active .ni-ic{transform:translateY(-3px)}
 .ni-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:0;transition:opacity .2s;margin-top:-3px}
@@ -67,33 +65,34 @@ body{
 .ava{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#b06bff);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;border:2px solid rgba(124,111,253,.3)}
 .ava img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .pname{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:#fff}
-.pid{font-size:12px;color:var(--muted);margin-top:3px;font-family:monospace}
+.pid{font-size:11px;color:var(--muted);margin-top:3px;font-family:monospace;letter-spacing:.5px}
 
-/* ৳ TAKA BALANCE CARD */
+/* BALANCE CARD — Bengali টাকা only here */
 .balc{background:linear-gradient(140deg,#100e30,#1c1060 55%,#2e1285);border-radius:22px;padding:22px 20px;margin-bottom:13px;position:relative;overflow:hidden;border:1px solid rgba(124,111,253,.25)}
 .balc::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(124,111,253,.2),transparent 70%)}
-.balbl{font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;font-weight:600}
+.balbl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;font-weight:600;font-family:'Inter',sans-serif}
 .balamt-wrap{display:flex;align-items:baseline;gap:8px;margin:8px 0 4px;position:relative;z-index:1}
 .balamt{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;color:#fff;line-height:1}
-.bal-taka{font-family:'Hind Siliguri',sans-serif;font-size:22px;font-weight:700;color:var(--taka)}
+/* ৳ টাকা — Bengali font only for this word */
+.bal-taka{font-family:'Hind Siliguri',sans-serif;font-size:20px;font-weight:700;color:var(--taka)}
 .balrow{display:flex;gap:10px;margin-top:16px;position:relative;z-index:1}
 .bals{flex:1;background:rgba(255,255,255,.08);border-radius:12px;padding:10px;text-align:center}
 .balsv{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff}
-.bals-taka{font-size:11px;color:var(--taka);font-weight:700}
-.balsl{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+.bals-unit{font-size:10px;color:var(--taka);font-weight:700;font-family:'Hind Siliguri',sans-serif}
+.balsl{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;font-family:'Inter',sans-serif}
 
 /* WATCH CARD */
 .wcard{background:linear-gradient(135deg,#0d1220,#131b2e);border-radius:20px;padding:20px;margin-bottom:13px;border:1px solid rgba(255,200,74,.2)}
 .wchd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .wctitle{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff}
-.wcrb{background:var(--ys);color:var(--yellow);border:1px solid rgba(255,200,74,.3);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:800}
+.wcrb{background:var(--ys);color:var(--yellow);border:1px solid rgba(255,200,74,.3);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;font-family:'Inter',sans-serif}
 .wcinfo{display:flex;gap:8px;margin-bottom:14px}
 .wcstat{flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px;text-align:center}
 .wcsv{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff}
-.wcsl{font-size:10px;color:var(--muted);margin-top:2px}
+.wcsl{font-size:10px;color:var(--muted);margin-top:2px;font-family:'Inter',sans-serif;letter-spacing:.2px}
 
-/* WATCH BUTTON STATES */
-.bigbtn{width:100%;border:none;border-radius:16px;padding:18px;font-size:17px;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;position:relative}
+/* BUTTONS */
+.bigbtn{width:100%;border:none;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;letter-spacing:.2px}
 .bigbtn:active{transform:scale(.97)}
 .bigbtn:disabled{opacity:.65;pointer-events:none;cursor:not-allowed}
 .watchbtn{background:linear-gradient(135deg,#ffc84a,#ff9f2a);color:#000}
@@ -102,14 +101,14 @@ body{
 .wdbtn-main{background:linear-gradient(135deg,var(--green),#00b377);color:#fff}
 .wdbtn-ad{background:linear-gradient(135deg,var(--accent),#b06bff);color:#fff}
 
-/* Cooldown timer bar */
+/* Cooldown bar */
 .cooldown-bar-wrap{width:100%;height:4px;background:rgba(255,255,255,.1);border-radius:4px;margin-top:10px;overflow:hidden;display:none}
 .cooldown-bar{height:100%;background:var(--yellow);border-radius:4px;transition:width 1s linear}
 
-/* Daily limit info */
-.limit-info{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,.04);border-radius:10px;font-size:12px}
+/* Daily limit */
+.limit-info{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,.04);border-radius:10px;font-size:12px;font-family:'Inter',sans-serif}
 .limit-txt{color:var(--muted)}
-.limit-val{color:var(--yellow);font-weight:700}
+.limit-val{color:var(--yellow);font-weight:600}
 
 /* TASKS */
 .sec2{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
@@ -118,141 +117,153 @@ body{
 .titem.done{opacity:.5;pointer-events:none}
 .tic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .tinf{flex:1;min-width:0}
-.tnm{font-size:14px;font-weight:600;color:#fff}
-.tds{font-size:12px;color:var(--muted);margin-top:2px}
-.trw{font-size:13px;font-weight:700;color:var(--green);white-space:nowrap}
-.trw-taka{font-size:11px;color:var(--taka);display:block}
-.tbtn{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.25);border-radius:8px;padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;margin-top:4px}
+.tnm{font-size:13px;font-weight:600;color:#fff;font-family:'Inter',sans-serif}
+.tds{font-size:11px;color:var(--muted);margin-top:2px;font-family:'Inter',sans-serif}
+.trw{font-size:13px;font-weight:700;color:var(--green);white-space:nowrap;font-family:'Inter',sans-serif}
+.tbtn{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.25);border-radius:8px;padding:6px 13px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:4px;letter-spacing:.2px}
 .tdone{width:28px;height:28px;border-radius:50%;background:var(--gs);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--green);flex-shrink:0}
 
-/* SUPPORT */
+/* SUPPORT — Bengali labels here */
 .vcard{background:#000;border-radius:20px;overflow:hidden;margin-bottom:14px;border:1px solid var(--border)}
 .vph{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a1a,#141428);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
 .vph iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 .vplay{width:62px;height:62px;border-radius:50%;background:rgba(124,111,253,.75);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,.2);z-index:2}
 .vbar{padding:12px 16px;background:var(--bg2)}
-.vbart{font-size:14px;font-weight:600;color:#fff}
+.vbart{font-size:13px;font-weight:600;color:#fff;font-family:'Hind Siliguri',sans-serif}
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
 .scard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;cursor:pointer;transition:all .2s;text-decoration:none}
 .scard:active{transform:scale(.96)}
 .sic{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px}
-.st{font-size:13px;font-weight:600;color:#fff}
-.sd{font-size:12px;color:var(--muted)}
+/* Support card title/desc — Bengali font */
+.st{font-size:13px;font-weight:600;color:#fff;font-family:'Hind Siliguri',sans-serif}
+.sd{font-size:11px;color:var(--muted);font-family:'Hind Siliguri',sans-serif}
 
 /* REFERRAL */
 .rhero{background:linear-gradient(135deg,#0d1117,#1a1f35);border:1px solid rgba(124,111,253,.2);border-radius:20px;padding:24px 20px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden}
 .rhero::before{content:'👥';position:absolute;font-size:110px;opacity:.04;top:-10px;right:-20px}
 .remo{font-size:40px;margin-bottom:8px}
 .rht{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;margin-bottom:5px}
-.rhs{font-size:13px;color:var(--muted)}
+.rhs{font-size:12px;color:var(--muted);font-family:'Inter',sans-serif}
 .rstats{display:flex;gap:10px;margin-top:18px}
 .rstat{flex:1;background:var(--as);border:1px solid rgba(124,111,253,.2);border-radius:12px;padding:12px;text-align:center}
 .rsv{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent)}
-.rsl{font-size:11px;color:var(--muted);margin-top:3px}
+.rsl{font-size:10px;color:var(--muted);margin-top:3px;font-family:'Inter',sans-serif;letter-spacing:.2px}
 .rlc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px}
-.flbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px;display:block}
+.flbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:8px;display:block;font-family:'Inter',sans-serif}
 .rbox{display:flex;gap:8px;align-items:center}
 .rtxt{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--accent);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cbtn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;transition:all .2s;flex-shrink:0}
+.cbtn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;flex-shrink:0;letter-spacing:.2px}
 .cbtn:active{transform:scale(.94)}
-.sbtn{width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
+.sbtn{width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;letter-spacing:.2px}
 .ritem{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
 .ritem:last-child{border-bottom:none}
 .rava{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#b06bff);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
-.run{font-size:13px;font-weight:600;color:#fff}
-.rdt{font-size:11px;color:var(--muted);margin-top:2px}
-.re{font-size:13px;font-weight:700;color:var(--green);margin-left:auto;white-space:nowrap}
+.run{font-size:13px;font-weight:600;color:#fff;font-family:'Inter',sans-serif}
+.rdt{font-size:11px;color:var(--muted);margin-top:2px;font-family:'Inter',sans-serif}
+.re{font-size:13px;font-weight:700;color:var(--green);margin-left:auto;white-space:nowrap;font-family:'Inter',sans-serif}
 
 /* WALLET */
 .wbal{background:linear-gradient(135deg,#0d1117,#0a1f18);border:1px solid rgba(0,224,150,.2);border-radius:20px;padding:22px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden}
 .wbal::before{content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,224,150,.07),transparent 70%)}
-.wbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-weight:600}
+.wbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-weight:700;font-family:'Inter',sans-serif}
 .wba-wrap{display:flex;align-items:baseline;justify-content:center;gap:8px;position:relative;z-index:1}
 .wba{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;color:var(--green);line-height:1}
-.wba-taka{font-family:'Hind Siliguri',sans-serif;font-size:22px;font-weight:700;color:var(--taka)}
-.wbs{font-size:13px;color:var(--muted);margin-top:4px}
+/* ৳ টাকা in wallet — Bengali */
+.wba-taka{font-family:'Hind Siliguri',sans-serif;font-size:20px;font-weight:700;color:var(--taka)}
+.wbs{font-size:12px;color:var(--muted);margin-top:4px;font-family:'Inter',sans-serif}
 .wdform{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px}
 .ftitle{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .fg{margin-bottom:14px}
 .sw{position:relative}
-select.fi,input.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-size:14px;color:#fff;font-family:'Hind Siliguri',sans-serif;outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none}
+select.fi,input.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-size:14px;color:#fff;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none;letter-spacing:.2px}
 select.fi:focus,input.fi:focus{border-color:rgba(124,111,253,.5)}
 select.fi option{background:#1a1d26}
 .sarr{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:12px}
-.wd-ad-info{background:rgba(124,111,253,.08);border:1px solid rgba(124,111,253,.2);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13px;color:rgba(255,255,255,.7);display:none;line-height:1.6}
+.wd-ad-info{background:rgba(124,111,253,.08);border:1px solid rgba(124,111,253,.2);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12px;color:rgba(255,255,255,.7);display:none;line-height:1.6;font-family:'Inter',sans-serif}
 
 /* HISTORY */
 .hitem{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:9px}
 .htop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .hwallet{display:flex;align-items:center;gap:8px}
 .hwic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.hwn{font-size:13px;font-weight:600;color:#fff}
+.hwn{font-size:13px;font-weight:600;color:#fff;font-family:'Inter',sans-serif}
 .hamt{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff}
 .hbtm{display:flex;align-items:center;justify-content:space-between}
 .hacc{font-size:11px;color:var(--muted);font-family:monospace}
-.sbdg{border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700}
+.sbdg{border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;letter-spacing:.2px}
 .sp{background:var(--ys);color:var(--yellow);border:1px solid rgba(255,200,74,.25)}
 .sa{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.25)}
 .sr{background:var(--rs);color:var(--red);border:1px solid rgba(255,95,95,.25)}
-.ht{font-size:11px;color:var(--muted);margin-top:6px}
-.hrr{background:var(--rs);border:1px solid rgba(255,95,95,.2);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--red);margin-top:8px;display:flex;gap:6px}
+.ht{font-size:11px;color:var(--muted);margin-top:6px;font-family:'Inter',sans-serif}
+.hrr{background:var(--rs);border:1px solid rgba(255,95,95,.2);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--red);margin-top:8px;display:flex;gap:6px;font-family:'Inter',sans-serif}
 
-/* AD CHAIN OVERLAY */
+/* AD OVERLAY — no claim button, auto */
 .adov{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px}
 .adov.open{display:flex}
-.adov-type{border-radius:20px;padding:5px 16px;font-size:12px;font-weight:800;margin-bottom:2px}
+.adov-type{border-radius:20px;padding:5px 16px;font-size:11px;font-weight:700;margin-bottom:2px;font-family:'Inter',sans-serif;letter-spacing:.4px}
 .adov-type.watch{background:var(--ys);color:var(--yellow);border:1px solid rgba(255,200,74,.3)}
 .adov-type.wd{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.3)}
 .adov-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;text-align:center}
-.adov-step-lbl{font-size:13px;color:var(--muted);text-align:center}
-.adov-net-name{font-size:14px;font-weight:700;text-align:center;color:var(--text)}
+.adov-step-lbl{font-size:12px;color:var(--muted);text-align:center;font-family:'Inter',sans-serif}
+.adov-net-name{font-size:14px;font-weight:600;text-align:center;color:var(--text);font-family:'Inter',sans-serif}
 .adov-steps{display:flex;gap:7px;margin:12px 0;flex-wrap:wrap;justify-content:center;max-width:320px}
 .adov-s{height:8px;border-radius:8px;background:rgba(255,255,255,.1);transition:all .35s;flex:1;min-width:20px;max-width:50px}
 .adov-s.done{background:var(--green)}
 .adov-s.active{background:var(--yellow);animation:puls .8s infinite}
 .adov-s.skip{background:rgba(255,255,255,.25)}
 @keyframes puls{0%,100%{opacity:1}50%{opacity:.35}}
-.adov-reward-wrap{display:flex;align-items:baseline;gap:8px;justify-content:center;margin:4px 0}
-.adov-reward{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:var(--yellow);text-align:center}
-.adov-taka{font-family:'Hind Siliguri',sans-serif;font-size:20px;font-weight:700;color:var(--taka)}
-.adov-rsub{font-size:12px;color:var(--muted);text-align:center}
-.adov-msg{font-size:13px;color:rgba(255,255,255,.75);text-align:center;background:rgba(255,255,255,.06);border-radius:10px;padding:10px 16px;width:100%;max-width:340px;display:none}
-.adov-status{font-size:13px;color:var(--muted);text-align:center;min-height:20px}
-.adov-claim{width:100%;max-width:340px;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:800;cursor:pointer;font-family:'Hind Siliguri',sans-serif;transition:all .2s;opacity:0;pointer-events:none;margin-top:8px}
-.adov-claim.watch-c{background:linear-gradient(135deg,var(--yellow),#ff9f2a);color:#000}
-.adov-claim.wd-c{background:linear-gradient(135deg,var(--green),#00b377);color:#fff}
-.adov-claim.vis{opacity:1;pointer-events:all}
-.adov-claim:active{transform:scale(.96)}
+/* ৳ টাকা reward in overlay — Bengali font */
+.adov-reward-wrap{display:flex;align-items:baseline;gap:6px;justify-content:center;margin:4px 0}
+.adov-reward{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:var(--yellow)}
+.adov-taka{font-family:'Hind Siliguri',sans-serif;font-size:18px;font-weight:700;color:var(--taka)}
+.adov-rsub{font-size:11px;color:var(--muted);text-align:center;font-family:'Inter',sans-serif}
+.adov-msg{font-size:13px;color:rgba(255,255,255,.75);text-align:center;background:rgba(255,255,255,.06);border-radius:10px;padding:10px 16px;width:100%;max-width:340px;display:none;font-family:'Inter',sans-serif}
+.adov-status{font-size:13px;color:var(--muted);text-align:center;min-height:20px;font-family:'Inter',sans-serif}
 
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(20,24,38,.97);border:1px solid rgba(124,111,253,.3);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:999;transition:transform .3s cubic-bezier(.34,1.4,.64,1);backdrop-filter:blur(20px);white-space:nowrap}
+/* Auto-complete animation */
+.adov-complete{text-align:center;padding:16px;display:none;flex-direction:column;align-items:center;gap:8px}
+.adov-complete.show{display:flex}
+.adov-complete-ic{font-size:48px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+.adov-complete-txt{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff}
+.adov-complete-sub{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(20,24,38,.97);border:1px solid rgba(124,111,253,.3);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:500;z-index:999;transition:transform .3s cubic-bezier(.34,1.4,.64,1);backdrop-filter:blur(20px);white-space:nowrap;font-family:'Inter',sans-serif}
 .toast.show{transform:translateX(-50%) translateY(0)}
-.empty{text-align:center;padding:28px 20px;color:var(--muted);font-size:13px}
+.empty{text-align:center;padding:28px 20px;color:var(--muted);font-size:13px;font-family:'Inter',sans-serif}
 .eic{font-size:36px;margin-bottom:8px}
-.chip{border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;background:var(--as);color:var(--accent);border:1px solid rgba(124,111,253,.25)}
+.chip{border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;background:var(--as);color:var(--accent);border:1px solid rgba(124,111,253,.25);font-family:'Inter',sans-serif;letter-spacing:.3px}
 </style>
 </head>
 <body>
 
-<!-- BLOCKED SCREEN -->
+<!-- BLOCKED -->
 <div id="blockedScreen">
   <div class="blocked-ic">🚫</div>
-  <div class="blocked-title">No internet connection...</div>
-  <div class="blocked-sub">দয়া করে ইন্টারনেট কানেকশন চেক করুন</div>
+  <div class="blocked-title">Account Suspended</div>
+  <div class="blocked-sub">Your account has been suspended.<br>Please contact the admin for assistance.</div>
 </div>
 
-<div id="ls"><div class="ll">EarnX</div><div class="lsub">লোড হচ্ছে...</div><div class="lsp"></div></div>
+<div id="ls">
+  <div class="ll">EarnX</div>
+  <div class="lsub">Loading your account...</div>
+  <div class="lsp"></div>
+</div>
 
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="prof">
     <div class="ava" id="uava">U</div>
-    <div style="flex:1"><div class="pname" id="uname">—</div><div class="pid" id="uid">ID: —</div></div>
+    <div style="flex:1">
+      <div class="pname" id="uname">—</div>
+      <div class="pid" id="uid">ID: —</div>
+    </div>
     <div class="chip">⭐ Active</div>
   </div>
 
-  <!-- BALANCE -->
+  <!-- BALANCE — Bengali টাকা only -->
   <div class="balc">
-    <div class="balbl">মোট ব্যালেন্স</div>
+    <div class="balbl">Total Balance</div>
     <div class="balamt-wrap">
       <div class="balamt" id="hbal">0.00</div>
       <div class="bal-taka">টাকা</div>
@@ -260,17 +271,17 @@ select.fi option{background:#1a1d26}
     <div class="balrow">
       <div class="bals">
         <div class="balsv" id="sEarned">0.00</div>
-        <span class="bals-taka">টাকা</span>
-        <div class="balsl">অর্জিত</div>
+        <div class="bals-unit">টাকা</div>
+        <div class="balsl">Earned</div>
       </div>
       <div class="bals">
         <div class="balsv" id="sWd">0.00</div>
-        <span class="bals-taka">টাকা</span>
-        <div class="balsl">উত্তোলন</div>
+        <div class="bals-unit">টাকা</div>
+        <div class="balsl">Withdrawn</div>
       </div>
       <div class="bals">
         <div class="balsv" id="sRef">0</div>
-        <div class="balsl">রেফারেল</div>
+        <div class="balsl" style="margin-top:12px">Referrals</div>
       </div>
     </div>
   </div>
@@ -278,73 +289,74 @@ select.fi option{background:#1a1d26}
   <!-- WATCH CARD -->
   <div class="wcard">
     <div class="wchd">
-      <div class="wctitle">📺 দেখুন ও আয় করুন</div>
+      <div class="wctitle">📺 Watch & Earn</div>
       <div class="wcrb" id="wcRB">+৳ 0.50</div>
     </div>
     <div class="wcinfo">
-      <div class="wcstat"><div class="wcsv" id="wcAds">0</div><div class="wcsl">প্রতি সেশনে</div></div>
-      <div class="wcstat"><div class="wcsv" id="wcToday">0</div><div class="wcsl">Today watched</div></div>
+      <div class="wcstat"><div class="wcsv" id="wcAds">0</div><div class="wcsl">Ads / session</div></div>
+      <div class="wcstat"><div class="wcsv" id="wcToday">0</div><div class="wcsl">Watched today</div></div>
       <div class="wcstat"><div class="wcsv" id="wcLimit">5</div><div class="wcsl">Daily limit</div></div>
     </div>
-
-    <button class="bigbtn watchbtn" id="watchBtn" onclick="startChain('watch')">▶ বিজ্ঞাপন দেখুন</button>
-
-    <!-- Cooldown bar -->
+    <button class="bigbtn watchbtn" id="watchBtn" onclick="startChain('watch')">▶ Watch Ads & Earn</button>
     <div class="cooldown-bar-wrap" id="cooldownBarWrap">
       <div class="cooldown-bar" id="cooldownBar" style="width:100%"></div>
     </div>
-
-    <!-- Daily limit progress -->
     <div class="limit-info">
-      <span class="limit-txt">Today Ads</span>
+      <span class="limit-txt">Today's progress</span>
       <span class="limit-val" id="limitProgress">0 / 5</span>
     </div>
   </div>
 
-  <div class="sec2">⚡ টাস্ক</div>
-  <div id="taskList"><div class="empty"><div class="eic">📋</div>কোনো টাস্ক নেই</div></div>
+  <div class="sec2">⚡ Tasks</div>
+  <div id="taskList"><div class="empty"><div class="eic">📋</div>No tasks yet</div></div>
 </div>
 
-<!-- SUPPORT -->
+<!-- SUPPORT — Bengali labels as requested -->
 <div class="page" id="page-support">
-  <div class="pgt"><div class="pgtitle">সাপোর্ট</div></div>
+  <div class="pgt"><div class="pgtitle" style="font-family:'Hind Siliguri',sans-serif">সাপোর্ট</div></div>
   <div class="vcard">
-    <div class="vph" id="vph"><div class="vplay">▶</div><div style="font-size:13px;color:rgba(255,255,255,.5);z-index:2">Tutorial Video</div></div>
-    <div class="vbar"><div class="vbart" id="vtitle">EarnX ব্যবহার করবেন কিভাবে</div></div>
+    <div class="vph" id="vph">
+      <div class="vplay">▶</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);z-index:2;font-family:'Hind Siliguri',sans-serif">টিউটোরিয়াল ভিডিও</div>
+    </div>
+    <div class="vbar"><div class="vbart" id="vtitle">EarnX কিভাবে ব্যবহার করবেন</div></div>
   </div>
-  <div class="sec2">🛟 সাহায্য নিন</div>
-  <div class="sgrid" id="supGrid"><div class="empty" style="grid-column:span 2">লোড হচ্ছে...</div></div>
+  <div class="sec2" style="font-family:'Hind Siliguri',sans-serif">🛟 সাহায্য নিন</div>
+  <div class="sgrid" id="supGrid"><div class="empty" style="grid-column:span 2;font-family:'Hind Siliguri',sans-serif">লোড হচ্ছে...</div></div>
 </div>
 
 <!-- REFERRAL -->
 <div class="page" id="page-referral">
-  <div class="pgt"><div class="pgtitle">রেফারেল</div></div>
+  <div class="pgt"><div class="pgtitle">Referral</div></div>
   <div class="rhero">
     <div class="remo">🤝</div>
-    <div class="rht">আমন্ত্রণ করুন ও আয় করুন</div>
-    <div class="rhs">প্রতিটি বন্ধুকে আমন্ত্রণে <span id="rbLbl" style="color:var(--taka);font-weight:700">৳ 5.00</span> বোনাস</div>
+    <div class="rht">Invite & Earn</div>
+    <div class="rhs">Earn <span id="rbLbl" style="color:var(--taka);font-weight:700;font-family:'Hind Siliguri',sans-serif">৳ 5.00</span> bonus per referral</div>
     <div class="rstats">
-      <div class="rstat"><div class="rsv" id="rTotal">0</div><div class="rsl">মোট রেফারেল</div></div>
-      <div class="rstat"><div class="rsv" id="rCoins">৳0</div><div class="rsl">অর্জিত</div></div>
-      <div class="rstat"><div class="rsv" id="rActive">0</div><div class="rsl">সক্রিয়</div></div>
+      <div class="rstat"><div class="rsv" id="rTotal">0</div><div class="rsl">Total Refs</div></div>
+      <div class="rstat"><div class="rsv" id="rCoins">৳0</div><div class="rsl">Earned</div></div>
+      <div class="rstat"><div class="rsv" id="rActive">0</div><div class="rsl">Active</div></div>
     </div>
   </div>
   <div class="rlc">
-    <span class="flbl">আপনার রেফারেল লিংক</span>
-    <div class="rbox"><div class="rtxt" id="rLink">লোড হচ্ছে...</div><button class="cbtn" onclick="copyRef()">কপি</button></div>
-    <button class="sbtn" onclick="shareRef()">📤 টেলিগ্রামে শেয়ার করুন</button>
+    <span class="flbl">Your Referral Link</span>
+    <div class="rbox">
+      <div class="rtxt" id="rLink">Loading...</div>
+      <button class="cbtn" onclick="copyRef()">Copy</button>
+    </div>
+    <button class="sbtn" onclick="shareRef()">📤 Share on Telegram</button>
   </div>
-  <div class="sec2">👥 আপনার রেফারেলসমূহ</div>
+  <div class="sec2">👥 Your Referrals</div>
   <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:4px 16px">
-    <div id="rList"><div class="empty"><div class="eic">👤</div>এখনো কোনো রেফারেল নেই</div></div>
+    <div id="rList"><div class="empty"><div class="eic">👤</div>No referrals yet</div></div>
   </div>
 </div>
 
 <!-- WALLET -->
 <div class="page" id="page-wallet">
-  <div class="pgt"><div class="pgtitle">ওয়ালেট</div></div>
+  <div class="pgt"><div class="pgtitle">Wallet</div></div>
   <div class="wbal">
-    <div class="wbl">Total Balance</div>
+    <div class="wbl">Available Balance</div>
     <div class="wba-wrap">
       <div class="wba" id="wdBal">0.00</div>
       <div class="wba-taka">টাকা</div>
@@ -352,11 +364,12 @@ select.fi option{background:#1a1d26}
     <div class="wbs">Withdrawable</div>
   </div>
   <div class="wdform">
-    <div class="ftitle">💸 withdraw request</div>
-    <div class="fg"><span class="flbl">পেমেন্ট পদ্ধতি</span>
+    <div class="ftitle">💸 Withdraw Request</div>
+    <div class="fg">
+      <span class="flbl">Payment Method</span>
       <div class="sw">
         <select class="fi" id="wdWallet">
-          <option value="">— Select Method —</option>
+          <option value="">— Select method —</option>
           <option value="bkash">📱 bKash</option>
           <option value="nagad">💚 Nagad</option>
           <option value="rocket">🚀 Rocket</option>
@@ -366,49 +379,62 @@ select.fi option{background:#1a1d26}
         <span class="sarr">▾</span>
       </div>
     </div>
-    <div class="fg"><span class="flbl">অ্যাকাউন্ট নম্বর</span><input class="fi" type="text" id="wdAcc" placeholder="আপনার নম্বর লিখুন..."></div>
     <div class="fg">
-      <span class="flbl">পরিমাণ (টাকা)</span>
-      <input class="fi" type="number" id="wdAmt" placeholder="0.00">
-      <div style="font-size:12px;color:var(--muted);margin-top:5px">সর্বনিম্ন: <span id="minWd" style="color:var(--taka)">৳ 50</span></div>
+      <span class="flbl">Account Number</span>
+      <input class="fi" type="text" id="wdAcc" placeholder="Enter your number...">
     </div>
-    <button class="bigbtn wdbtn-main" id="wdBtn" onclick="handleWithdraw()">উত্তোলন করুন →</button>
-    <div class="wd-ad-info" id="wdAdInfo">⚡ <span id="wdAdInfoTxt"> </span></div>
+    <div class="fg">
+      <span class="flbl">Amount</span>
+      <input class="fi" type="number" id="wdAmt" placeholder="0.00">
+      <div style="font-size:11px;color:var(--muted);margin-top:5px;font-family:'Inter',sans-serif">
+        Minimum: <span id="minWd" style="color:var(--taka);font-family:'Hind Siliguri',sans-serif">৳ 50</span>
+      </div>
+    </div>
+    <button class="bigbtn wdbtn-main" id="wdBtn" onclick="handleWithdraw()">Withdraw Now →</button>
+    <div class="wd-ad-info" id="wdAdInfo">
+      ⚡ <span id="wdAdInfoTxt">Watch ads before withdrawal</span>
+    </div>
   </div>
-  <div class="sec2">📋 উত্তোলনের ইতিহাস</div>
-  <div id="wdHist"><div class="empty"><div class="eic">📭</div>কোনো উত্তোলন নেই</div></div>
+  <div class="sec2">📋 Withdrawal History</div>
+  <div id="wdHist"><div class="empty"><div class="eic">📭</div>No withdrawals yet</div></div>
 </div>
 
 <nav class="bnav">
-  <div class="ni active" onclick="showPage('home',this)"><div class="ni-ic">🏠</div><div class="ni-lb">হোম</div><div class="ni-dot"></div></div>
-  <div class="ni" onclick="showPage('support',this)"><div class="ni-ic">🛟</div><div class="ni-lb">সাপোর্ট</div><div class="ni-dot"></div></div>
-  <div class="ni" onclick="showPage('referral',this)"><div class="ni-ic">🤝</div><div class="ni-lb">রেফারেল</div><div class="ni-dot"></div></div>
-  <div class="ni" onclick="showPage('wallet',this)"><div class="ni-ic">💰</div><div class="ni-lb">ওয়ালেট</div><div class="ni-dot"></div></div>
+  <div class="ni active" onclick="showPage('home',this)"><div class="ni-ic">🏠</div><div class="ni-lb">Home</div><div class="ni-dot"></div></div>
+  <div class="ni" onclick="showPage('support',this)"><div class="ni-ic">🛟</div><div class="ni-lb">Support</div><div class="ni-dot"></div></div>
+  <div class="ni" onclick="showPage('referral',this)"><div class="ni-ic">🤝</div><div class="ni-lb">Referral</div><div class="ni-dot"></div></div>
+  <div class="ni" onclick="showPage('wallet',this)"><div class="ni-ic">💰</div><div class="ni-lb">Wallet</div><div class="ni-dot"></div></div>
 </nav>
 
-<!-- AD OVERLAY -->
+<!-- AD OVERLAY — NO CLAIM BUTTON, AUTO COMPLETE -->
 <div class="adov" id="adOverlay">
-  <div class="adov-type" id="adovType">📺 বিজ্ঞাপন দেখুন</div>
-  <div class="adov-title" id="adovTitle">বিজ্ঞাপন চলছে...</div>
-  <div class="adov-step-lbl" id="adovStepLbl">বিজ্ঞাপন ১ / ৩</div>
+  <div class="adov-type" id="adovType">📺 WATCH & EARN</div>
+  <div class="adov-title" id="adovTitle">Watching Ads...</div>
+  <div class="adov-step-lbl" id="adovStepLbl">Ad 1 of 3</div>
   <div class="adov-steps" id="adovSteps"></div>
   <div class="adov-net-name" id="adovNetName"></div>
   <div class="adov-reward-wrap">
     <div class="adov-reward" id="adovReward">0.50</div>
     <div class="adov-taka">টাকা</div>
   </div>
-  <div class="adov-rsub" id="adovRSub">Reward</div>
+  <div class="adov-rsub" id="adovRSub">reward</div>
   <div class="adov-msg" id="adovMsg"></div>
-  <div class="adov-status" id="adovStatus">Loading...</div>
-  <button class="adov-claim" id="adovClaim" onclick="onChainComplete()">🎉 claim reward!</button>
+  <div class="adov-status" id="adovStatus">Loading ad...</div>
+
+  <!-- AUTO COMPLETE — shown instead of claim button -->
+  <div class="adov-complete" id="adovComplete">
+    <div class="adov-complete-ic">🎉</div>
+    <div class="adov-complete-txt" id="adovCompleteTxt">+৳ 0.50 Added!</div>
+    <div class="adov-complete-sub" id="adovCompleteSub">Balance updated automatically</div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════
+// ════════════════
 // FIREBASE CONFIG
-// ═══════════════════════
+// ════════════════
 const firebaseConfig = {
   apiKey: "AIzaSyCS9W1gnMSaIV2KjH1QMBTLgTt-ew0mnTo",
   authDomain: "zomato-platform.firebaseapp.com",
@@ -421,34 +447,29 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ═══════════
-// APP STATE
-// ═══════════
+// ════════
+// STATE
+// ════════
 let APP = {
   userId:null, userName:null, userPhoto:null,
   balance:0, totalEarned:0, totalWithdrawn:0,
   referralCode:null, referrals:[], completedTasks:[], watchedAds:[],
-  blocked: false,
   settings:{
-    referralBonus:5, minWithdraw:50, welcomeBonus:2,
-    botUsername:'YourBot', currency:'৳',
+    referralBonus:5, minWithdraw:50, welcomeBonus:2, botUsername:'YourBot',
     watchChain:{ count:3, reward:0.5, slots:[], cooldownSec:30, dailyLimit:5 },
-    withdrawChain:{ enabled:false, count:2, message:'উত্তোলনের আগে বিজ্ঞাপন দেখুন', slots:[] },
+    withdrawChain:{ enabled:false, count:2, message:'Watch ads before withdrawal', slots:[] },
     credentials:{ adsgram:{}, monetag:{}, adsterra:{} },
     tasks:[], supportCards:[], video:{}
   }
 };
 
-// Chain state
 let CS = { active:false, type:null, queue:[], idx:0, total:0, reward:0, done:false, wdData:null };
-
-// Cooldown state
 let cooldownInterval = null;
 let cooldownEndTime = 0;
 
-// ═══════════
+// ════════
 // INIT
-// ═══════════
+// ════════
 window.addEventListener('DOMContentLoaded', async () => {
   const tg = window.Telegram?.WebApp;
   if (tg) { tg.ready(); tg.expand(); tg.setBackgroundColor('#07080d'); }
@@ -456,100 +477,85 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (user) {
     APP.userId = String(user.id);
     APP.userName = [user.first_name, user.last_name].filter(Boolean).join(' ');
-    APP.userPhoto = user.photo_url||null;
+    APP.userPhoto = user.photo_url || null;
   } else {
-    APP.userId='demo_001'; APP.userName='Demo User';
+    APP.userId = 'demo_001'; APP.userName = 'Demo User';
   }
   APP.referralCode = APP.userId;
   const startParam = tg?.initDataUnsafe?.start_param;
 
   try {
-    // Settings listener
     db.ref('settings').on('value', snap => {
-      const s = snap.val()||{};
+      const s = snap.val() || {};
       APP.settings = { ...APP.settings, ...s };
       renderTasks(); renderSupport(); renderVideo();
       updateWatchCard(); updateWdBtn();
-      const rb = APP.settings.referralBonus||5;
+      const rb = APP.settings.referralBonus || 5;
       document.getElementById('rbLbl').textContent = `৳ ${rb.toFixed(2)}`;
       document.getElementById('minWd').textContent = `৳ ${(APP.settings.minWithdraw||50).toFixed(2)}`;
     });
 
-    // Create or load user
-    const uRef = db.ref('users/'+APP.userId);
+    const uRef = db.ref('users/' + APP.userId);
     const snap = await uRef.get();
 
     if (!snap.exists()) {
-      const wb = APP.settings.welcomeBonus||2;
+      const wb = APP.settings.welcomeBonus || 2;
       await uRef.set({
-        userId:APP.userId, userName:APP.userName,
-        balance:wb, totalEarned:wb, totalWithdrawn:0,
-        referredBy:startParam||null, referrals:[],
-        completedTasks:[], watchedAds:[], blocked:false,
-        cooldownEndTime:0,
-        joinedAt:new Date().toISOString()
+        userId: APP.userId, userName: APP.userName,
+        balance: wb, totalEarned: wb, totalWithdrawn: 0,
+        referredBy: startParam || null, referrals: [],
+        completedTasks: [], watchedAds: [], blocked: false,
+        cooldownEndTime: 0, joinedAt: new Date().toISOString()
       });
       if (startParam && startParam !== APP.userId) {
-        const rb = APP.settings.referralBonus||5;
-        const rs = await db.ref('users/'+startParam).get();
+        const rb = APP.settings.referralBonus || 5;
+        const rs = await db.ref('users/' + startParam).get();
         if (rs.exists()) {
-          const rd=rs.val();
-          await db.ref('users/'+startParam).update({
-            balance:(rd.balance||0)+rb, totalEarned:(rd.totalEarned||0)+rb,
-            referrals:[...(rd.referrals||[]),{userId:APP.userId,name:APP.userName,date:new Date().toISOString()}]
+          const rd = rs.val();
+          await db.ref('users/' + startParam).update({
+            balance: (rd.balance||0) + rb,
+            totalEarned: (rd.totalEarned||0) + rb,
+            referrals: [...(rd.referrals||[]), { userId: APP.userId, name: APP.userName, date: new Date().toISOString() }]
           });
         }
       }
     }
 
-    // Realtime user listener
     uRef.on('value', snap => {
-      const d = snap.val(); if(!d) return;
-
-      // CHECK BLOCK STATUS
+      const d = snap.val(); if (!d) return;
       if (d.blocked === true) {
         document.getElementById('blockedScreen').style.display = 'flex';
         document.getElementById('ls').style.display = 'none';
-        // Close Telegram WebApp if possible
         const tg = window.Telegram?.WebApp;
-        if (tg) setTimeout(()=>tg.close(), 500);
+        if (tg) setTimeout(() => tg.close(), 400);
         return;
       }
-
-      APP.balance=d.balance||0; APP.totalEarned=d.totalEarned||0;
-      APP.totalWithdrawn=d.totalWithdrawn||0; APP.referrals=d.referrals||[];
-      APP.completedTasks=d.completedTasks||[]; APP.watchedAds=d.watchedAds||[];
-      cooldownEndTime = d.cooldownEndTime||0;
-
-      updateUI(); updateWatchCard();
-      checkCooldown();
+      APP.balance = d.balance || 0; APP.totalEarned = d.totalEarned || 0;
+      APP.totalWithdrawn = d.totalWithdrawn || 0; APP.referrals = d.referrals || [];
+      APP.completedTasks = d.completedTasks || []; APP.watchedAds = d.watchedAds || [];
+      cooldownEndTime = d.cooldownEndTime || 0;
+      updateUI(); updateWatchCard(); checkCooldown();
     });
 
-    // Withdraw history
     db.ref('withdrawals').orderByChild('userId').equalTo(APP.userId).on('value', snap => {
-      const items=[]; snap.forEach(c=>items.push({id:c.key,...c.val()}));
-      items.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+      const items = []; snap.forEach(c => items.push({ id: c.key, ...c.val() }));
+      items.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
       renderWdHist(items);
     });
 
-  } catch(e) { console.error(e); showToast('⚠️ সংযোগ ত্রুটি'); }
+  } catch(e) { console.error(e); showToast('⚠️ Connection error'); }
 
   updateProfile();
   document.getElementById('ls').style.display = 'none';
 });
 
-// ═══════════════════════════════
+// ═══════════════════
 // COOLDOWN SYSTEM
-// ═══════════════════════════════
+// ═══════════════════
 function checkCooldown() {
   const now = Date.now();
-  if (cooldownEndTime > now) {
-    // Still in cooldown
-    startCooldownUI(cooldownEndTime - now);
-  } else {
-    // No cooldown
-    clearCooldownUI();
-  }
+  if (cooldownEndTime > now) startCooldownUI(cooldownEndTime - now);
+  else clearCooldownUI();
 }
 
 function startCooldownUI(remainingMs) {
@@ -565,11 +571,9 @@ function startCooldownUI(remainingMs) {
   cooldownInterval = setInterval(() => {
     const left = Math.max(0, cooldownEndTime - Date.now());
     const sec = Math.ceil(left / 1000);
-    const pct = (left / (totalSec * 1000)) * 100;
-    bar.style.width = pct + '%';
-
+    bar.style.width = ((left / (totalSec * 1000)) * 100) + '%';
     if (sec > 0) {
-      btn.textContent = `⏳ ${sec} সেকেন্ড অপেক্ষা করুন...`;
+      btn.textContent = `⏳ Wait ${sec}s...`;
     } else {
       clearCooldownUI();
     }
@@ -579,66 +583,48 @@ function startCooldownUI(remainingMs) {
 function clearCooldownUI() {
   clearInterval(cooldownInterval);
   const btn = document.getElementById('watchBtn');
-  const barWrap = document.getElementById('cooldownBarWrap');
-
-  // Check daily limit first
+  document.getElementById('cooldownBarWrap').style.display = 'none';
   if (isDailyLimitReached()) {
     btn.disabled = true;
     btn.className = 'bigbtn watchbtn limit-done';
-    btn.textContent = '✅ আজকের সীমা পূর্ণ হয়েছে';
-    barWrap.style.display = 'none';
+    btn.textContent = "✅ Today's limit reached";
     return;
   }
-
   btn.disabled = false;
   btn.className = 'bigbtn watchbtn';
-  btn.textContent = '▶ বিজ্ঞাপন দেখুন;
-  barWrap.style.display = 'none';
+  btn.textContent = '▶ Watch Ads & Earn';
 }
 
 function isDailyLimitReached() {
   const limit = APP.settings.watchChain?.dailyLimit || 5;
   const today = new Date().toDateString();
-  const todayCount = (APP.watchedAds||[]).filter(w =>
-    w.type==='watch_chain' && new Date(w.date).toDateString()===today
-  ).length;
-  return todayCount >= limit;
+  const count = (APP.watchedAds||[]).filter(w => w.type==='watch_chain' && new Date(w.date).toDateString()===today).length;
+  return count >= limit;
 }
 
-// ═══════════════════════════
-// WATCH CARD UPDATE
-// ═══════════════════════════
 function updateWatchCard() {
-  const wc = APP.settings.watchChain||{};
-  const reward = wc.reward||0.5;
-  const limit = wc.dailyLimit||5;
-  const slots = wc.slots||[];
-
+  const wc = APP.settings.watchChain || {};
+  const reward = wc.reward || 0.5;
+  const limit = wc.dailyLimit || 5;
+  const slots = wc.slots || [];
   document.getElementById('wcAds').textContent = slots.length || wc.count || 0;
   document.getElementById('wcRB').textContent = `+৳ ${reward.toFixed(2)}`;
   document.getElementById('wcLimit').textContent = limit;
   document.getElementById('adovReward').textContent = reward.toFixed(2);
-
   const today = new Date().toDateString();
-  const todayWatched = (APP.watchedAds||[]).filter(w=>
-    w.type==='watch_chain' && new Date(w.date).toDateString()===today
-  );
-  const todayCount = todayWatched.length;
-
+  const todayCount = (APP.watchedAds||[]).filter(w => w.type==='watch_chain' && new Date(w.date).toDateString()===today).length;
   document.getElementById('wcToday').textContent = todayCount;
   document.getElementById('limitProgress').textContent = `${todayCount} / ${limit}`;
-
-  // Check cooldown and limit
   checkCooldown();
 }
 
-// ═══════════════════════
+// ══════════════════════
 // AD CHAIN ENGINE
-// ═══════════════════════
+// ══════════════════════
 function buildQueue(chainData) {
   const slots = chainData.slots || [];
   const creds = APP.settings.credentials || {};
-  return slots.map(netName => ({ name: netName, ...(creds[netName]||{}) }));
+  return slots.map(n => ({ name: n, ...(creds[n]||{}) }));
 }
 
 const NET_DISPLAY = {
@@ -648,60 +634,44 @@ const NET_DISPLAY = {
 };
 
 function startChain(type, wdData=null) {
-  // Check daily limit for watch
-  if (type === 'watch' && isDailyLimitReached()) {
-    showToast('✅ আজকের সীমা পূর্ণ হয়েছে');
-    return;
-  }
-  // Check cooldown for watch
-  if (type === 'watch' && cooldownEndTime > Date.now()) {
-    const sec = Math.ceil((cooldownEndTime - Date.now()) / 1000);
-    showToast(`⏳ ${sec} সেকেন্ড পরে চেষ্টা করুন`);
-    return;
+  if (type==='watch' && isDailyLimitReached()) { showToast("✅ Today's limit reached"); return; }
+  if (type==='watch' && cooldownEndTime > Date.now()) {
+    showToast(`⏳ Wait ${Math.ceil((cooldownEndTime-Date.now())/1000)}s`); return;
   }
 
-  const chainData = type==='watch'
-    ? (APP.settings.watchChain||{})
-    : (APP.settings.withdrawChain||{});
-
+  const chainData = type==='watch' ? (APP.settings.watchChain||{}) : (APP.settings.withdrawChain||{});
   const queue = buildQueue(chainData);
 
   if (!queue.length) {
-    if (type==='watch') { showToast('⚠️ Admin এ ad network configure করুন'); return; }
+    if (type==='watch') { showToast('⚠️ No ads configured'); return; }
     else { submitWithdrawDirect(wdData); return; }
   }
 
   CS = { active:true, type, queue, idx:0, total:queue.length, reward:chainData.reward||0.5, done:false, wdData };
 
-  // Setup overlay
-  const claim = document.getElementById('adovClaim');
   const typeEl = document.getElementById('adovType');
   const msg = document.getElementById('adovMsg');
+  const complete = document.getElementById('adovComplete');
+  complete.classList.remove('show');
 
   if (type === 'watch') {
-    typeEl.textContent = '📺 বিজ্ঞাপন দেখুন';
+    typeEl.textContent = '📺 WATCH & EARN';
     typeEl.className = 'adov-type watch';
     document.getElementById('adovReward').textContent = CS.reward.toFixed(2);
-    document.getElementById('adovRSub').textContent = 'টাকা Reward;
-    claim.className = 'adov-claim watch-c';
-    claim.textContent = '🎉 claim reward!';
+    document.getElementById('adovRSub').textContent = 'reward';
     msg.style.display = 'none';
   } else {
-    typeEl.textContent = '💸 উত্তোলন';
+    typeEl.textContent = '💸 WITHDRAW';
     typeEl.className = 'adov-type wd';
     document.getElementById('adovReward').textContent = (wdData?.amount||0).toFixed(2);
-    document.getElementById('adovRSub').textContent = 'টাকা উত্তোলন হবে';
-    claim.className = 'adov-claim wd-c';
-    claim.textContent = '✅ Claim!';
-    const wdMsg = APP.settings.withdrawChain?.message||'উত্তোলনের আগে বিজ্ঞাপন দেখুন';
+    document.getElementById('adovRSub').textContent = 'to withdraw';
+    const wdMsg = APP.settings.withdrawChain?.message || 'Watch ads before withdrawal';
     msg.textContent = wdMsg; msg.style.display = 'block';
   }
 
-  // Step indicators
   document.getElementById('adovSteps').innerHTML =
-    queue.map((_,i)=>`<div class="adov-s" id="as_${i}"></div>`).join('');
-  claim.classList.remove('vis');
-  document.getElementById('adovTitle').textContent = type==='watch' ? 'watching ads..' : 'বিজ্ঞাপন দেখুন উত্তোলনের জন্য...';
+    queue.map((_,i) => `<div class="adov-s" id="as_${i}"></div>`).join('');
+  document.getElementById('adovTitle').textContent = type==='watch' ? 'Watching Ads...' : 'Watch Ads to Withdraw...';
   document.getElementById('adOverlay').classList.add('open');
 
   playSlot();
@@ -713,11 +683,11 @@ function playSlot() {
 
   const idx = CS.idx;
   const net = CS.queue[idx];
-  const nd = NET_DISPLAY[net.name]||{icon:'📺', label:net.name};
+  const nd = NET_DISPLAY[net.name] || { icon:'📺', label: net.name };
 
-  document.getElementById('adovStepLbl').textContent = `বিজ্ঞাপন ${idx+1} / ${CS.total}`;
+  document.getElementById('adovStepLbl').textContent = `Ad ${idx+1} of ${CS.total}`;
   document.getElementById('adovNetName').textContent = `${nd.icon} ${nd.label}`;
-  document.getElementById('adovStatus').textContent = `${nd.label} Loading...`;
+  document.getElementById('adovStatus').textContent = `Loading ${nd.label}...`;
   document.querySelectorAll('.adov-s').forEach((el,i) => {
     el.className = 'adov-s' + (i<idx?' done':i===idx?' active':'');
   });
@@ -730,37 +700,32 @@ function playSlot() {
   }
 }
 
-// ── ADSGRAM ──
 function playAdsgram(net) {
-  if (!net.blockId) { onSlotSkip('Adsgram: Block ID নেই'); return; }
+  if (!net.blockId) { onSlotSkip(); return; }
   try {
     const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
-    if (!ctrl) { onSlotSkip('Adsgram SDK ready নয়'); return; }
+    if (!ctrl) { onSlotSkip(); return; }
     ctrl.show()
-      .then(r => { r.done ? onSlotDone() : onSlotSkip('Adsgram dismissed'); })
-      .catch(() => onSlotSkip('Adsgram error'));
-  } catch(e) { onSlotSkip('Adsgram: '+e.message); }
+      .then(r => { r.done ? onSlotDone() : onSlotSkip(); })
+      .catch(() => onSlotSkip());
+  } catch(e) { onSlotSkip(); }
 }
 
-// ── MONETAG ──
 function playMonetag(net) {
-  if (!net.zoneId) { onSlotSkip('Monetag: Zone ID নেই'); return; }
-  const type = net.type || 'onclick';
+  if (!net.zoneId) { onSlotSkip(); return; }
   try {
     const sc = document.createElement('script');
     sc.src = `https://oplowerq.com/401/${net.zoneId}/invoke.js`;
-    sc.async = true;
-    sc.setAttribute('data-cfasync','false');
+    sc.async = true; sc.setAttribute('data-cfasync','false');
     sc.onload = () => setTimeout(onSlotDone, 1500);
-    sc.onerror = () => onSlotSkip('Monetag load failed');
+    sc.onerror = () => onSlotSkip();
     document.body.appendChild(sc);
-    setTimeout(() => { if(CS.idx <= CS.total) onSlotDone(); }, 5000);
-  } catch(e) { onSlotSkip('Monetag: '+e.message); }
+    setTimeout(() => { if (CS.active && CS.idx === (CS.total - (CS.total - CS.idx))) onSlotDone(); }, 5000);
+  } catch(e) { onSlotSkip(); }
 }
 
-// ── ADSTERRA ──
 function playAdsterra(net) {
-  if (!net.link && !net.script) { onSlotSkip('Adsterra: কোনো link/script নেই'); return; }
+  if (!net.link && !net.script) { onSlotSkip(); return; }
   try {
     if (net.link) {
       window.open(net.link, '_blank', 'noopener');
@@ -774,89 +739,107 @@ function playAdsterra(net) {
         if (sc.src) ns.src = sc.src; else ns.textContent = sc.textContent;
         document.body.appendChild(ns);
         setTimeout(onSlotDone, 3500);
-      } else { onSlotSkip('Adsterra: script invalid'); }
+      } else onSlotSkip();
     }
-  } catch(e) { onSlotSkip('Adsterra: '+e.message); }
+  } catch(e) { onSlotSkip(); }
 }
 
 function onSlotDone() {
   const el = document.getElementById('as_'+CS.idx);
   if (el) el.className = 'adov-s done';
-  document.getElementById('adovStatus').textContent = `বিজ্ঞাপন ${CS.idx+1} সম্পন্ন ✅`;
+  document.getElementById('adovStatus').textContent = `Ad ${CS.idx+1} complete ✅`;
   CS.idx++;
   setTimeout(playSlot, 600);
 }
 
-function onSlotSkip(reason) {
+function onSlotSkip() {
   const el = document.getElementById('as_'+CS.idx);
   if (el) el.className = 'adov-s skip';
   CS.idx++;
   setTimeout(playSlot, 400);
 }
 
-function chainAllDone() {
+// ════════════════════════════════════
+// AUTO COMPLETE — no claim button
+// ════════════════════════════════════
+async function chainAllDone() {
   CS.done = true;
-  if (CS.type === 'watch') {
-    document.getElementById('adovTitle').textContent = '🎉 সব বিজ্ঞাপন দেখা শেষ!';
-    document.getElementById('adovStatus').textContent = 'Claime Reward';
-  } else {
-    document.getElementById('adovTitle').textContent = '✅ Ads completed';
-    document.getElementById('adovStatus').textContent = 'উত্তোলন সম্পন্ন করতে চাপুন!';
-  }
-  document.getElementById('adovStepLbl').textContent = 'সম্পন্ন!';
+  document.getElementById('adovStepLbl').textContent = 'Done!';
   document.getElementById('adovNetName').textContent = '';
+  document.getElementById('adovStatus').textContent = '';
   document.querySelectorAll('.adov-s').forEach(el => {
     if (!el.classList.contains('skip')) el.className = 'adov-s done';
   });
-  document.getElementById('adovClaim').classList.add('vis');
-}
-
-async function onChainComplete() {
-  if (!CS.done) return;
-  document.getElementById('adOverlay').classList.remove('open');
 
   if (CS.type === 'watch') {
+    // AUTO add balance — no button needed
     const reward = CS.reward;
     const cooldownSec = APP.settings.watchChain?.cooldownSec || 30;
     const newCooldownEnd = Date.now() + (cooldownSec * 1000);
 
-    const snap = await db.ref('users/'+APP.userId).get();
-    const d = snap.val();
-    const nw = [...(d.watchedAds||[]), {
-      date: new Date().toISOString(), reward, type:'watch_chain'
-    }];
-    await db.ref('users/'+APP.userId).update({
-      balance: (d.balance||0) + reward,
-      totalEarned: (d.totalEarned||0) + reward,
-      watchedAds: nw,
-      cooldownEndTime: newCooldownEnd
-    });
-    cooldownEndTime = newCooldownEnd;
-    startCooldownUI(cooldownSec * 1000);
-    showToast(`🎉 +৳ ${reward.toFixed(2)} Claimed`);
-  } else {
-    await submitWithdrawDirect(CS.wdData);
-  }
+    try {
+      const snap = await db.ref('users/' + APP.userId).get();
+      const d = snap.val();
+      const nw = [...(d.watchedAds||[]), { date: new Date().toISOString(), reward, type: 'watch_chain' }];
+      await db.ref('users/' + APP.userId).update({
+        balance: (d.balance||0) + reward,
+        totalEarned: (d.totalEarned||0) + reward,
+        watchedAds: nw,
+        cooldownEndTime: newCooldownEnd
+      });
+      cooldownEndTime = newCooldownEnd;
 
-  CS = { active:false, type:null, queue:[], idx:0, total:0, reward:0, done:false, wdData:null };
+      // Show success animation
+      document.getElementById('adovTitle').textContent = 'Balance Updated!';
+      document.getElementById('adovCompleteTxt').textContent = `+৳ ${reward.toFixed(2)} টাকা Added!`;
+      document.getElementById('adovCompleteSub').textContent = 'Your balance has been updated';
+      document.getElementById('adovComplete').classList.add('show');
+
+      // Auto close after 2 seconds
+      setTimeout(() => {
+        document.getElementById('adOverlay').classList.remove('open');
+        startCooldownUI(newCooldownEnd - Date.now());
+        showToast(`+৳ ${reward.toFixed(2)} টাকা added to your balance!`);
+        CS = { active:false, type:null, queue:[], idx:0, total:0, reward:0, done:false, wdData:null };
+      }, 2000);
+
+    } catch(e) {
+      document.getElementById('adovStatus').textContent = 'Error updating balance';
+      setTimeout(() => document.getElementById('adOverlay').classList.remove('open'), 2000);
+    }
+
+  } else {
+    // Withdraw chain — show message then auto submit
+    document.getElementById('adovTitle').textContent = 'Ads Complete!';
+    document.getElementById('adovStatus').textContent = 'Processing withdrawal...';
+    document.getElementById('adovComplete').classList.add('show');
+    document.getElementById('adovCompleteTxt').textContent = `৳ ${(CS.wdData?.amount||0).toFixed(2)} টাকা`;
+    document.getElementById('adovCompleteSub').textContent = 'Submitting withdrawal request...';
+
+    setTimeout(async () => {
+      await submitWithdrawDirect(CS.wdData);
+      document.getElementById('adOverlay').classList.remove('open');
+      CS = { active:false, type:null, queue:[], idx:0, total:0, reward:0, done:false, wdData:null };
+    }, 1500);
+  }
 }
 
-// ═══════════════════
+// ══════════
 // WITHDRAW
-// ═══════════════════
+// ══════════
 function updateWdBtn() {
-  const wdc = APP.settings.withdrawChain||{};
+  const wdc = APP.settings.withdrawChain || {};
   const info = document.getElementById('wdAdInfo');
   const btn = document.getElementById('wdBtn');
   if (wdc.enabled && (wdc.slots||[]).length > 0) {
     info.style.display = 'block';
     document.getElementById('wdAdInfoTxt').textContent =
-      `${wdc.message||'Withdraw'} (${(wdc.slots||[]).length}টি বিজ্ঞাপন)`;
-    btn.textContent = '▶ Withdraw ';
+      `${wdc.message || 'Watch ads before withdrawal'} (${(wdc.slots||[]).length} ads)`;
+    btn.textContent = '▶ Watch Ads & Withdraw';
     btn.className = 'bigbtn wdbtn-ad';
   } else {
     info.style.display = 'none';
-    btn.textContent = 'Withdraw →';
+    btn.textContent = 'Withdraw Now →';
     btn.className = 'bigbtn wdbtn-main';
   }
 }
@@ -865,19 +848,16 @@ function handleWithdraw() {
   const wallet = document.getElementById('wdWallet').value;
   const account = document.getElementById('wdAcc').value.trim();
   const amount = parseFloat(document.getElementById('wdAmt').value);
-  const minWd = APP.settings.minWithdraw||50;
-  if (!wallet) return showToast('⚠️ Select Method');
-  if (!account) return showToast('⚠️ অ্যাকাউন্ট নম্বর দিন');
-  if (!amount || amount < minWd) return showToast(`⚠️ Minimum ৳ ${minWd.toFixed(2)}`);
-  if (amount > APP.balance) return showToast('⚠️ পর্যাপ্ত ব্যালেন্স নেই');
-  const wlMap={bkash:'bKash',nagad:'Nagad',rocket:'Rocket',binance:'Binance (USDT)',crypto:'Crypto'};
-  const wdData = { wallet, walletLabel:wlMap[wallet]||wallet, account, amount };
-  const wdc = APP.settings.withdrawChain||{};
-  if (wdc.enabled && (wdc.slots||[]).length > 0) {
-    startChain('withdraw', wdData);
-  } else {
-    submitWithdrawDirect(wdData);
-  }
+  const minWd = APP.settings.minWithdraw || 50;
+  if (!wallet) return showToast('⚠️ Select payment method');
+  if (!account) return showToast('⚠️ Enter account number');
+  if (!amount || amount < minWd) return showToast(`⚠️ Minimum ৳${minWd.toFixed(2)}`);
+  if (amount > APP.balance) return showToast('⚠️ Insufficient balance');
+  const wlMap = { bkash:'bKash', nagad:'Nagad', rocket:'Rocket', binance:'Binance (USDT)', crypto:'Crypto' };
+  const wdData = { wallet, walletLabel: wlMap[wallet]||wallet, account, amount };
+  const wdc = APP.settings.withdrawChain || {};
+  if (wdc.enabled && (wdc.slots||[]).length > 0) startChain('withdraw', wdData);
+  else submitWithdrawDirect(wdData);
 }
 
 async function submitWithdrawDirect(wdData) {
@@ -890,156 +870,178 @@ async function submitWithdrawDirect(wdData) {
       totalWithdrawn: APP.totalWithdrawn + wdData.amount
     });
     await db.ref('withdrawals').push({
-      userId:APP.userId, userName:APP.userName, ...wdData,
-      status:'pending', reason:'', createdAt:new Date().toISOString()
+      userId: APP.userId, userName: APP.userName, ...wdData,
+      status: 'pending', reason: '', createdAt: new Date().toISOString()
     });
-    document.getElementById('wdWallet').value='';
-    document.getElementById('wdAcc').value='';
-    document.getElementById('wdAmt').value='';
-    showToast('✅ Withdraw Successful');
-  } catch(e) { showToast('❌ Failed: '+e.message); }
-  btn.disabled=false; btn.textContent=orig;
+    document.getElementById('wdWallet').value = '';
+    document.getElementById('wdAcc').value = '';
+    document.getElementById('wdAmt').value = '';
+    showToast('✅ Withdrawal request submitted!');
+  } catch(e) { showToast('❌ Error: ' + e.message); }
+  btn.disabled = false; btn.textContent = orig;
 }
 
-// ═══════════════
+// ════════
 // TASKS
-// ═══════════════
-function renderTasks(){
-  const tasks=(APP.settings.tasks||[]).filter(t=>t.active!==false);
-  const el=document.getElementById('taskList');
-  if(!tasks.length){el.innerHTML=`<div class="empty"><div class="eic">📋</div>কোনো টাস্ক নেই</div>`;return;}
-  el.innerHTML=tasks.map(t=>{
-    const done=(APP.completedTasks||[]).includes(t.id);
+// ════════
+function renderTasks() {
+  const tasks = (APP.settings.tasks||[]).filter(t => t.active !== false);
+  const el = document.getElementById('taskList');
+  if (!tasks.length) { el.innerHTML=`<div class="empty"><div class="eic">📋</div>No tasks yet</div>`; return; }
+  el.innerHTML = tasks.map(t => {
+    const done = (APP.completedTasks||[]).includes(t.id);
     return `<div class="titem ${done?'done':''}" onclick="${done?'':` doTask('${t.id}')`}">
       <div class="tic" style="background:${t.bg||'rgba(0,224,150,.12)'}">${t.icon||'✅'}</div>
       <div class="tinf"><div class="tnm">${t.name}</div><div class="tds">${t.desc||''}</div></div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div class="trw">+৳ ${Number(t.reward).toFixed(2)}</div>
-        ${done?`<div class="tdone">✓</div>`:`<button class="tbtn" onclick="event.stopPropagation();doTask('${t.id}')">শুরু করুন</button>`}
+        ${done ? `<div class="tdone">✓</div>` : `<button class="tbtn" onclick="event.stopPropagation();doTask('${t.id}')">Start</button>`}
       </div>
     </div>`;
   }).join('');
 }
 
-async function doTask(id){
-  const t=(APP.settings.tasks||[]).find(x=>x.id===id);
-  if(!t||(APP.completedTasks||[]).includes(id))return;
-  if(t.link){window.open(t.link,'_blank');await new Promise(r=>setTimeout(r,1800));}
-  const s=await db.ref('users/'+APP.userId).get();const d=s.val();
+async function doTask(id) {
+  const t = (APP.settings.tasks||[]).find(x => x.id===id);
+  if (!t || (APP.completedTasks||[]).includes(id)) return;
+  if (t.link) { window.open(t.link, '_blank'); await new Promise(r => setTimeout(r, 1800)); }
+  const s = await db.ref('users/'+APP.userId).get(); const d = s.val();
   await db.ref('users/'+APP.userId).update({
-    balance:(d.balance||0)+Number(t.reward),
-    totalEarned:(d.totalEarned||0)+Number(t.reward),
-    completedTasks:[...(d.completedTasks||[]),id]
+    balance: (d.balance||0) + Number(t.reward),
+    totalEarned: (d.totalEarned||0) + Number(t.reward),
+    completedTasks: [...(d.completedTasks||[]), id]
   });
-  showToast(`✅ +৳ ${Number(t.reward).toFixed(2)} টাকা পেয়েছেন!`);
+  showToast(`+৳ ${Number(t.reward).toFixed(2)} টাকা added!`);
 }
 
 // ═══════════
 // SUPPORT
 // ═══════════
-function renderSupport(){
-  const cards=APP.settings.supportCards||[];const el=document.getElementById('supGrid');
-  if(!cards.length){el.innerHTML=`<div class="empty" style="grid-column:span 2">সাপোর্ট লিংক নেই</div>`;return;}
-  el.innerHTML=cards.map(c=>`<a href="${c.link||'#'}" class="scard" target="_blank">
-    <div class="sic" style="background:${c.bg||'var(--as)'}">${c.icon||'💬'}</div>
-    <div class="st">${c.title}</div>
-    <div class="sd">${c.desc||''}</div>
-  </a>`).join('');
+function renderSupport() {
+  const cards = APP.settings.supportCards || [];
+  const el = document.getElementById('supGrid');
+  if (!cards.length) { el.innerHTML=`<div class="empty" style="grid-column:span 2;font-family:'Hind Siliguri',sans-serif">কোনো সাপোর্ট লিংক নেই</div>`; return; }
+  el.innerHTML = cards.map(c => `
+    <a href="${c.link||'#'}" class="scard" target="_blank">
+      <div class="sic" style="background:${c.bg||'var(--as)'}">${c.icon||'💬'}</div>
+      <div class="st">${c.title}</div>
+      <div class="sd">${c.desc||''}</div>
+    </a>`).join('');
 }
-function renderVideo(){
-  const v=APP.settings.video||{};
-  document.getElementById('vtitle').textContent=v.title||'EarnX ব্যবহার করবেন কিভাবে';
-  const ph=document.getElementById('vph');
-  if(v.url){let u=v.url;const y=u.match(/(?:youtu\.be\/|v=)([^&?#\s]+)/);if(y)u=`https://www.youtube.com/embed/${y[1]}?rel=0`;ph.innerHTML=`<iframe src="${u}" allow="autoplay;fullscreen" allowfullscreen></iframe>`;}
+
+function renderVideo() {
+  const v = APP.settings.video || {};
+  document.getElementById('vtitle').textContent = v.title || 'EarnX কিভাবে ব্যবহার করবেন';
+  const ph = document.getElementById('vph');
+  if (v.url) {
+    let u = v.url;
+    const y = u.match(/(?:youtu\.be\/|v=)([^&?#\s]+)/);
+    if (y) u = `https://www.youtube.com/embed/${y[1]}?rel=0`;
+    ph.innerHTML = `<iframe src="${u}" allow="autoplay;fullscreen" allowfullscreen></iframe>`;
+  }
 }
 
 // ═══════════
 // REFERRAL
 // ═══════════
-function renderRefList(){
-  const el=document.getElementById('rList');
-  if(!APP.referrals.length){el.innerHTML=`<div class="empty"><div class="eic">👤</div>এখনো কোনো রেফারেল নেই</div>`;return;}
-  el.innerHTML=[...APP.referrals].reverse().map(r=>`
+function renderRefList() {
+  const el = document.getElementById('rList');
+  if (!APP.referrals.length) { el.innerHTML=`<div class="empty"><div class="eic">👤</div>No referrals yet</div>`; return; }
+  el.innerHTML = [...APP.referrals].reverse().map(r => `
     <div class="ritem">
       <div class="rava">${(r.name||'?').charAt(0).toUpperCase()}</div>
       <div><div class="run">${r.name}</div><div class="rdt">${ta(r.date)}</div></div>
       <div class="re">+৳ ${Number(APP.settings.referralBonus||5).toFixed(2)}</div>
     </div>`).join('');
 }
-function copyRef(){
-  const l=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;
-  navigator.clipboard?.writeText(l).catch(()=>{});showToast('📋 লিংক কপি হয়েছে!');
-}
-function shareRef(){
-  const l=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;
-  const tg=window.Telegram?.WebApp;
-  const u=`https://t.me/share/url?url=${encodeURIComponent(l)}&text=${encodeURIComponent('🚀 EarnX এ যোগ দিন ও প্রতিদিন টাকা আয় করুন!')}`;
-  if(tg)tg.openTelegramLink(u);else window.open(u,'_blank');
+
+function copyRef() {
+  const l = `https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;
+  navigator.clipboard?.writeText(l).catch(() => {});
+  showToast('📋 Referral link copied!');
 }
 
-// ════════════════
-// WITHDRAW HISTORY
-// ════════════════
-function renderWdHist(items){
-  const el=document.getElementById('wdHist');
-  if(!items.length){el.innerHTML=`<div class="empty"><div class="eic">📭</div>কোনো উত্তোলন নেই</div>`;return;}
-  const wm={bkash:{ic:'📱',bg:'rgba(220,50,120,.15)'},nagad:{ic:'💚',bg:'rgba(0,130,70,.15)'},rocket:{ic:'🚀',bg:'rgba(138,0,230,.15)'},binance:{ic:'🟡',bg:'rgba(240,185,11,.15)'},crypto:{ic:'₿',bg:'rgba(247,147,26,.15)'}};
-  const sm={pending:'sp',approved:'sa',rejected:'sr'};
-  const sl={pending:'⏳ অপেক্ষমান',approved:'✓ অনুমোদিত',rejected:'✗ প্রত্যাখ্যাত'};
-  el.innerHTML=items.map(h=>{
-    const m=wm[h.wallet]||{ic:'💰',bg:'rgba(255,255,255,.08)'};
-    return`<div class="hitem">
+function shareRef() {
+  const l = `https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;
+  const tg = window.Telegram?.WebApp;
+  const u = `https://t.me/share/url?url=${encodeURIComponent(l)}&text=${encodeURIComponent('🚀 Join EarnX & earn money daily!')}`;
+  if (tg) tg.openTelegramLink(u); else window.open(u, '_blank');
+}
+
+// ═══════════════════
+// WITHDRAWAL HISTORY
+// ═══════════════════
+function renderWdHist(items) {
+  const el = document.getElementById('wdHist');
+  if (!items.length) { el.innerHTML=`<div class="empty"><div class="eic">📭</div>No withdrawals yet</div>`; return; }
+  const wm = { bkash:{ic:'📱',bg:'rgba(220,50,120,.15)'}, nagad:{ic:'💚',bg:'rgba(0,130,70,.15)'}, rocket:{ic:'🚀',bg:'rgba(138,0,230,.15)'}, binance:{ic:'🟡',bg:'rgba(240,185,11,.15)'}, crypto:{ic:'₿',bg:'rgba(247,147,26,.15)'} };
+  const sm = { pending:'sp', approved:'sa', rejected:'sr' };
+  const sl = { pending:'⏳ Pending', approved:'✓ Approved', rejected:'✗ Rejected' };
+  el.innerHTML = items.map(h => {
+    const m = wm[h.wallet] || { ic:'💰', bg:'rgba(255,255,255,.08)' };
+    return `<div class="hitem">
       <div class="htop">
         <div class="hwallet"><div class="hwic" style="background:${m.bg}">${m.ic}</div><div class="hwn">${h.walletLabel||h.wallet}</div></div>
         <div class="hamt">৳ ${Number(h.amount).toFixed(2)}</div>
       </div>
-      <div class="hbtm"><div class="hacc">${h.account}</div><div class="sbdg ${sm[h.status]||'sp'}">${sl[h.status]||'অপেক্ষমান'}</div></div>
+      <div class="hbtm"><div class="hacc">${h.account}</div><div class="sbdg ${sm[h.status]||'sp'}">${sl[h.status]||'Pending'}</div></div>
       <div class="ht">🕐 ${fd(h.createdAt)}</div>
-      ${h.status==='rejected'&&h.reason?`<div class="hrr">⚠️ <span>${h.reason}</span></div>`:''}
+      ${h.status==='rejected'&&h.reason ? `<div class="hrr">⚠️ <span>${h.reason}</span></div>` : ''}
     </div>`;
   }).join('');
 }
 
-// ═════════
+// ════════
 // UI
-// ═════════
-function updateProfile(){
-  document.getElementById('uname').textContent=APP.userName;
-  document.getElementById('uid').textContent='ID: '+APP.userId;
-  const av=document.getElementById('uava');
-  if(APP.userPhoto)av.innerHTML=`<img src="${APP.userPhoto}" alt="a">`;
-  else av.textContent=APP.userName.charAt(0).toUpperCase();
+// ════════
+function updateProfile() {
+  document.getElementById('uname').textContent = APP.userName;
+  document.getElementById('uid').textContent = 'ID: ' + APP.userId;
+  const av = document.getElementById('uava');
+  if (APP.userPhoto) av.innerHTML = `<img src="${APP.userPhoto}" alt="a">`;
+  else av.textContent = APP.userName.charAt(0).toUpperCase();
 }
 
-function updateUI(){
-  document.getElementById('hbal').textContent=APP.balance.toFixed(2);
-  document.getElementById('sEarned').textContent=APP.totalEarned.toFixed(2);
-  document.getElementById('sWd').textContent=APP.totalWithdrawn.toFixed(2);
-  document.getElementById('sRef').textContent=APP.referrals.length;
-  document.getElementById('wdBal').textContent=APP.balance.toFixed(2);
-  document.getElementById('rTotal').textContent=APP.referrals.length;
-  document.getElementById('rCoins').textContent=`৳${(APP.referrals.length*(APP.settings.referralBonus||5)).toFixed(2)}`;
-  document.getElementById('rActive').textContent=APP.referrals.length;
-  document.getElementById('rLink').textContent=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;
+function updateUI() {
+  document.getElementById('hbal').textContent = APP.balance.toFixed(2);
+  document.getElementById('sEarned').textContent = APP.totalEarned.toFixed(2);
+  document.getElementById('sWd').textContent = APP.totalWithdrawn.toFixed(2);
+  document.getElementById('sRef').textContent = APP.referrals.length;
+  document.getElementById('wdBal').textContent = APP.balance.toFixed(2);
+  document.getElementById('rTotal').textContent = APP.referrals.length;
+  document.getElementById('rCoins').textContent = `৳${(APP.referrals.length * (APP.settings.referralBonus||5)).toFixed(2)}`;
+  document.getElementById('rActive').textContent = APP.referrals.length;
+  document.getElementById('rLink').textContent = `https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;
   renderRefList(); renderTasks();
 }
 
-function showPage(p,el){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
+function showPage(p, el) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
   el.classList.add('active');
 }
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;
-  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
-}
-function ta(iso){if(!iso)return'';const m=Math.floor((Date.now()-new Date(iso))/60000);if(m<1)return'এইমাত্র';if(m<60)return m+' মিনিট আগে';const h=Math.floor(m/60);if(h<24)return h+' ঘণ্টা আগে';return Math.floor(h/24)+' দিন আগে';}
-function fd(iso){if(!iso)return'—';return new Date(iso).toLocaleString('bn-BD');}
 
-document.getElementById('adOverlay').addEventListener('click',function(e){
-  if(e.target===this&&CS.done){this.classList.remove('open');CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};}
-});
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function ta(iso) {
+  if (!iso) return '';
+  const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (m < 1) return 'Just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+
+function fd(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('en-US', { dateStyle:'medium', timeStyle:'short' });
+}
 </script>
 </body>
-</html>
+  </html>
