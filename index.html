@@ -483,7 +483,7 @@ let APP = {
     credentials:{ adsgram:{}, monetag:{}, adsterra:{} },
     tasks:[], supportCards:[], video:{},
     // Welcome popup
-    welcomePopup:{ enabled:false, emoji:'🎉', title:'Welcome!', message:'Start watching ads and earn money every day!' }
+    welcome:{ enabled:false, emoji:'🎉', title:'Welcome!', message:'Start watching ads and earn money every day!' }
   }
 };
 
@@ -512,6 +512,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const startParam = tg?.initDataUnsafe?.start_param;
 
   try {
+    let welcomeShownThisSession = false;
     db.ref('settings').on('value', snap => {
       const s = snap.val() || {};
       APP.settings = { ...APP.settings, ...s };
@@ -520,6 +521,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       const rb = APP.settings.referralBonus || 5;
       document.getElementById('rbLbl').textContent = `৳ ${rb.toFixed(2)}`;
       document.getElementById('minWd').textContent = `৳ ${(APP.settings.minWithdraw||50).toFixed(2)}`;
+      // Show welcome popup — every app open, only once per settings load
+      if (!welcomeShownThisSession) {
+        welcomeShownThisSession = true;
+        setTimeout(checkWelcomePopup, 800);
+      }
     });
 
     const uRef = db.ref('users/' + APP.userId);
@@ -574,16 +580,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   updateProfile();
   document.getElementById('ls').style.display = 'none';
-
-  // Show welcome popup (only once per session)
-  setTimeout(checkWelcomePopup, 600);
 });
 
 // ════════════════════════
 // WELCOME POPUP SYSTEM
 // ════════════════════════
 function checkWelcomePopup() {
-  const wp = APP.settings.welcomePopup || {};
+  const wp = APP.settings.welcome || {};
   if (!wp.enabled) return;
 
   // Show every time app opens
