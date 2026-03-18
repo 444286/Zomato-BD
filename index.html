@@ -586,18 +586,12 @@ function checkWelcomePopup() {
   const wp = APP.settings.welcomePopup || {};
   if (!wp.enabled) return;
 
-  // Show only once per day
-  const lastShown = localStorage.getItem('wp_shown_' + APP.userId);
-  const today = new Date().toDateString();
-  if (lastShown === today) return;
-
-  // Set content from Firebase
+  // Show every time app opens
   document.getElementById('welcomeEmoji').textContent = wp.emoji || '🎉';
   document.getElementById('welcomeTitle').textContent = wp.title || 'Welcome!';
   document.getElementById('welcomeMsg').textContent = wp.message || 'Start earning today!';
 
   document.getElementById('welcomeScreen').classList.add('open');
-  localStorage.setItem('wp_shown_' + APP.userId, today);
 }
 
 function closeWelcome() {
