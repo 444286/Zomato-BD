@@ -166,7 +166,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 /* ══ SUPPORT ══ */
 .vcard{background:#000;border-radius:20px;overflow:hidden;margin-bottom:14px;border:1px solid var(--border)}
 .vph{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a1a,#141428);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;cursor:pointer}
-.vph iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 .vplay{width:62px;height:62px;border-radius:50%;background:rgba(124,111,253,.75);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,.2);z-index:2}
 .vbar{padding:12px 16px;background:var(--bg2)}
 .vbart{font-size:13px;font-weight:600;color:#fff;font-family:'Hind Siliguri',sans-serif}
@@ -276,7 +275,7 @@ select.fi option{background:#1a1d26}
     <div class="welcome-emoji" id="welcomeEmoji">🎉</div>
     <div class="welcome-title" id="welcomeTitle">Welcome!</div>
     <div class="welcome-msg" id="welcomeMsg">Start watching ads and earn money every day!</div>
-    <button class="welcome-btn" onclick="closeWelcome()">ঠিক আছে →</button>
+    <button class="welcome-btn" onclick="closeWelcome()">Let's Go! →</button>
   </div>
 </div>
 
@@ -1009,16 +1008,28 @@ function renderSupport() {
 }
 
 function renderVideo() {
-  const v=APP.settings.video||{};
-  document.getElementById('vtitle').textContent=v.title||'কিভাবে কাজ করবেন তার ভিডিও';
-  const ph=document.getElementById('vph');
-  if(v.url){let u=v.url;const y=u.match(/(?:youtu\.be\/|v=)([^&?#\s]+)/);if(y)u=`https://www.youtube.com/embed/${y[1]}?rel=0`;ph.innerHTML=`<iframe src="${u}" allow="autoplay;fullscreen" allowfullscreen></iframe>`;}
+  const v = APP.settings.video || {};
+  document.getElementById('vtitle').textContent = v.title || 'কিভাবে কাজ করবেন তার ভিডিও';
+  // Always show play button — no iframe
+  document.getElementById('vph').innerHTML = `
+    <div class="vplay">▶</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.5);z-index:2;font-family:'Hind Siliguri',sans-serif">টিউটোরিয়াল ভিডিও</div>`;
 }
 
 function openTutorial() {
-  const v=APP.settings.video||{}; if(!v.url){showToast('⚠️ Tutorial not set');return;}
-  const tg=window.Telegram?.WebApp;
-  if(tg&&!v.url.includes('youtube'))tg.openTelegramLink(v.url);else window.open(v.url,'_blank');
+  const v = APP.settings.video || {};
+  if (!v.url) { showToast('⚠️ Tutorial link set করা নেই'); return; }
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    // YouTube হলে openLink, Telegram link হলে openTelegramLink
+    if (v.url.includes('t.me') || v.url.includes('telegram')) {
+      tg.openTelegramLink(v.url);
+    } else {
+      tg.openLink(v.url);
+    }
+  } else {
+    window.open(v.url, '_blank');
+  }
 }
 
 // ═══════════
