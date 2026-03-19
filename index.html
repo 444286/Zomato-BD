@@ -877,62 +877,57 @@ function playMonetag(net) {
   const gi = CS.idx; let called = false;
   const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
 
-  document.getElementById('adovStatus').textContent = 'Loading ad...';
-
   try {
-    const adType = net.type || 'onclick';
+    const zoneId = net.zoneId;
+    const sdkId = 'show_' + zoneId;
 
-    if (adType === 'onclick' || adType === 'interstitial') {
-      // Monetag Onclick/Popunder — open direct popunder URL
-      // User দেখে ফিরে এলে visibilitychange detect করবো
-      const monetagUrl = `https://www.profitablegatecpm.com/${net.zoneId}/invoke.js`;
+    let visHandler = null;
+    let fallbackTimer = null;
 
-      // Method: script inject করো, তারপর visibility change দিয়ে detect করো
-      let visHandler = null;
-      let fallbackTimer = null;
+    const cleanup = () => {
+      if (visHandler) document.removeEventListener('visibilitychange', visHandler);
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+    };
 
-      const cleanup = () => {
-        if (visHandler) document.removeEventListener('visibilitychange', visHandler);
-        if (fallbackTimer) clearTimeout(fallbackTimer);
-      };
+    // visibilitychange — user ad দেখে ফিরে এলে detect করো
+    visHandler = () => {
+      if (document.visibilityState === 'visible') {
+        cleanup();
+        setTimeout(() => adv(true), 600);
+      }
+    };
 
-      visHandler = () => {
-        if (document.visibilityState === 'visible') {
-          cleanup();
-          setTimeout(() => adv(true), 500);
-        }
-      };
+    // Remove old Monetag script if exists (same zone)
+    const oldSc = document.getElementById('monetag_sc_' + zoneId);
+    if (oldSc) oldSc.remove();
 
-      // Inject Monetag script
-      const sc = document.createElement('script');
-      sc.src = monetagUrl;
-      sc.async = true;
-      sc.setAttribute('data-cfasync', 'false');
-      sc.onload = () => {
-        document.getElementById('adovStatus').textContent = 'Ad shown ✅';
-        // Listen for user returning from ad
+    // Inject Monetag SDK — libtl.com (official)
+    const sc = document.createElement('script');
+    sc.id = 'monetag_sc_' + zoneId;
+    sc.src = '//libtl.com/sdk.js';
+    sc.setAttribute('data-zone', zoneId);
+    sc.setAttribute('data-sdk', sdkId);
+    sc.async = true;
+
+    sc.onload = () => {
+      // SDK loaded — try to show ad
+      if (window[sdkId] && typeof window[sdkId].show === 'function') {
+        window[sdkId].show()
+          .then(() => { cleanup(); adv(true); })
+          .catch(() => { cleanup(); adv(false); });
+      } else {
+        // SDK loaded but no show method — popunder type, listen visibility
         document.addEventListener('visibilitychange', visHandler);
-        // Fallback: 8 seconds এ advance
         fallbackTimer = setTimeout(() => { cleanup(); adv(true); }, 8000);
-      };
-      sc.onerror = () => { cleanup(); adv(false); };
-      document.body.appendChild(sc);
+      }
+    };
 
-      // Overall fallback
-      setTimeout(() => { cleanup(); adv(true); }, 12000);
+    sc.onerror = () => { cleanup(); adv(false); };
+    document.body.appendChild(sc);
 
-    } else if (adType === 'inpage') {
-      // In-page push — just inject and wait
-      const sc = document.createElement('script');
-      sc.src = `https://humboldtcount.com/tag.min.js`;
-      sc.async = true;
-      sc.onload = () => setTimeout(() => adv(true), 3000);
-      sc.onerror = () => adv(false);
-      document.head.appendChild(sc);
-      setTimeout(() => adv(true), 6000);
-    } else {
-      adv(false);
-    }
+    // Overall fallback 12s
+    setTimeout(() => { cleanup(); adv(true); }, 12000);
+
   } catch(e) { adv(false); }
 }
 
