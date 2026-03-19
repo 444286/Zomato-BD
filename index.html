@@ -8,7 +8,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<script src="https://pl28943998.profitablecpmratenetwork.com/a9/9a/be/a99abee5ed3f2be3d61ef0e56db88d1b.js"></script>
 <!-- Monetag SDK — dynamically injected from Admin settings -->
 <script>
 function loadMonetag(zoneId) {
@@ -843,6 +842,9 @@ function startChain(type, wdData=null) {
   const queue = buildQueue(chainData);
   if (!queue.length) { if (type==='watch') { showToast('⚠️ No ads configured'); return; } else { submitWithdrawDirect(wdData); return; } }
   CS = { active:true, type, queue, idx:0, total:queue.length, reward:chainData.reward||0.5, done:false, wdData };
+  SLOT_LOCK = false;
+  if (SLOT_FALLBACK) { clearTimeout(SLOT_FALLBACK); SLOT_FALLBACK = null; }
+  _visHandler = null;
   const typeEl = document.getElementById('adovType');
   const msg = document.getElementById('adovMsg');
   document.getElementById('adovComplete').classList.remove('show');
@@ -862,145 +864,147 @@ function startChain(type, wdData=null) {
   playSlot();
 }
 
+// ─── SLOT ENGINE ───────────────────────────────────────────────
+// Global slot lock — একটা slot চলাকালীন অন্য কোনো advance হবে না
+let SLOT_LOCK = false;
+let SLOT_FALLBACK = null;
+
+function advanceSlot(done) {
+  // Lock check — already advanced?
+  if (!CS.active || SLOT_LOCK) return;
+  SLOT_LOCK = true;
+
+  // Clear any pending fallback
+  if (SLOT_FALLBACK) { clearTimeout(SLOT_FALLBACK); SLOT_FALLBACK = null; }
+
+  // Remove visibilitychange listeners
+  document.removeEventListener('visibilitychange', _visHandler);
+
+  // Mark step
+  const el = document.getElementById('as_' + CS.idx);
+  if (el) el.className = 'adov-s done';
+  CS.idx++;
+
+  // Next slot — unlock first
+  SLOT_LOCK = false;
+  playSlot();
+}
+
+// Shared visibilitychange handler (only one at a time)
+let _visHandler = null;
+
 function playSlot() {
-  if (!CS.active) return;
+  if (!CS.active || SLOT_LOCK) return;
   if (CS.idx >= CS.total) { chainAllDone(); return; }
+
   const idx = CS.idx;
   const net = CS.queue[idx];
-  const nd = NET_DISPLAY[net.name] || { icon:'📺', label: net.name };
-  document.getElementById('adovStepLbl').textContent = `Ad ${idx+1} of ${CS.total}`;
-  document.getElementById('adovNetName').textContent = '';
-  document.getElementById('adovStatus').textContent = `Loading ${nd.label}...`;
-  document.querySelectorAll('.adov-s').forEach((el,i) => { el.className = 'adov-s' + (i<idx?' done':i===idx?' active':''); });
+
+  // Update progress dots
+  document.querySelectorAll('.adov-s').forEach((el,i) => {
+    el.className = 'adov-s' + (i<idx?' done':i===idx?' active':'');
+  });
+
   switch(net.name) {
     case 'adsgram':  playAdsgram(net); break;
     case 'monetag':  playMonetag(net); break;
     case 'adsterra': playAdsterra(net); break;
-    default: onSlotDone();
+    default: advanceSlot(true);
   }
 }
 
 function playAdsgram(net) {
-  if (!net.blockId) { onSlotSkip(); return; }
-  const gi = CS.idx; let called = false;
-  const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
+  if (!net.blockId) { advanceSlot(true); return; }
   try {
     const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
-    if (!ctrl) { adv(false); return; }
-    ctrl.show().then(r => adv(true)).catch(() => adv(true));
-  } catch(e) { adv(false); }
+    if (!ctrl) { advanceSlot(true); return; }
+
+    // Adsgram এ fallback দরকার নেই — সরাসরি callback আসে
+    ctrl.show()
+      .then(() => advanceSlot(true))
+      .catch(() => advanceSlot(true));
+  } catch(e) { advanceSlot(true); }
 }
 
 function playMonetag(net) {
-  if (!net.zoneId) { onSlotSkip(); return; }
-  const gi = CS.idx; let called = false;
-  const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
+  if (!net.zoneId) { advanceSlot(true); return; }
 
-  try {
-    const zoneId = String(net.zoneId);
-    const fnName = 'show_' + zoneId; // e.g. show_10748925
+  const zoneId = String(net.zoneId);
+  const fnName = 'show_' + zoneId;
 
-    // Ensure SDK loaded in head
-    if (!document.getElementById('monetag-sdk')) {
-      loadMonetag(zoneId);
+  // SDK load নিশ্চিত করো
+  if (!document.getElementById('monetag-sdk')) loadMonetag(zoneId);
+
+  // SDK ready হওয়ার জন্য অপেক্ষা করো
+  const waitAndShow = (tries = 0) => {
+    if (!CS.active) return; // chain বন্ধ হলে stop
+
+    if (typeof window[fnName] === 'function') {
+      // SDK ready — show ad, .then() এ advance
+      window[fnName]()
+        .then(() => advanceSlot(true))
+        .catch(() => advanceSlot(true));
+
+    } else if (tries < 40) {
+      setTimeout(() => waitAndShow(tries + 1), 100); // max 4s wait
+    } else {
+      advanceSlot(true); // SDK আসেনি — skip
     }
+  };
 
-    // Wait for SDK function to be available, then call it
-    const waitAndShow = (tries = 0) => {
-      if (typeof window[fnName] === 'function') {
-        // Monetag Rewarded Interstitial — exact usage from their docs
-        window[fnName]()
-          .then(() => { adv(true); })
-          .catch(() => { adv(true); }); // skip বা fail — তবুও next এ যাও
-      } else if (tries < 30) {
-        // SDK not ready yet, wait 100ms (max 3s)
-        setTimeout(() => waitAndShow(tries + 1), 100);
-      } else {
-        // Timeout — skip this slot
-        adv(false);
-      }
-    };
-
-    waitAndShow();
-
-    // Hard fallback 10s
-    setTimeout(() => adv(true), 10000);
-
-  } catch(e) { adv(false); }
+  waitAndShow();
 }
 
 function playAdsterra(net) {
-  if (!net.link && !net.script) { onSlotSkip(); return; }
-  const gi = CS.idx; let called = false;
-  const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
-
-  document.getElementById('adovStatus').textContent = 'Loading ad...';
+  if (!net.link && !net.script) { advanceSlot(true); return; }
 
   try {
     if (net.link) {
-      // Direct link — open, then visibilitychange এ detect করো user ফিরে এলো কিনা
-      let visHandler = null;
-      let fallbackTimer = null;
+      // Open link, then visibilitychange দিয়ে user return detect
+      window.open(net.link, '_blank', 'noopener');
 
-      const cleanup = () => {
-        if (visHandler) document.removeEventListener('visibilitychange', visHandler);
-        if (fallbackTimer) clearTimeout(fallbackTimer);
-      };
+      // Remove old handler if any
+      if (_visHandler) document.removeEventListener('visibilitychange', _visHandler);
 
-      visHandler = () => {
+      _visHandler = () => {
         if (document.visibilityState === 'visible') {
-          cleanup();
-          setTimeout(() => adv(true), 500);
+          document.removeEventListener('visibilitychange', _visHandler);
+          _visHandler = null;
+          advanceSlot(true);
         }
       };
+      document.addEventListener('visibilitychange', _visHandler);
 
-      // Open ad link
-      window.open(net.link, '_blank', 'noopener');
-      document.getElementById('adovStatus').textContent = 'Ad shown ✅';
-
-      // Listen for return
-      document.addEventListener('visibilitychange', visHandler);
-      // Fallback: 8s
-      fallbackTimer = setTimeout(() => { cleanup(); adv(true); }, 8000);
+      // Fallback: user যদি না ফেরে 10s এ
+      SLOT_FALLBACK = setTimeout(() => {
+        document.removeEventListener('visibilitychange', _visHandler);
+        _visHandler = null;
+        advanceSlot(true);
+      }, 10000);
 
     } else if (net.script) {
-      // Script inject
       const div = document.createElement('div');
       div.innerHTML = net.script;
-      const scripts = div.querySelectorAll('script');
-      if (scripts.length) {
-        scripts.forEach(sc => {
-          const ns = document.createElement('script');
-          if (sc.src) { ns.src = sc.src; ns.async = true; }
-          else { ns.textContent = sc.textContent; }
-          document.body.appendChild(ns);
-        });
-        setTimeout(() => adv(true), 4000);
-      } else {
-        adv(false);
-      }
+      div.querySelectorAll('script').forEach(sc => {
+        const ns = document.createElement('script');
+        if (sc.src) { ns.src = sc.src; ns.async = true; }
+        else { ns.textContent = sc.textContent; }
+        document.body.appendChild(ns);
+      });
+      SLOT_FALLBACK = setTimeout(() => advanceSlot(true), 4000);
     }
-  } catch(e) { adv(false); }
+  } catch(e) { advanceSlot(true); }
 }
 
-function onSlotDone() {
-  if (!CS.active) return;
-  const el = document.getElementById('as_'+CS.idx);
-  if (el) el.className = 'adov-s done';
-  document.getElementById('adovStatus').textContent = `Ad ${CS.idx+1} complete ✅`;
-  CS.idx++; playSlot();
-}
-
-function onSlotSkip() {
-  if (!CS.active) return;
-  const el = document.getElementById('as_'+CS.idx);
-  if (el) el.className = 'adov-s skip';
-  CS.idx++; playSlot();
-}
+function onSlotDone() { advanceSlot(true); }
+function onSlotSkip() { advanceSlot(true); }
 
 async function chainAllDone() {
   if (CS.done) return;
   CS.done = true; CS.active = false;
+  SLOT_LOCK = false;
+  if (SLOT_FALLBACK) { clearTimeout(SLOT_FALLBACK); SLOT_FALLBACK = null; }
+  if (_visHandler) { document.removeEventListener('visibilitychange', _visHandler); _visHandler = null; }
   document.getElementById('adovStepLbl').textContent = 'Done!';
   document.getElementById('adovNetName').textContent = '';
   document.getElementById('adovStatus').textContent = '';
