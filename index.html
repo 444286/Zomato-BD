@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Zomato Platform</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src='//libtl.com/sdk.js' data-zone='10748925' data-sdk='show_10748925'></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
@@ -276,7 +275,7 @@ select.fi option{background:#1a1d26}
     <div class="welcome-emoji" id="welcomeEmoji">🎉</div>
     <div class="welcome-title" id="welcomeTitle">Welcome!</div>
     <div class="welcome-msg" id="welcomeMsg">Start watching ads and earn money every day!</div>
-    <button class="welcome-btn" onclick="closeWelcome()">ঠিক আছে! →</button>
+    <button class="welcome-btn" onclick="closeWelcome()">Let's Go! →</button>
   </div>
 </div>
 
@@ -373,7 +372,7 @@ select.fi option{background:#1a1d26}
 
 <!-- WALLET -->
 <div class="page" id="page-wallet">
-  <div class="pgt"><div class="pgtitle">Withdraw</div></div>
+  <div class="pgt"><div class="pgtitle">Wallet</div></div>
   <div class="wbal">
     <div class="wbl">Available Balance</div>
     <div class="wba-wrap"><div class="wba" id="wdBal">0.00</div><div class="wba-taka">টাকা</div></div>
@@ -398,7 +397,6 @@ select.fi option{background:#1a1d26}
     <div class="fg">
       <span class="flbl">Amount</span>
       <input class="fi" type="number" id="wdAmt" placeholder="0.00">
-      
       <div style="font-size:11px;color:var(--muted);margin-top:5px;font-family:'Inter',sans-serif">Minimum: <span id="minWd" style="color:var(--taka);font-family:'Hind Siliguri',sans-serif">৳ 50</span></div>
     </div>
     <button class="bigbtn wdbtn-main" id="wdBtn" onclick="handleWithdraw()">Withdraw Now →</button>
@@ -412,7 +410,7 @@ select.fi option{background:#1a1d26}
   <div class="ni active" onclick="showPage('home',this)"><div class="ni-ic">🏠</div><div class="ni-lb">Home</div><div class="ni-dot"></div></div>
   <div class="ni" onclick="showPage('support',this)"><div class="ni-ic">☎️</div><div class="ni-lb">Support</div><div class="ni-dot"></div></div>
   <div class="ni" onclick="showPage('referral',this)"><div class="ni-ic">🤝</div><div class="ni-lb">Referral</div><div class="ni-dot"></div></div>
-  <div class="ni" onclick="showPage('wallet',this)"><div class="ni-ic">💰</div><div class="ni-lb">Withdraw</div><div class="ni-dot"></div></div>
+  <div class="ni" onclick="showPage('wallet',this)"><div class="ni-ic">💰</div><div class="ni-lb">Wallet</div><div class="ni-dot"></div></div>
 </nav>
 
 <!-- TASK VERIFY OVERLAY -->
@@ -877,14 +875,63 @@ function playMonetag(net) {
   if (!net.zoneId) { onSlotSkip(); return; }
   const gi = CS.idx; let called = false;
   const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
+
+  document.getElementById('adovStatus').textContent = '💰 Monetag ad loading...';
+
   try {
-    const sc = document.createElement('script');
-    sc.src = `https://oplowerq.com/401/${net.zoneId}/invoke.js`;
-    sc.async = true; sc.setAttribute('data-cfasync','false');
-    sc.onload = () => setTimeout(() => adv(true), 1500);
-    sc.onerror = () => adv(false);
-    document.body.appendChild(sc);
-    setTimeout(() => adv(true), 5000);
+    const adType = net.type || 'onclick';
+
+    if (adType === 'onclick' || adType === 'interstitial') {
+      // Monetag Onclick/Popunder — open direct popunder URL
+      // User দেখে ফিরে এলে visibilitychange detect করবো
+      const monetagUrl = `https://www.profitablegatecpm.com/${net.zoneId}/invoke.js`;
+
+      // Method: script inject করো, তারপর visibility change দিয়ে detect করো
+      let visHandler = null;
+      let fallbackTimer = null;
+
+      const cleanup = () => {
+        if (visHandler) document.removeEventListener('visibilitychange', visHandler);
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+      };
+
+      visHandler = () => {
+        if (document.visibilityState === 'visible') {
+          cleanup();
+          setTimeout(() => adv(true), 500);
+        }
+      };
+
+      // Inject Monetag script
+      const sc = document.createElement('script');
+      sc.src = monetagUrl;
+      sc.async = true;
+      sc.setAttribute('data-cfasync', 'false');
+      sc.onload = () => {
+        document.getElementById('adovStatus').textContent = '💰 Monetag ad shown ✅';
+        // Listen for user returning from ad
+        document.addEventListener('visibilitychange', visHandler);
+        // Fallback: 8 seconds এ advance
+        fallbackTimer = setTimeout(() => { cleanup(); adv(true); }, 8000);
+      };
+      sc.onerror = () => { cleanup(); adv(false); };
+      document.body.appendChild(sc);
+
+      // Overall fallback
+      setTimeout(() => { cleanup(); adv(true); }, 12000);
+
+    } else if (adType === 'inpage') {
+      // In-page push — just inject and wait
+      const sc = document.createElement('script');
+      sc.src = `https://humboldtcount.com/tag.min.js`;
+      sc.async = true;
+      sc.onload = () => setTimeout(() => adv(true), 3000);
+      sc.onerror = () => adv(false);
+      document.head.appendChild(sc);
+      setTimeout(() => adv(true), 6000);
+    } else {
+      adv(false);
+    }
   } catch(e) { adv(false); }
 }
 
@@ -892,13 +939,52 @@ function playAdsterra(net) {
   if (!net.link && !net.script) { onSlotSkip(); return; }
   const gi = CS.idx; let called = false;
   const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
+
+  document.getElementById('adovStatus').textContent = '⭐ Adsterra ad loading...';
+
   try {
-    if (net.link) { window.open(net.link,'_blank','noopener'); setTimeout(() => adv(true), 3000); }
-    else {
-      const div = document.createElement('div'); div.innerHTML = net.script;
-      const sc = div.querySelector('script');
-      if (sc) { const ns=document.createElement('script'); if(sc.src)ns.src=sc.src;else ns.textContent=sc.textContent; document.body.appendChild(ns); setTimeout(()=>adv(true),3500); }
-      else adv(false);
+    if (net.link) {
+      // Direct link — open, then visibilitychange এ detect করো user ফিরে এলো কিনা
+      let visHandler = null;
+      let fallbackTimer = null;
+
+      const cleanup = () => {
+        if (visHandler) document.removeEventListener('visibilitychange', visHandler);
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+      };
+
+      visHandler = () => {
+        if (document.visibilityState === 'visible') {
+          cleanup();
+          setTimeout(() => adv(true), 500);
+        }
+      };
+
+      // Open ad link
+      window.open(net.link, '_blank', 'noopener');
+      document.getElementById('adovStatus').textContent = '⭐ Adsterra ad shown ✅';
+
+      // Listen for return
+      document.addEventListener('visibilitychange', visHandler);
+      // Fallback: 8s
+      fallbackTimer = setTimeout(() => { cleanup(); adv(true); }, 8000);
+
+    } else if (net.script) {
+      // Script inject
+      const div = document.createElement('div');
+      div.innerHTML = net.script;
+      const scripts = div.querySelectorAll('script');
+      if (scripts.length) {
+        scripts.forEach(sc => {
+          const ns = document.createElement('script');
+          if (sc.src) { ns.src = sc.src; ns.async = true; }
+          else { ns.textContent = sc.textContent; }
+          document.body.appendChild(ns);
+        });
+        setTimeout(() => adv(true), 4000);
+      } else {
+        adv(false);
+      }
     }
   } catch(e) { adv(false); }
 }
