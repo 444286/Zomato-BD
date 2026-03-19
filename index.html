@@ -897,59 +897,39 @@ function playMonetag(net) {
 
   try {
     const zoneId = String(net.zoneId);
-    const sdkId = 'show_' + zoneId;
+    const fnName = 'show_' + zoneId; // e.g. show_10748925
 
-    let visHandler = null;
-    let fallbackTimer = null;
-
-    const cleanup = () => {
-      if (visHandler) document.removeEventListener('visibilitychange', visHandler);
-      if (fallbackTimer) clearTimeout(fallbackTimer);
-    };
-
-    visHandler = () => {
-      if (document.visibilityState === 'visible') {
-        cleanup();
-        setTimeout(() => adv(true), 600);
-      }
-    };
-
-    const waitForSDK = (tries = 0) => {
-      if (window[sdkId]) {
-        // SDK ready
-        if (typeof window[sdkId].show === 'function') {
-          // Interstitial — show() call করো
-          window[sdkId].show()
-            .then(() => { cleanup(); adv(true); })
-            .catch(() => {
-              // Popunder fallback
-              document.addEventListener('visibilitychange', visHandler);
-              fallbackTimer = setTimeout(() => { cleanup(); adv(true); }, 8000);
-            });
-        } else {
-          // Popunder — auto fires, visibilitychange detect করো
-          document.addEventListener('visibilitychange', visHandler);
-          fallbackTimer = setTimeout(() => { cleanup(); adv(true); }, 8000);
-        }
-      } else if (tries < 20) {
-        // Wait for SDK to load (max 2s)
-        setTimeout(() => waitForSDK(tries + 1), 100);
-      } else {
-        // SDK load হয়নি — skip
-        cleanup(); adv(false);
-      }
-    };
-
-    // Ensure SDK is loaded in head
+    // Ensure SDK loaded in head
     if (!document.getElementById('monetag-sdk')) {
       loadMonetag(zoneId);
     }
 
-    // Wait for SDK then show
-    waitForSDK();
+    // Wait for SDK function to be available, then call it
+    const waitAndShow = (tries = 0) => {
+      if (typeof window[fnName] === 'function') {
+        // Monetag Rewarded Interstitial — exact usage from their docs
+        window[fnName]()
+          .then(() => {
+            // Ad watched successfully
+            adv(true);
+          })
+          .catch(() => {
+            // Ad skipped or failed
+            adv(false);
+          });
+      } else if (tries < 30) {
+        // SDK not ready yet, wait 100ms (max 3s)
+        setTimeout(() => waitAndShow(tries + 1), 100);
+      } else {
+        // Timeout — skip this slot
+        adv(false);
+      }
+    };
 
-    // Overall fallback 15s
-    setTimeout(() => { cleanup(); adv(true); }, 15000);
+    waitAndShow();
+
+    // Hard fallback 20s — in case .then() never fires
+    setTimeout(() => adv(true), 20000);
 
   } catch(e) { adv(false); }
 }
