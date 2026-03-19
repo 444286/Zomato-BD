@@ -960,27 +960,32 @@ function playAdsterra(net) {
 
   try {
     if (net.link) {
-      // Open link, then visibilitychange দিয়ে user return detect
-      window.open(net.link, '_blank', 'noopener');
+      // Telegram WebApp এ openLink দিয়ে open করো
+      const tg = window.Telegram?.WebApp;
+      if (tg) {
+        tg.openLink(net.link);
+      } else {
+        window.open(net.link, '_blank', 'noopener');
+      }
 
-      // Remove old handler if any
+      // visibilitychange — user Telegram এ ফিরে এলে detect করো
       if (_visHandler) document.removeEventListener('visibilitychange', _visHandler);
 
       _visHandler = () => {
         if (document.visibilityState === 'visible') {
           document.removeEventListener('visibilitychange', _visHandler);
           _visHandler = null;
+          if (SLOT_FALLBACK) { clearTimeout(SLOT_FALLBACK); SLOT_FALLBACK = null; }
           advanceSlot(true);
         }
       };
       document.addEventListener('visibilitychange', _visHandler);
 
-      // Fallback: user যদি না ফেরে 10s এ
+      // Fallback: 15s এ advance
       SLOT_FALLBACK = setTimeout(() => {
-        document.removeEventListener('visibilitychange', _visHandler);
-        _visHandler = null;
+        if (_visHandler) { document.removeEventListener('visibilitychange', _visHandler); _visHandler = null; }
         advanceSlot(true);
-      }, 10000);
+      }, 15000);
 
     } else if (net.script) {
       const div = document.createElement('div');
