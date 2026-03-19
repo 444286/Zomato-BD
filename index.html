@@ -842,9 +842,8 @@ function startChain(type, wdData=null) {
   const queue = buildQueue(chainData);
   if (!queue.length) { if (type==='watch') { showToast('⚠️ No ads configured'); return; } else { submitWithdrawDirect(wdData); return; } }
   CS = { active:true, type, queue, idx:0, total:queue.length, reward:chainData.reward||0.5, done:false, wdData };
-  SLOT_LOCK = false;
-  if (SLOT_FALLBACK) { clearTimeout(SLOT_FALLBACK); SLOT_FALLBACK = null; }
-  _visHandler = null;
+  _slotAdvanced = false;
+  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
   const typeEl = document.getElementById('adovType');
   const msg = document.getElementById('adovMsg');
   document.getElementById('adovComplete').classList.remove('show');
@@ -866,150 +865,100 @@ function startChain(type, wdData=null) {
 
 // ─── SLOT ENGINE ───────────────────────────────────────────────
 // Global slot lock — একটা slot চলাকালীন অন্য কোনো advance হবে না
-let SLOT_LOCK = false;
-let SLOT_FALLBACK = null;
+// ══ SLOT ENGINE — Simple & Fast ══
+// একটাই rule: ad শেষ → immediately next
+let _slotAdvanced = false; // per-slot flag
+let _slotTimer = null;
 
-function advanceSlot(done) {
-  // Lock check — already advanced?
-  if (!CS.active || SLOT_LOCK) return;
-  SLOT_LOCK = true;
-
-  // Clear any pending fallback
-  if (SLOT_FALLBACK) { clearTimeout(SLOT_FALLBACK); SLOT_FALLBACK = null; }
-
-  // Remove visibilitychange listeners
-  document.removeEventListener('visibilitychange', _visHandler);
-
-  // Mark step
+function _next() {
+  // একবারই advance হবে per slot
+  if (_slotAdvanced || !CS.active) return;
+  _slotAdvanced = true;
+  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
   const el = document.getElementById('as_' + CS.idx);
   if (el) el.className = 'adov-s done';
   CS.idx++;
-
-  // Next slot — unlock first
-  SLOT_LOCK = false;
   playSlot();
 }
 
-// Shared visibilitychange handler (only one at a time)
-let _visHandler = null;
-
 function playSlot() {
-  if (!CS.active || SLOT_LOCK) return;
+  if (!CS.active) return;
   if (CS.idx >= CS.total) { chainAllDone(); return; }
 
-  const idx = CS.idx;
-  const net = CS.queue[idx];
+  // Reset per-slot flag
+  _slotAdvanced = false;
+  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
 
-  // Update progress dots
+  const net = CS.queue[CS.idx];
+  // Update dots
   document.querySelectorAll('.adov-s').forEach((el,i) => {
-    el.className = 'adov-s' + (i<idx?' done':i===idx?' active':'');
+    el.className = 'adov-s' + (i<CS.idx?' done':i===CS.idx?' active':'');
   });
 
-  switch(net.name) {
-    case 'adsgram':  playAdsgram(net); break;
-    case 'monetag':  playMonetag(net); break;
-    case 'adsterra': playAdsterra(net); break;
-    default: advanceSlot(true);
+  if (net.name === 'adsgram') {
+    if (!net.blockId) { _next(); return; }
+    try {
+      const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
+      if (!ctrl) { _next(); return; }
+      ctrl.show().then(_next).catch(_next);
+      // Adsgram নিজেই close করে — no timer needed
+    } catch(e) { _next(); }
+
+  } else if (net.name === 'monetag') {
+    if (!net.zoneId) { _next(); return; }
+    const fnName = 'show_' + net.zoneId;
+    if (!document.getElementById('monetag-sdk')) loadMonetag(String(net.zoneId));
+
+    // SDK ready হওয়ার জন্য poll করো
+    let tries = 0;
+    const poll = () => {
+      if (_slotAdvanced) return; // already moved on
+      if (typeof window[fnName] === 'function') {
+        window[fnName]().then(_next).catch(_next);
+      } else if (tries++ < 50) {
+        setTimeout(poll, 80); // 80ms × 50 = max 4s
+      } else {
+        _next(); // SDK আসেনি
+      }
+    };
+    poll();
+
+  } else if (net.name === 'adsterra') {
+    if (!net.link && !net.script) { _next(); return; }
+    try {
+      if (net.link) {
+        // Telegram in-app browser এ open করো
+        const tg = window.Telegram?.WebApp;
+        if (tg) tg.openLink(net.link);
+        else window.open(net.link, '_blank', 'noopener');
+        // 5s পর next
+        _slotTimer = setTimeout(_next, 5000);
+      } else if (net.script) {
+        const div = document.createElement('div');
+        div.innerHTML = net.script;
+        div.querySelectorAll('script').forEach(sc => {
+          const ns = document.createElement('script');
+          if (sc.src) { ns.src = sc.src; ns.async = true; }
+          else ns.textContent = sc.textContent;
+          document.body.appendChild(ns);
+        });
+        _slotTimer = setTimeout(_next, 4000);
+      }
+    } catch(e) { _next(); }
+
+  } else {
+    _next(); // unknown network
   }
 }
 
-function playAdsgram(net) {
-  if (!net.blockId) { advanceSlot(true); return; }
-  try {
-    const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
-    if (!ctrl) { advanceSlot(true); return; }
-
-    // Adsgram এ fallback দরকার নেই — সরাসরি callback আসে
-    ctrl.show()
-      .then(() => advanceSlot(true))
-      .catch(() => advanceSlot(true));
-  } catch(e) { advanceSlot(true); }
-}
-
-function playMonetag(net) {
-  if (!net.zoneId) { advanceSlot(true); return; }
-
-  const zoneId = String(net.zoneId);
-  const fnName = 'show_' + zoneId;
-
-  // SDK load নিশ্চিত করো
-  if (!document.getElementById('monetag-sdk')) loadMonetag(zoneId);
-
-  // SDK ready হওয়ার জন্য অপেক্ষা করো
-  const waitAndShow = (tries = 0) => {
-    if (!CS.active) return; // chain বন্ধ হলে stop
-
-    if (typeof window[fnName] === 'function') {
-      // SDK ready — show ad, .then() এ advance
-      window[fnName]()
-        .then(() => advanceSlot(true))
-        .catch(() => advanceSlot(true));
-
-    } else if (tries < 40) {
-      setTimeout(() => waitAndShow(tries + 1), 100); // max 4s wait
-    } else {
-      advanceSlot(true); // SDK আসেনি — skip
-    }
-  };
-
-  waitAndShow();
-}
-
-function playAdsterra(net) {
-  if (!net.link && !net.script) { advanceSlot(true); return; }
-
-  try {
-    if (net.link) {
-      // Telegram WebApp এ openLink দিয়ে open করো
-      const tg = window.Telegram?.WebApp;
-      if (tg) {
-        tg.openLink(net.link);
-      } else {
-        window.open(net.link, '_blank', 'noopener');
-      }
-
-      // visibilitychange — user Telegram এ ফিরে এলে detect করো
-      if (_visHandler) document.removeEventListener('visibilitychange', _visHandler);
-
-      _visHandler = () => {
-        if (document.visibilityState === 'visible') {
-          document.removeEventListener('visibilitychange', _visHandler);
-          _visHandler = null;
-          if (SLOT_FALLBACK) { clearTimeout(SLOT_FALLBACK); SLOT_FALLBACK = null; }
-          advanceSlot(true);
-        }
-      };
-      document.addEventListener('visibilitychange', _visHandler);
-
-      // Fallback: 15s এ advance
-      SLOT_FALLBACK = setTimeout(() => {
-        if (_visHandler) { document.removeEventListener('visibilitychange', _visHandler); _visHandler = null; }
-        advanceSlot(true);
-      }, 15000);
-
-    } else if (net.script) {
-      const div = document.createElement('div');
-      div.innerHTML = net.script;
-      div.querySelectorAll('script').forEach(sc => {
-        const ns = document.createElement('script');
-        if (sc.src) { ns.src = sc.src; ns.async = true; }
-        else { ns.textContent = sc.textContent; }
-        document.body.appendChild(ns);
-      });
-      SLOT_FALLBACK = setTimeout(() => advanceSlot(true), 4000);
-    }
-  } catch(e) { advanceSlot(true); }
-}
-
-function onSlotDone() { advanceSlot(true); }
-function onSlotSkip() { advanceSlot(true); }
+function onSlotDone() { _next(); }
+function onSlotSkip() { _next(); }
 
 async function chainAllDone() {
   if (CS.done) return;
   CS.done = true; CS.active = false;
-  SLOT_LOCK = false;
-  if (SLOT_FALLBACK) { clearTimeout(SLOT_FALLBACK); SLOT_FALLBACK = null; }
-  if (_visHandler) { document.removeEventListener('visibilitychange', _visHandler); _visHandler = null; }
+  _slotAdvanced = true; // stop any pending polls
+  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
   document.getElementById('adovStepLbl').textContent = 'Done!';
   document.getElementById('adovNetName').textContent = '';
   document.getElementById('adovStatus').textContent = '';
