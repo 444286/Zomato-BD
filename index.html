@@ -8,6 +8,22 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+<!-- Monetag SDK — dynamically injected from Admin settings -->
+<script>
+function loadMonetag(zoneId) {
+  if (!zoneId) return;
+  const sdkId = 'show_' + zoneId;
+  // Already injected?
+  if (document.getElementById('monetag-sdk')) return;
+  const sc = document.createElement('script');
+  sc.id = 'monetag-sdk';
+  sc.src = '//libtl.com/sdk.js';
+  sc.setAttribute('data-zone', String(zoneId));
+  sc.setAttribute('data-sdk', sdkId);
+  // Exactly as Monetag instructs — no async, append to head
+  document.head.appendChild(sc);
+}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&family=Hind+Siliguri:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -239,8 +255,8 @@ select.fi option{background:#1a1d26}
 .adov-type.watch{background:var(--ys);color:var(--yellow);border:1px solid rgba(255,200,74,.3)}
 .adov-type.wd{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.3)}
 .adov-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;text-align:center}
-.adov-step-lbl{font-size:12px;color:var(--muted);text-align:center;font-family:'Inter',sans-serif}
-.adov-net-name{font-size:14px;font-weight:600;text-align:center;color:var(--text);font-family:'Inter',sans-serif}
+.adov-step-lbl{display:none}
+.adov-net-name{display:none}
 .adov-steps{display:flex;gap:7px;margin:12px 0;flex-wrap:wrap;justify-content:center;max-width:320px}
 .adov-s{height:8px;border-radius:8px;background:rgba(255,255,255,.1);transition:all .35s;flex:1;min-width:20px;max-width:50px}
 .adov-s.done{background:var(--green)}
@@ -252,7 +268,7 @@ select.fi option{background:#1a1d26}
 .adov-taka{font-family:'Hind Siliguri',sans-serif;font-size:18px;font-weight:700;color:var(--taka)}
 .adov-rsub{font-size:11px;color:var(--muted);text-align:center;font-family:'Inter',sans-serif}
 .adov-msg{font-size:13px;color:rgba(255,255,255,.75);text-align:center;background:rgba(255,255,255,.06);border-radius:10px;padding:10px 16px;width:100%;max-width:340px;display:none;font-family:'Inter',sans-serif}
-.adov-status{font-size:13px;color:var(--muted);text-align:center;min-height:20px;font-family:'Inter',sans-serif}
+.adov-status{display:none}
 .adov-complete{text-align:center;padding:16px;display:none;flex-direction:column;align-items:center;gap:8px}
 .adov-complete.show{display:flex}
 .adov-complete-ic{font-size:48px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
@@ -275,7 +291,7 @@ select.fi option{background:#1a1d26}
     <div class="welcome-emoji" id="welcomeEmoji">🎉</div>
     <div class="welcome-title" id="welcomeTitle">Welcome!</div>
     <div class="welcome-msg" id="welcomeMsg">Start watching ads and earn money every day!</div>
-    <button class="welcome-btn" onclick="closeWelcome()">ঠিক আছে! →</button>
+    <button class="welcome-btn" onclick="closeWelcome()">Let's Go! →</button>
   </div>
 </div>
 
@@ -372,7 +388,7 @@ select.fi option{background:#1a1d26}
 
 <!-- WALLET -->
 <div class="page" id="page-wallet">
-  <div class="pgt"><div class="pgtitle">Withdraw</div></div>
+  <div class="pgt"><div class="pgtitle">Wallet</div></div>
   <div class="wbal">
     <div class="wbl">Available Balance</div>
     <div class="wba-wrap"><div class="wba" id="wdBal">0.00</div><div class="wba-taka">টাকা</div></div>
@@ -397,7 +413,6 @@ select.fi option{background:#1a1d26}
     <div class="fg">
       <span class="flbl">Amount</span>
       <input class="fi" type="number" id="wdAmt" placeholder="0.00">
-      
       <div style="font-size:11px;color:var(--muted);margin-top:5px;font-family:'Inter',sans-serif">Minimum: <span id="minWd" style="color:var(--taka);font-family:'Hind Siliguri',sans-serif">৳ 50</span></div>
     </div>
     <button class="bigbtn wdbtn-main" id="wdBtn" onclick="handleWithdraw()">Withdraw Now →</button>
@@ -411,7 +426,7 @@ select.fi option{background:#1a1d26}
   <div class="ni active" onclick="showPage('home',this)"><div class="ni-ic">🏠</div><div class="ni-lb">Home</div><div class="ni-dot"></div></div>
   <div class="ni" onclick="showPage('support',this)"><div class="ni-ic">☎️</div><div class="ni-lb">Support</div><div class="ni-dot"></div></div>
   <div class="ni" onclick="showPage('referral',this)"><div class="ni-ic">🤝</div><div class="ni-lb">Referral</div><div class="ni-dot"></div></div>
-  <div class="ni" onclick="showPage('wallet',this)"><div class="ni-ic">💰</div><div class="ni-lb">Withdraw</div><div class="ni-dot"></div></div>
+  <div class="ni" onclick="showPage('wallet',this)"><div class="ni-ic">💰</div><div class="ni-lb">Wallet</div><div class="ni-dot"></div></div>
 </nav>
 
 <!-- TASK VERIFY OVERLAY -->
@@ -518,6 +533,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       APP.settings = { ...APP.settings, ...s };
       renderTasks(); renderSupport(); renderVideo();
       updateWatchCard(); updateWdBtn();
+      // Pre-load Monetag SDK
+      const mzid = s.credentials?.monetag?.zoneId;
+      if (mzid && s.credentials?.monetag?.active) loadMonetag(mzid);
       const rb = APP.settings.referralBonus || 5;
       document.getElementById('rbLbl').textContent = `৳ ${rb.toFixed(2)}`;
       document.getElementById('minWd').textContent = `৳ ${(APP.settings.minWithdraw||50).toFixed(2)}`;
@@ -824,6 +842,8 @@ function startChain(type, wdData=null) {
   const queue = buildQueue(chainData);
   if (!queue.length) { if (type==='watch') { showToast('⚠️ No ads configured'); return; } else { submitWithdrawDirect(wdData); return; } }
   CS = { active:true, type, queue, idx:0, total:queue.length, reward:chainData.reward||0.5, done:false, wdData };
+  _slotAdvanced = false;
+  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
   const typeEl = document.getElementById('adovType');
   const msg = document.getElementById('adovMsg');
   document.getElementById('adovComplete').classList.remove('show');
@@ -843,83 +863,102 @@ function startChain(type, wdData=null) {
   playSlot();
 }
 
+// ─── SLOT ENGINE ───────────────────────────────────────────────
+// Global slot lock — একটা slot চলাকালীন অন্য কোনো advance হবে না
+// ══ SLOT ENGINE — Simple & Fast ══
+// একটাই rule: ad শেষ → immediately next
+let _slotAdvanced = false; // per-slot flag
+let _slotTimer = null;
+
+function _next() {
+  // একবারই advance হবে per slot
+  if (_slotAdvanced || !CS.active) return;
+  _slotAdvanced = true;
+  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
+  const el = document.getElementById('as_' + CS.idx);
+  if (el) el.className = 'adov-s done';
+  CS.idx++;
+  playSlot();
+}
+
 function playSlot() {
   if (!CS.active) return;
   if (CS.idx >= CS.total) { chainAllDone(); return; }
-  const idx = CS.idx;
-  const net = CS.queue[idx];
-  const nd = NET_DISPLAY[net.name] || { icon:'📺', label: net.name };
-  document.getElementById('adovStepLbl').textContent = `Ad ${idx+1} of ${CS.total}`;
-  document.getElementById('adovNetName').textContent = `${nd.icon} ${nd.label}`;
-  document.getElementById('adovStatus').textContent = `Loading ${nd.label}...`;
-  document.querySelectorAll('.adov-s').forEach((el,i) => { el.className = 'adov-s' + (i<idx?' done':i===idx?' active':''); });
-  switch(net.name) {
-    case 'adsgram':  playAdsgram(net); break;
-    case 'monetag':  playMonetag(net); break;
-    case 'adsterra': playAdsterra(net); break;
-    default: onSlotDone();
+
+  // Reset per-slot flag
+  _slotAdvanced = false;
+  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
+
+  const net = CS.queue[CS.idx];
+  // Update dots
+  document.querySelectorAll('.adov-s').forEach((el,i) => {
+    el.className = 'adov-s' + (i<CS.idx?' done':i===CS.idx?' active':'');
+  });
+
+  if (net.name === 'adsgram') {
+    if (!net.blockId) { _next(); return; }
+    try {
+      const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
+      if (!ctrl) { _next(); return; }
+      ctrl.show().then(_next).catch(_next);
+      // Adsgram নিজেই close করে — no timer needed
+    } catch(e) { _next(); }
+
+  } else if (net.name === 'monetag') {
+    if (!net.zoneId) { _next(); return; }
+    const fnName = 'show_' + net.zoneId;
+    if (!document.getElementById('monetag-sdk')) loadMonetag(String(net.zoneId));
+
+    // SDK ready হওয়ার জন্য poll করো
+    let tries = 0;
+    const poll = () => {
+      if (_slotAdvanced) return; // already moved on
+      if (typeof window[fnName] === 'function') {
+        window[fnName]().then(_next).catch(_next);
+      } else if (tries++ < 50) {
+        setTimeout(poll, 80); // 80ms × 50 = max 4s
+      } else {
+        _next(); // SDK আসেনি
+      }
+    };
+    poll();
+
+  } else if (net.name === 'adsterra') {
+    if (!net.link && !net.script) { _next(); return; }
+    try {
+      if (net.link) {
+        // Telegram in-app browser এ open করো
+        const tg = window.Telegram?.WebApp;
+        if (tg) tg.openLink(net.link);
+        else window.open(net.link, '_blank', 'noopener');
+        // 5s পর next
+        _slotTimer = setTimeout(_next, 5000);
+      } else if (net.script) {
+        const div = document.createElement('div');
+        div.innerHTML = net.script;
+        div.querySelectorAll('script').forEach(sc => {
+          const ns = document.createElement('script');
+          if (sc.src) { ns.src = sc.src; ns.async = true; }
+          else ns.textContent = sc.textContent;
+          document.body.appendChild(ns);
+        });
+        _slotTimer = setTimeout(_next, 4000);
+      }
+    } catch(e) { _next(); }
+
+  } else {
+    _next(); // unknown network
   }
 }
 
-function playAdsgram(net) {
-  if (!net.blockId) { onSlotSkip(); return; }
-  const gi = CS.idx; let called = false;
-  const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
-  try {
-    const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
-    if (!ctrl) { adv(false); return; }
-    ctrl.show().then(r => adv(r.done)).catch(() => adv(false));
-  } catch(e) { adv(false); }
-}
-
-function playMonetag(net) {
-  if (!net.zoneId) { onSlotSkip(); return; }
-  const gi = CS.idx; let called = false;
-  const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
-  try {
-    const sc = document.createElement('script');
-    sc.src = `https://oplowerq.com/401/${net.zoneId}/invoke.js`;
-    sc.async = true; sc.setAttribute('data-cfasync','false');
-    sc.onload = () => setTimeout(() => adv(true), 1500);
-    sc.onerror = () => adv(false);
-    document.body.appendChild(sc);
-    setTimeout(() => adv(true), 5000);
-  } catch(e) { adv(false); }
-}
-
-function playAdsterra(net) {
-  if (!net.link && !net.script) { onSlotSkip(); return; }
-  const gi = CS.idx; let called = false;
-  const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
-  try {
-    if (net.link) { window.open(net.link,'_blank','noopener'); setTimeout(() => adv(true), 3000); }
-    else {
-      const div = document.createElement('div'); div.innerHTML = net.script;
-      const sc = div.querySelector('script');
-      if (sc) { const ns=document.createElement('script'); if(sc.src)ns.src=sc.src;else ns.textContent=sc.textContent; document.body.appendChild(ns); setTimeout(()=>adv(true),3500); }
-      else adv(false);
-    }
-  } catch(e) { adv(false); }
-}
-
-function onSlotDone() {
-  if (!CS.active) return;
-  const el = document.getElementById('as_'+CS.idx);
-  if (el) el.className = 'adov-s done';
-  document.getElementById('adovStatus').textContent = `Ad ${CS.idx+1} complete ✅`;
-  CS.idx++; setTimeout(playSlot, 600);
-}
-
-function onSlotSkip() {
-  if (!CS.active) return;
-  const el = document.getElementById('as_'+CS.idx);
-  if (el) el.className = 'adov-s skip';
-  CS.idx++; setTimeout(playSlot, 400);
-}
+function onSlotDone() { _next(); }
+function onSlotSkip() { _next(); }
 
 async function chainAllDone() {
   if (CS.done) return;
   CS.done = true; CS.active = false;
+  _slotAdvanced = true; // stop any pending polls
+  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
   document.getElementById('adovStepLbl').textContent = 'Done!';
   document.getElementById('adovNetName').textContent = '';
   document.getElementById('adovStatus').textContent = '';
