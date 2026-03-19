@@ -8,7 +8,22 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<script src="https://pl28943998.profitablecpmratenetwork.com/a9/9a/be/a99abee5ed3f2be3d61ef0e56db88d1b.js"></script>
+<!-- Monetag SDK — dynamically injected from Admin settings -->
+<script>
+function loadMonetag(zoneId) {
+  if (!zoneId) return;
+  const sdkId = 'show_' + zoneId;
+  // Already injected?
+  if (document.getElementById('monetag-sdk')) return;
+  const sc = document.createElement('script');
+  sc.id = 'monetag-sdk';
+  sc.src = '//libtl.com/sdk.js';
+  sc.setAttribute('data-zone', String(zoneId));
+  sc.setAttribute('data-sdk', sdkId);
+  // Exactly as Monetag instructs — no async, append to head
+  document.head.appendChild(sc);
+}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&family=Hind+Siliguri:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -518,6 +533,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       APP.settings = { ...APP.settings, ...s };
       renderTasks(); renderSupport(); renderVideo();
       updateWatchCard(); updateWdBtn();
+      // Pre-load Monetag SDK
+      const mzid = s.credentials?.monetag?.zoneId;
+      if (mzid && s.credentials?.monetag?.active) loadMonetag(mzid);
       const rb = APP.settings.referralBonus || 5;
       document.getElementById('rbLbl').textContent = `৳ ${rb.toFixed(2)}`;
       document.getElementById('minWd').textContent = `৳ ${(APP.settings.minWithdraw||50).toFixed(2)}`;
@@ -878,7 +896,7 @@ function playMonetag(net) {
   const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
 
   try {
-    const zoneId = net.zoneId;
+    const zoneId = String(net.zoneId);
     const sdkId = 'show_' + zoneId;
 
     let visHandler = null;
@@ -889,7 +907,6 @@ function playMonetag(net) {
       if (fallbackTimer) clearTimeout(fallbackTimer);
     };
 
-    // visibilitychange — user ad দেখে ফিরে এলে detect করো
     visHandler = () => {
       if (document.visibilityState === 'visible') {
         cleanup();
@@ -897,36 +914,42 @@ function playMonetag(net) {
       }
     };
 
-    // Remove old Monetag script if exists (same zone)
-    const oldSc = document.getElementById('monetag_sc_' + zoneId);
-    if (oldSc) oldSc.remove();
-
-    // Inject Monetag SDK — libtl.com (official)
-    const sc = document.createElement('script');
-    sc.id = 'monetag_sc_' + zoneId;
-    sc.src = '//libtl.com/sdk.js';
-    sc.setAttribute('data-zone', zoneId);
-    sc.setAttribute('data-sdk', sdkId);
-    sc.async = true;
-
-    sc.onload = () => {
-      // SDK loaded — try to show ad
-      if (window[sdkId] && typeof window[sdkId].show === 'function') {
-        window[sdkId].show()
-          .then(() => { cleanup(); adv(true); })
-          .catch(() => { cleanup(); adv(false); });
+    const waitForSDK = (tries = 0) => {
+      if (window[sdkId]) {
+        // SDK ready
+        if (typeof window[sdkId].show === 'function') {
+          // Interstitial — show() call করো
+          window[sdkId].show()
+            .then(() => { cleanup(); adv(true); })
+            .catch(() => {
+              // Popunder fallback
+              document.addEventListener('visibilitychange', visHandler);
+              fallbackTimer = setTimeout(() => { cleanup(); adv(true); }, 8000);
+            });
+        } else {
+          // Popunder — auto fires, visibilitychange detect করো
+          document.addEventListener('visibilitychange', visHandler);
+          fallbackTimer = setTimeout(() => { cleanup(); adv(true); }, 8000);
+        }
+      } else if (tries < 20) {
+        // Wait for SDK to load (max 2s)
+        setTimeout(() => waitForSDK(tries + 1), 100);
       } else {
-        // SDK loaded but no show method — popunder type, listen visibility
-        document.addEventListener('visibilitychange', visHandler);
-        fallbackTimer = setTimeout(() => { cleanup(); adv(true); }, 8000);
+        // SDK load হয়নি — skip
+        cleanup(); adv(false);
       }
     };
 
-    sc.onerror = () => { cleanup(); adv(false); };
-    document.body.appendChild(sc);
+    // Ensure SDK is loaded in head
+    if (!document.getElementById('monetag-sdk')) {
+      loadMonetag(zoneId);
+    }
 
-    // Overall fallback 12s
-    setTimeout(() => { cleanup(); adv(true); }, 12000);
+    // Wait for SDK then show
+    waitForSDK();
+
+    // Overall fallback 15s
+    setTimeout(() => { cleanup(); adv(true); }, 15000);
 
   } catch(e) { adv(false); }
 }
