@@ -239,8 +239,8 @@ select.fi option{background:#1a1d26}
 .adov-type.watch{background:var(--ys);color:var(--yellow);border:1px solid rgba(255,200,74,.3)}
 .adov-type.wd{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.3)}
 .adov-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;text-align:center}
-.adov-step-lbl{font-size:12px;color:var(--muted);text-align:center;font-family:'Inter',sans-serif}
-.adov-net-name{font-size:14px;font-weight:600;text-align:center;color:var(--text);font-family:'Inter',sans-serif}
+.adov-step-lbl{display:none}
+.adov-net-name{display:none}
 .adov-steps{display:flex;gap:7px;margin:12px 0;flex-wrap:wrap;justify-content:center;max-width:320px}
 .adov-s{height:8px;border-radius:8px;background:rgba(255,255,255,.1);transition:all .35s;flex:1;min-width:20px;max-width:50px}
 .adov-s.done{background:var(--green)}
@@ -849,7 +849,7 @@ function playSlot() {
   const net = CS.queue[idx];
   const nd = NET_DISPLAY[net.name] || { icon:'📺', label: net.name };
   document.getElementById('adovStepLbl').textContent = `Ad ${idx+1} of ${CS.total}`;
-  document.getElementById('adovNetName').textContent = `${nd.icon} ${nd.label}`;
+  document.getElementById('adovNetName').textContent = '';
   document.getElementById('adovStatus').textContent = `Loading ${nd.label}...`;
   document.querySelectorAll('.adov-s').forEach((el,i) => { el.className = 'adov-s' + (i<idx?' done':i===idx?' active':''); });
   switch(net.name) {
@@ -876,7 +876,7 @@ function playMonetag(net) {
   const gi = CS.idx; let called = false;
   const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
 
-  document.getElementById('adovStatus').textContent = '💰 Monetag ad loading...';
+  document.getElementById('adovStatus').textContent = 'Loading ad...';
 
   try {
     const adType = net.type || 'onclick';
@@ -908,7 +908,7 @@ function playMonetag(net) {
       sc.async = true;
       sc.setAttribute('data-cfasync', 'false');
       sc.onload = () => {
-        document.getElementById('adovStatus').textContent = '💰 Monetag ad shown ✅';
+        document.getElementById('adovStatus').textContent = 'Ad shown ✅';
         // Listen for user returning from ad
         document.addEventListener('visibilitychange', visHandler);
         // Fallback: 8 seconds এ advance
@@ -940,7 +940,7 @@ function playAdsterra(net) {
   const gi = CS.idx; let called = false;
   const adv = ok => { if (called||CS.idx!==gi) return; called=true; ok?onSlotDone():onSlotSkip(); };
 
-  document.getElementById('adovStatus').textContent = '⭐ Adsterra ad loading...';
+  document.getElementById('adovStatus').textContent = 'Loading ad...';
 
   try {
     if (net.link) {
@@ -962,7 +962,7 @@ function playAdsterra(net) {
 
       // Open ad link
       window.open(net.link, '_blank', 'noopener');
-      document.getElementById('adovStatus').textContent = '⭐ Adsterra ad shown ✅';
+      document.getElementById('adovStatus').textContent = 'Ad shown ✅';
 
       // Listen for return
       document.addEventListener('visibilitychange', visHandler);
