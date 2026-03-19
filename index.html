@@ -8,8 +8,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-
-<script src="https://pl28943998.profitablecpmratenetwork.com/a9/9a/be/a99abee5ed3f2be3d61ef0e56db88d1b.js"></script>
 <!-- Monetag SDK — dynamically injected from Admin settings -->
 <script>
 function loadMonetag(zoneId) {
@@ -287,7 +285,6 @@ select.fi option{background:#1a1d26}
 </head>
 <body>
 
-<script src="https://pl28944003.profitablecpmratenetwork.com/e8/fa/ff/e8fafff875e5c15d6348f130eaac93ca.js"></script>
 <!-- WELCOME POPUP -->
 <div id="welcomeScreen">
   <div class="welcome-box">
@@ -297,7 +294,6 @@ select.fi option{background:#1a1d26}
     <button class="welcome-btn" onclick="closeWelcome()">Let's Go! →</button>
   </div>
 </div>
-
 
 <!-- BLOCKED -->
 <div id="blockedScreen">
@@ -902,10 +898,12 @@ function playSlot() {
   if (net.name === 'adsgram') {
     if (!net.blockId) { _next(); return; }
     try {
+      // প্রতিবার নতুন instance — same blockId হলেও
       const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
       if (!ctrl) { _next(); return; }
+      // Fallback timer — Adsgram কখনো callback না দিলে
+      _slotTimer = setTimeout(_next, 30000);
       ctrl.show().then(_next).catch(_next);
-      // Adsgram নিজেই close করে — no timer needed
     } catch(e) { _next(); }
 
   } else if (net.name === 'monetag') {
@@ -916,13 +914,21 @@ function playSlot() {
     // SDK ready হওয়ার জন্য poll করো
     let tries = 0;
     const poll = () => {
-      if (_slotAdvanced) return; // already moved on
+      if (_slotAdvanced) return;
       if (typeof window[fnName] === 'function') {
-        window[fnName]().then(_next).catch(_next);
+        try {
+          const p = window[fnName]();
+          if (p && typeof p.then === 'function') {
+            p.then(_next).catch(_next);
+          } else {
+            // Promise return করেনি — 3s পর next
+            _slotTimer = setTimeout(_next, 3000);
+          }
+        } catch(e) { _next(); }
       } else if (tries++ < 50) {
-        setTimeout(poll, 80); // 80ms × 50 = max 4s
+        setTimeout(poll, 80);
       } else {
-        _next(); // SDK আসেনি
+        _next();
       }
     };
     poll();
