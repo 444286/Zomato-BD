@@ -887,7 +887,7 @@ function playAdsgram(net) {
   try {
     const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
     if (!ctrl) { adv(false); return; }
-    ctrl.show().then(r => adv(r.done)).catch(() => adv(false));
+    ctrl.show().then(r => adv(true)).catch(() => adv(true));
   } catch(e) { adv(false); }
 }
 
@@ -910,14 +910,8 @@ function playMonetag(net) {
       if (typeof window[fnName] === 'function') {
         // Monetag Rewarded Interstitial — exact usage from their docs
         window[fnName]()
-          .then(() => {
-            // Ad watched successfully
-            adv(true);
-          })
-          .catch(() => {
-            // Ad skipped or failed
-            adv(false);
-          });
+          .then(() => { adv(true); })
+          .catch(() => { adv(true); }); // skip বা fail — তবুও next এ যাও
       } else if (tries < 30) {
         // SDK not ready yet, wait 100ms (max 3s)
         setTimeout(() => waitAndShow(tries + 1), 100);
@@ -929,8 +923,8 @@ function playMonetag(net) {
 
     waitAndShow();
 
-    // Hard fallback 20s — in case .then() never fires
-    setTimeout(() => adv(true), 20000);
+    // Hard fallback 10s
+    setTimeout(() => adv(true), 10000);
 
   } catch(e) { adv(false); }
 }
@@ -994,14 +988,14 @@ function onSlotDone() {
   const el = document.getElementById('as_'+CS.idx);
   if (el) el.className = 'adov-s done';
   document.getElementById('adovStatus').textContent = `Ad ${CS.idx+1} complete ✅`;
-  CS.idx++; setTimeout(playSlot, 600);
+  CS.idx++; playSlot();
 }
 
 function onSlotSkip() {
   if (!CS.active) return;
   const el = document.getElementById('as_'+CS.idx);
   if (el) el.className = 'adov-s skip';
-  CS.idx++; setTimeout(playSlot, 400);
+  CS.idx++; playSlot();
 }
 
 async function chainAllDone() {
