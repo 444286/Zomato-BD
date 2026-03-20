@@ -483,8 +483,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       updateUI(); updateWatchCard(); checkCooldown();
     });
 
-    db.ref('withdrawals').orderByChild('userId').equalTo(APP.userId).on('value', snap => {
-      const items=[]; snap.forEach(c=>items.push({id:c.key,...c.val()}));
+    // No index needed — fetch all and filter client-side
+    db.ref('withdrawals').on('value', snap => {
+      const items=[];
+      snap.forEach(c=>{
+        const v=c.val();
+        if(v && String(v.userId)===String(APP.userId)){
+          items.push({id:c.key,...v});
+        }
+      });
       items.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
       renderWdHist(items);
     });
@@ -781,19 +788,20 @@ async function chainAllDone(){
     }catch(e){setTimeout(()=>document.getElementById('adOverlay').classList.remove('open'),2000);}
   }else{
     // Save wdData before CS gets reset
-    const savedWdData = CS.wdData;
+    const savedWdData = { ...CS.wdData }; // deep copy
     document.getElementById('adovTitle').textContent='Processing...';
     document.getElementById('adovComplete').classList.remove('show');
     document.getElementById('adovWdLoading').classList.add('show');
-    // Submit immediately — no delay needed
+    CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
+    // Submit with saved data
     try {
       await submitWithdrawDirect(savedWdData);
     } catch(e) {
+      showToast('❌ Submit error: '+e.message);
       console.error('Withdraw submit error:', e);
     }
     document.getElementById('adOverlay').classList.remove('open');
     document.getElementById('adovWdLoading').classList.remove('show');
-    CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
   }
 }
 
