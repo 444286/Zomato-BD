@@ -686,7 +686,7 @@ function startChain(type,wdData=null){
     document.getElementById('adovWdLoading').classList.add('show');
   }
   document.getElementById('adovSteps').innerHTML=queue.map((_,i)=>`<div class="adov-s" id="as_${i}"></div>`).join('');
-  document.getElementById('adovTitle').textContent=type==='watch'?'Watching Ads...':'Watch Ads to Withdraw...';
+  document.getElementById('adovTitle').textContent=type==='watch'?'Watching Ads...':'Processing...';
   document.getElementById('adOverlay').classList.add('open');
   playSlot();
 }
