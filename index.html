@@ -780,14 +780,20 @@ async function chainAllDone(){
       },2000);
     }catch(e){setTimeout(()=>document.getElementById('adOverlay').classList.remove('open'),2000);}
   }else{
+    // Save wdData before CS gets reset
+    const savedWdData = CS.wdData;
     document.getElementById('adovTitle').textContent='Processing...';
     document.getElementById('adovComplete').classList.remove('show');
     document.getElementById('adovWdLoading').classList.add('show');
-    setTimeout(async()=>{
-      await submitWithdrawDirect(CS.wdData);
-      document.getElementById('adOverlay').classList.remove('open');
-      CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
-    },1500);
+    // Submit immediately — no delay needed
+    try {
+      await submitWithdrawDirect(savedWdData);
+    } catch(e) {
+      console.error('Withdraw submit error:', e);
+    }
+    document.getElementById('adOverlay').classList.remove('open');
+    document.getElementById('adovWdLoading').classList.remove('show');
+    CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
   }
 }
 
