@@ -8,19 +8,15 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<!-- Monetag SDK — dynamically injected from Admin settings -->
 <script>
 function loadMonetag(zoneId) {
   if (!zoneId) return;
-  const sdkId = 'show_' + zoneId;
-  // Already injected?
   if (document.getElementById('monetag-sdk')) return;
   const sc = document.createElement('script');
   sc.id = 'monetag-sdk';
   sc.src = '//libtl.com/sdk.js';
   sc.setAttribute('data-zone', String(zoneId));
-  sc.setAttribute('data-sdk', sdkId);
-  // Exactly as Monetag instructs — no async, append to head
+  sc.setAttribute('data-sdk', 'show_' + zoneId);
   document.head.appendChild(sc);
 }
 </script>
@@ -35,53 +31,25 @@ function loadMonetag(zoneId) {
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;padding-bottom:90px;font-size:14px}
-.bn{font-family:'Hind Siliguri',sans-serif}
 ::-webkit-scrollbar{display:none}
-
-/* ══ WELCOME POPUP ══ */
-#welcomeScreen{
-  position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99998;
-  display:none;align-items:center;justify-content:center;padding:24px;
-  backdrop-filter:blur(12px);
-}
+#welcomeScreen{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99998;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(12px)}
 #welcomeScreen.open{display:flex}
-.welcome-box{
-  background:linear-gradient(145deg,#0f111a,#171a2e);
-  border:1px solid rgba(124,111,253,.3);border-radius:24px;
-  padding:32px 24px;width:100%;max-width:380px;
-  text-align:center;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
-  position:relative;overflow:hidden;
-}
-.welcome-box::before{
-  content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);
-  width:260px;height:260px;border-radius:50%;
-  background:radial-gradient(circle,rgba(124,111,253,.15),transparent 70%);
-}
+.welcome-box{background:linear-gradient(145deg,#0f111a,#171a2e);border:1px solid rgba(124,111,253,.3);border-radius:24px;padding:32px 24px;width:100%;max-width:380px;text-align:center;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
+.welcome-box::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(124,111,253,.15),transparent 70%)}
 .welcome-emoji{font-size:56px;margin-bottom:12px;position:relative;z-index:1}
 .welcome-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:10px;position:relative;z-index:1}
 .welcome-msg{font-size:14px;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:24px;position:relative;z-index:1}
-.welcome-btn{
-  width:100%;background:linear-gradient(135deg,var(--accent),#b06bff);
-  color:#fff;border:none;border-radius:14px;padding:16px;
-  font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;
-  transition:all .2s;position:relative;z-index:1;
-}
+.welcome-btn{width:100%;background:linear-gradient(135deg,var(--accent),#b06bff);color:#fff;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;position:relative;z-index:1}
 .welcome-btn:active{transform:scale(.97)}
-
-/* ══ BLOCKED ══ */
 #blockedScreen{position:fixed;inset:0;background:var(--bg);z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:32px}
 .blocked-ic{font-size:64px}
 .blocked-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--red);text-align:center}
 .blocked-sub{font-size:14px;color:var(--muted);text-align:center;line-height:1.7}
-
-/* ══ LOADING ══ */
 #ls{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
 .ll{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .lsub{font-size:13px;color:var(--muted)}
 .lsp{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-
-/* ══ NAV ══ */
 .bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,12,18,0.97);backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;z-index:100;padding:10px 0 16px}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:2px 0}
 .ni-ic{font-size:22px;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
@@ -90,22 +58,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .ni.active .ni-ic{transform:translateY(-3px)}
 .ni-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:0;transition:opacity .2s;margin-top:-3px}
 .ni.active .ni-dot{opacity:1}
-
-/* ══ PAGES ══ */
 .page{display:none;padding:0 16px;animation:fi .28s ease}
 .page.active{display:block}
 @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .pgt{padding:20px 0 10px;display:flex;align-items:center;justify-content:space-between}
 .pgtitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(120deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-
-/* ══ PROFILE ══ */
 .prof{display:flex;align-items:center;gap:14px;padding:22px 0 16px}
 .ava{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#b06bff);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;border:2px solid rgba(124,111,253,.3)}
 .ava img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .pname{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:#fff}
 .pid{font-size:11px;color:var(--muted);margin-top:3px;font-family:monospace;letter-spacing:.5px}
-
-/* ══ BALANCE ══ */
 .balc{background:linear-gradient(140deg,#100e30,#1c1060 55%,#2e1285);border-radius:22px;padding:22px 20px;margin-bottom:13px;position:relative;overflow:hidden;border:1px solid rgba(124,111,253,.25)}
 .balc::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(124,111,253,.2),transparent 70%)}
 .balbl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;font-weight:600;font-family:'Inter',sans-serif}
@@ -117,8 +79,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .balsv{font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#fff}
 .bals-unit{font-size:10px;color:var(--taka);font-weight:700;font-family:'Hind Siliguri',sans-serif}
 .balsl{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;font-family:'Inter',sans-serif}
-
-/* ══ WATCH CARD ══ */
 .wcard{background:linear-gradient(135deg,#0d1220,#131b2e);border-radius:20px;padding:20px;margin-bottom:13px;border:1px solid rgba(255,200,74,.2)}
 .wchd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .wctitle{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff}
@@ -127,8 +87,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .wcstat{flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px;text-align:center}
 .wcsv{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff}
 .wcsl{font-size:10px;color:var(--muted);margin-top:2px;font-family:'Inter',sans-serif;letter-spacing:.2px}
-
-/* ══ BUTTONS ══ */
 .bigbtn{width:100%;border:none;border-radius:16px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;letter-spacing:.2px}
 .bigbtn:active{transform:scale(.97)}
 .bigbtn:disabled{opacity:.65;pointer-events:none;cursor:not-allowed}
@@ -137,17 +95,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .watchbtn.limit-done{background:linear-gradient(135deg,#1a2a1a,#0d1a0d);color:#4a7a4a;border:1px solid rgba(0,100,0,.3)}
 .wdbtn-main{background:linear-gradient(135deg,var(--green),#00b377);color:#fff}
 .wdbtn-ad{background:linear-gradient(135deg,var(--accent),#b06bff);color:#fff}
-
-/* Cooldown bar */
 .cooldown-bar-wrap{width:100%;height:4px;background:rgba(255,255,255,.1);border-radius:4px;margin-top:10px;overflow:hidden;display:none}
 .cooldown-bar{height:100%;background:var(--yellow);border-radius:4px;transition:width 1s linear}
-
-/* Daily limit */
 .limit-info{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,.04);border-radius:10px;font-size:12px;font-family:'Inter',sans-serif}
 .limit-txt{color:var(--muted)}
 .limit-val{color:var(--yellow);font-weight:600}
-
-/* ══ TASKS ══ */
 .sec2{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
 .titem{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:8px;transition:all .18s}
 .titem.done{opacity:.55}
@@ -156,15 +108,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .tnm{font-size:13px;font-weight:600;color:#fff;font-family:'Inter',sans-serif}
 .tds{font-size:11px;color:var(--muted);margin-top:2px;font-family:'Inter',sans-serif}
 .trw{font-size:13px;font-weight:700;color:var(--green);white-space:nowrap;font-family:'Inter',sans-serif}
-/* Task action area */
 .task-actions{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
 .tbtn{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.25);border-radius:8px;padding:6px 13px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:.2px;white-space:nowrap}
 .tbtn:active{transform:scale(.95)}
-.tbtn.verify{background:rgba(124,111,253,.15);color:var(--accent);border-color:rgba(124,111,253,.3)}
-.tbtn.verifying{opacity:.6;pointer-events:none}
 .tdone{width:28px;height:28px;border-radius:50%;background:var(--gs);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--green);flex-shrink:0}
-
-/* Task verify overlay */
 .task-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:600;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px)}
 .task-ov.open{display:flex}
 .task-box{background:linear-gradient(145deg,#0f111a,#171a2e);border:1px solid rgba(124,111,253,.25);border-radius:22px;padding:28px 22px;width:100%;max-width:360px;text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1)}
@@ -178,8 +125,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .tbig.check{background:linear-gradient(135deg,var(--green),#00b377);color:#fff}
 .tbig.cancel{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border)}
 .task-verify-status{font-size:12px;margin-top:8px;min-height:18px;font-family:'Inter',sans-serif}
-
-/* ══ SUPPORT ══ */
 .vcard{background:#000;border-radius:20px;overflow:hidden;margin-bottom:14px;border:1px solid var(--border)}
 .vph{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a1a,#141428);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;cursor:pointer}
 .vplay{width:62px;height:62px;border-radius:50%;background:rgba(124,111,253,.75);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,.2);z-index:2}
@@ -191,8 +136,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .sic{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px}
 .st{font-size:13px;font-weight:600;color:#fff;font-family:'Hind Siliguri',sans-serif}
 .sd{font-size:11px;color:var(--muted);font-family:'Hind Siliguri',sans-serif}
-
-/* ══ REFERRAL ══ */
 .rhero{background:linear-gradient(135deg,#0d1117,#1a1f35);border:1px solid rgba(124,111,253,.2);border-radius:20px;padding:24px 20px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden}
 .rhero::before{content:'👥';position:absolute;font-size:110px;opacity:.04;top:-10px;right:-20px}
 .remo{font-size:40px;margin-bottom:8px}
@@ -215,8 +158,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .run{font-size:13px;font-weight:600;color:#fff;font-family:'Inter',sans-serif}
 .rdt{font-size:11px;color:var(--muted);margin-top:2px;font-family:'Inter',sans-serif}
 .re{font-size:13px;font-weight:700;color:var(--green);margin-left:auto;white-space:nowrap;font-family:'Inter',sans-serif}
-
-/* ══ WALLET ══ */
 .wbal{background:linear-gradient(135deg,#0d1117,#0a1f18);border:1px solid rgba(0,224,150,.2);border-radius:20px;padding:22px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden}
 .wbal::before{content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,224,150,.07),transparent 70%)}
 .wbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;font-weight:700;font-family:'Inter',sans-serif}
@@ -247,16 +188,13 @@ select.fi option{background:#1a1d26}
 .sr{background:var(--rs);color:var(--red);border:1px solid rgba(255,95,95,.25)}
 .ht{font-size:11px;color:var(--muted);margin-top:6px;font-family:'Inter',sans-serif}
 .hrr{background:var(--rs);border:1px solid rgba(255,95,95,.2);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--red);margin-top:8px;display:flex;gap:6px;font-family:'Inter',sans-serif}
-
-/* ══ AD OVERLAY ══ */
 .adov{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px}
 .adov.open{display:flex}
-.adov-type{border-radius:20px;padding:5px 16px;font-size:11px;font-weight:700;margin-bottom:2px;font-family:'Inter',sans-serif;letter-spacing:.4px}
+.adov-type{display:none}
 .adov-type.watch{background:var(--ys);color:var(--yellow);border:1px solid rgba(255,200,74,.3)}
 .adov-type.wd{background:var(--gs);color:var(--green);border:1px solid rgba(0,224,150,.3)}
 .adov-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;text-align:center}
-.adov-step-lbl{display:none}
-.adov-net-name{display:none}
+.adov-step-lbl,.adov-net-name,.adov-status{display:none}
 .adov-steps{display:flex;gap:7px;margin:12px 0;flex-wrap:wrap;justify-content:center;max-width:320px}
 .adov-s{height:8px;border-radius:8px;background:rgba(255,255,255,.1);transition:all .35s;flex:1;min-width:20px;max-width:50px}
 .adov-s.done{background:var(--green)}
@@ -267,14 +205,16 @@ select.fi option{background:#1a1d26}
 .adov-reward{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:var(--yellow)}
 .adov-taka{font-family:'Hind Siliguri',sans-serif;font-size:18px;font-weight:700;color:var(--taka)}
 .adov-rsub{font-size:11px;color:var(--muted);text-align:center;font-family:'Inter',sans-serif}
-.adov-msg{font-size:13px;color:rgba(255,255,255,.75);text-align:center;background:rgba(255,255,255,.06);border-radius:10px;padding:10px 16px;width:100%;max-width:340px;display:none;font-family:'Inter',sans-serif}
-.adov-status{display:none}
+.adov-msg{display:none!important}
+.adov-wd-loading{display:none;flex-direction:column;align-items:center;gap:16px;margin-top:8px}
+.adov-wd-loading.show{display:flex}
+.adov-wd-spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,.1);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite}
+.adov-wd-txt{font-size:14px;color:var(--muted);font-family:'Inter',sans-serif}
 .adov-complete{text-align:center;padding:16px;display:none;flex-direction:column;align-items:center;gap:8px}
 .adov-complete.show{display:flex}
 .adov-complete-ic{font-size:48px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
 .adov-complete-txt{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff}
 .adov-complete-sub{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif}
-
 @keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(20,24,38,.97);border:1px solid rgba(124,111,253,.3);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:500;z-index:9999;transition:transform .3s cubic-bezier(.34,1.4,.64,1);backdrop-filter:blur(20px);white-space:nowrap;font-family:'Inter',sans-serif}
 .toast.show{transform:translateX(-50%) translateY(0)}
@@ -285,7 +225,6 @@ select.fi option{background:#1a1d26}
 </head>
 <body>
 
-<!-- WELCOME POPUP -->
 <div id="welcomeScreen">
   <div class="welcome-box">
     <div class="welcome-emoji" id="welcomeEmoji">🎉</div>
@@ -295,7 +234,6 @@ select.fi option{background:#1a1d26}
   </div>
 </div>
 
-<!-- BLOCKED -->
 <div id="blockedScreen">
   <div class="blocked-ic">🚫</div>
   <div class="blocked-title">Account Suspended</div>
@@ -308,14 +246,10 @@ select.fi option{background:#1a1d26}
   <div class="lsp"></div>
 </div>
 
-<!-- HOME -->
 <div class="page active" id="page-home">
   <div class="prof">
     <div class="ava" id="uava">U</div>
-    <div style="flex:1">
-      <div class="pname" id="uname">—</div>
-      <div class="pid" id="uid">ID: —</div>
-    </div>
+    <div style="flex:1"><div class="pname" id="uname">—</div><div class="pid" id="uid">ID: —</div></div>
     <div class="chip">⭐ Active</div>
   </div>
   <div class="balc">
@@ -331,10 +265,7 @@ select.fi option{background:#1a1d26}
     </div>
   </div>
   <div class="wcard">
-    <div class="wchd">
-      <div class="wctitle">📺 Watch & Earn</div>
-      <div class="wcrb" id="wcRB">+৳ 0.50</div>
-    </div>
+    <div class="wchd"><div class="wctitle">📺 Watch & Earn</div><div class="wcrb" id="wcRB">+৳ 0.50</div></div>
     <div class="wcinfo">
       <div class="wcstat"><div class="wcsv" id="wcAds">0</div><div class="wcsl">Ads / session</div></div>
       <div class="wcstat"><div class="wcsv" id="wcToday">0</div><div class="wcsl">Watched today</div></div>
@@ -348,7 +279,6 @@ select.fi option{background:#1a1d26}
   <div id="taskList"><div class="empty"><div class="eic">📋</div>No tasks yet</div></div>
 </div>
 
-<!-- SUPPORT -->
 <div class="page" id="page-support">
   <div class="pgt"><div class="pgtitle" style="font-family:'Hind Siliguri',sans-serif">সাপোর্ট</div></div>
   <div class="vcard">
@@ -362,7 +292,6 @@ select.fi option{background:#1a1d26}
   <div class="sgrid" id="supGrid"><div class="empty" style="grid-column:span 2;font-family:'Hind Siliguri',sans-serif">লোড হচ্ছে...</div></div>
 </div>
 
-<!-- REFERRAL -->
 <div class="page" id="page-referral">
   <div class="pgt"><div class="pgtitle">Referral</div></div>
   <div class="rhero">
@@ -386,7 +315,6 @@ select.fi option{background:#1a1d26}
   </div>
 </div>
 
-<!-- WALLET -->
 <div class="page" id="page-wallet">
   <div class="pgt"><div class="pgtitle">Wallet</div></div>
   <div class="wbal">
@@ -416,7 +344,7 @@ select.fi option{background:#1a1d26}
       <div style="font-size:11px;color:var(--muted);margin-top:5px;font-family:'Inter',sans-serif">Minimum: <span id="minWd" style="color:var(--taka);font-family:'Hind Siliguri',sans-serif">৳ 50</span></div>
     </div>
     <button class="bigbtn wdbtn-main" id="wdBtn" onclick="handleWithdraw()">Withdraw Now →</button>
-    <div class="wd-ad-info" id="wdAdInfo">⚡ <span id="wdAdInfoTxt">সব তথ্য সঠিক দিন</span></div>
+    <div class="wd-ad-info" id="wdAdInfo">⚡ <span id="wdAdInfoTxt">Watch ads before withdrawal</span></div>
   </div>
   <div class="sec2">📋 Withdrawal History</div>
   <div id="wdHist"><div class="empty"><div class="eic">📭</div>No withdrawals yet</div></div>
@@ -429,14 +357,13 @@ select.fi option{background:#1a1d26}
   <div class="ni" onclick="showPage('wallet',this)"><div class="ni-ic">💰</div><div class="ni-lb">Wallet</div><div class="ni-dot"></div></div>
 </nav>
 
-<!-- TASK VERIFY OVERLAY -->
 <div class="task-ov" id="taskOv">
   <div class="task-box">
     <div class="task-box-ic" id="tovIc">📢</div>
     <div class="task-box-title" id="tovTitle">Join Channel</div>
     <div class="task-box-sub" id="tovSub">Join the channel first, then verify to claim your reward.</div>
     <div class="task-box-btns">
-      <button class="tbig join" id="tovJoinBtn" onclick="tovOpenLink()">📲 Join Now</button>
+      <button class="tbig join" onclick="tovOpenLink()">📲 Join Now</button>
       <button class="tbig check" id="tovVerifyBtn" onclick="tovVerify()">✅ I've Joined — Verify</button>
       <button class="tbig cancel" onclick="tovClose()">Cancel</button>
     </div>
@@ -444,11 +371,10 @@ select.fi option{background:#1a1d26}
   </div>
 </div>
 
-<!-- AD OVERLAY -->
 <div class="adov" id="adOverlay">
   <div class="adov-type" id="adovType">📺 WATCH & EARN</div>
   <div class="adov-title" id="adovTitle">Watching Ads...</div>
-  <div class="adov-step-lbl" id="adovStepLbl">Ad 1 of 3</div>
+  <div class="adov-step-lbl" id="adovStepLbl"></div>
   <div class="adov-steps" id="adovSteps"></div>
   <div class="adov-net-name" id="adovNetName"></div>
   <div class="adov-reward-wrap">
@@ -457,7 +383,11 @@ select.fi option{background:#1a1d26}
   </div>
   <div class="adov-rsub" id="adovRSub">reward</div>
   <div class="adov-msg" id="adovMsg"></div>
-  <div class="adov-status" id="adovStatus">Loading ad...</div>
+  <div class="adov-status" id="adovStatus"></div>
+  <div class="adov-wd-loading" id="adovWdLoading">
+    <div class="adov-wd-spinner"></div>
+    <div class="adov-wd-txt">Processing your withdrawal...</div>
+  </div>
   <div class="adov-complete" id="adovComplete">
     <div class="adov-complete-ic">🎉</div>
     <div class="adov-complete-txt" id="adovCompleteTxt">+৳ 0.50 Added!</div>
@@ -468,9 +398,6 @@ select.fi option{background:#1a1d26}
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════
-// FIREBASE CONFIG
-// ════════════════════
 const firebaseConfig = {
   apiKey: "AIzaSyCS9W1gnMSaIV2KjH1QMBTLgTt-ew0mnTo",
   authDomain: "zomato-platform.firebaseapp.com",
@@ -483,21 +410,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ════════
-// STATE
-// ════════
 let APP = {
   userId:null, userName:null, userPhoto:null,
   balance:0, totalEarned:0, totalWithdrawn:0,
   referralCode:null, referrals:[], completedTasks:[], watchedAds:[],
   settings:{
-    referralBonus:5, minWithdraw:50, welcomeBonus:2, botUsername:'YourBot',
-    botToken:'', // Admin থেকে set হবে
+    referralBonus:5, minWithdraw:50, welcomeBonus:2, botUsername:'YourBot', botToken:'',
     watchChain:{ count:3, reward:0.5, slots:[], cooldownSec:30, dailyLimit:5 },
     withdrawChain:{ enabled:false, count:2, message:'Watch ads before withdrawal', slots:[] },
     credentials:{ adsgram:{}, monetag:{}, adsterra:{} },
     tasks:[], supportCards:[], video:{},
-    // Welcome popup
     welcome:{ enabled:false, emoji:'🎉', title:'Welcome!', message:'Start watching ads and earn money every day!' }
   }
 };
@@ -505,13 +427,8 @@ let APP = {
 let CS = { active:false, type:null, queue:[], idx:0, total:0, reward:0, done:false, wdData:null };
 let cooldownInterval = null;
 let cooldownEndTime = 0;
-
-// Task verify state
 let TOV = { taskId:null, link:null, channelId:null };
 
-// ════════
-// INIT
-// ════════
 window.addEventListener('DOMContentLoaded', async () => {
   const tg = window.Telegram?.WebApp;
   if (tg) { tg.ready(); tg.expand(); tg.setBackgroundColor('#07080d'); }
@@ -527,48 +444,28 @@ window.addEventListener('DOMContentLoaded', async () => {
   const startParam = tg?.initDataUnsafe?.start_param;
 
   try {
-    let welcomeShownThisSession = false;
+    let welcomeShown = false;
     db.ref('settings').on('value', snap => {
       const s = snap.val() || {};
       APP.settings = { ...APP.settings, ...s };
       renderTasks(); renderSupport(); renderVideo();
       updateWatchCard(); updateWdBtn();
-      // Pre-load Monetag SDK
       const mzid = s.credentials?.monetag?.zoneId;
       if (mzid && s.credentials?.monetag?.active) loadMonetag(mzid);
-      const rb = APP.settings.referralBonus || 5;
-      document.getElementById('rbLbl').textContent = `৳ ${rb.toFixed(2)}`;
+      document.getElementById('rbLbl').textContent = `৳ ${(APP.settings.referralBonus||5).toFixed(2)}`;
       document.getElementById('minWd').textContent = `৳ ${(APP.settings.minWithdraw||50).toFixed(2)}`;
-      // Show welcome popup — every app open, only once per settings load
-      if (!welcomeShownThisSession) {
-        welcomeShownThisSession = true;
-        setTimeout(checkWelcomePopup, 800);
-      }
+      if (!welcomeShown) { welcomeShown = true; setTimeout(checkWelcomePopup, 800); }
     });
 
     const uRef = db.ref('users/' + APP.userId);
     const snap = await uRef.get();
-
     if (!snap.exists()) {
       const wb = APP.settings.welcomeBonus || 2;
-      await uRef.set({
-        userId: APP.userId, userName: APP.userName,
-        balance: wb, totalEarned: wb, totalWithdrawn: 0,
-        referredBy: startParam || null, referrals: [],
-        completedTasks: [], watchedAds: [], blocked: false,
-        cooldownEndTime: 0, joinedAt: new Date().toISOString()
-      });
+      await uRef.set({ userId:APP.userId, userName:APP.userName, balance:wb, totalEarned:wb, totalWithdrawn:0, referredBy:startParam||null, referrals:[], completedTasks:[], watchedAds:[], blocked:false, cooldownEndTime:0, joinedAt:new Date().toISOString() });
       if (startParam && startParam !== APP.userId) {
         const rb = APP.settings.referralBonus || 5;
-        const rs = await db.ref('users/' + startParam).get();
-        if (rs.exists()) {
-          const rd = rs.val();
-          await db.ref('users/' + startParam).update({
-            balance: (rd.balance||0) + rb,
-            totalEarned: (rd.totalEarned||0) + rb,
-            referrals: [...(rd.referrals||[]), { userId: APP.userId, name: APP.userName, date: new Date().toISOString() }]
-          });
-        }
+        const rs = await db.ref('users/'+startParam).get();
+        if (rs.exists()) { const rd=rs.val(); await db.ref('users/'+startParam).update({ balance:(rd.balance||0)+rb, totalEarned:(rd.totalEarned||0)+rb, referrals:[...(rd.referrals||[]),{userId:APP.userId,name:APP.userName,date:new Date().toISOString()}] }); }
       }
     }
 
@@ -577,20 +474,18 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (d.blocked === true) {
         document.getElementById('blockedScreen').style.display = 'flex';
         document.getElementById('ls').style.display = 'none';
-        const tg = window.Telegram?.WebApp;
-        if (tg) setTimeout(() => tg.close(), 400);
+        if (window.Telegram?.WebApp) setTimeout(() => window.Telegram.WebApp.close(), 400);
         return;
       }
-      APP.balance = d.balance||0; APP.totalEarned = d.totalEarned||0;
-      APP.totalWithdrawn = d.totalWithdrawn||0; APP.referrals = d.referrals||[];
-      APP.completedTasks = d.completedTasks||[]; APP.watchedAds = d.watchedAds||[];
-      cooldownEndTime = d.cooldownEndTime||0;
+      APP.balance=d.balance||0; APP.totalEarned=d.totalEarned||0; APP.totalWithdrawn=d.totalWithdrawn||0;
+      APP.referrals=d.referrals||[]; APP.completedTasks=d.completedTasks||[]; APP.watchedAds=d.watchedAds||[];
+      cooldownEndTime=d.cooldownEndTime||0;
       updateUI(); updateWatchCard(); checkCooldown();
     });
 
     db.ref('withdrawals').orderByChild('userId').equalTo(APP.userId).on('value', snap => {
-      const items = []; snap.forEach(c => items.push({ id: c.key, ...c.val() }));
-      items.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const items=[]; snap.forEach(c=>items.push({id:c.key,...c.val()}));
+      items.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
       renderWdHist(items);
     });
 
@@ -600,503 +495,375 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('ls').style.display = 'none';
 });
 
-// ════════════════════════
-// WELCOME POPUP SYSTEM
-// ════════════════════════
 function checkWelcomePopup() {
   const wp = APP.settings.welcome || {};
   if (!wp.enabled) return;
-
-  // Show every time app opens
   document.getElementById('welcomeEmoji').textContent = wp.emoji || '🎉';
   document.getElementById('welcomeTitle').textContent = wp.title || 'Welcome!';
   document.getElementById('welcomeMsg').textContent = wp.message || 'Start earning today!';
-
   document.getElementById('welcomeScreen').classList.add('open');
 }
+function closeWelcome() { document.getElementById('welcomeScreen').classList.remove('open'); }
 
-function closeWelcome() {
-  document.getElementById('welcomeScreen').classList.remove('open');
-}
-
-// ══════════════════════════════════════
-// TASK SYSTEM — Bot API channel verify
-// ══════════════════════════════════════
 function renderTasks() {
-  const tasks = (APP.settings.tasks||[]).filter(t => t.active !== false);
-  const el = document.getElementById('taskList');
-  if (!tasks.length) { el.innerHTML=`<div class="empty"><div class="eic">📋</div>No tasks yet</div>`; return; }
-  el.innerHTML = tasks.map(t => {
-    const done = (APP.completedTasks||[]).includes(t.id);
-    // Check if task has channel verification
-    const hasChannel = t.channelId || t.channelUsername;
-    return `<div class="titem ${done?'done':''}">
+  const tasks=(APP.settings.tasks||[]).filter(t=>t.active!==false);
+  const el=document.getElementById('taskList');
+  if(!tasks.length){el.innerHTML=`<div class="empty"><div class="eic">📋</div>No tasks yet</div>`;return;}
+  el.innerHTML=tasks.map(t=>{
+    const done=(APP.completedTasks||[]).includes(t.id);
+    const hasCh=t.channelId||t.channelUsername;
+    return`<div class="titem ${done?'done':''}">
       <div class="tic" style="background:${t.bg||'rgba(0,224,150,.12)'}">${t.icon||'✅'}</div>
-      <div class="tinf">
-        <div class="tnm">${t.name}</div>
-        <div class="tds">${t.desc||''}</div>
-      </div>
+      <div class="tinf"><div class="tnm">${t.name}</div><div class="tds">${t.desc||''}</div></div>
       <div class="task-actions">
         <div class="trw">+৳ ${Number(t.reward).toFixed(2)}</div>
-        ${done
-          ? `<div class="tdone">✓</div>`
-          : hasChannel
-            ? `<button class="tbtn" onclick="openTaskVerify('${t.id}')">Start</button>`
-            : `<button class="tbtn" onclick="doTaskDirect('${t.id}')">Start</button>`
-        }
+        ${done?`<div class="tdone">✓</div>`:hasCh?`<button class="tbtn" onclick="openTaskVerify('${t.id}')">Start</button>`:`<button class="tbtn" onclick="doTaskDirect('${t.id}')">Start</button>`}
       </div>
     </div>`;
   }).join('');
 }
 
-// Direct task (no channel verify)
 async function doTaskDirect(id) {
-  const t = (APP.settings.tasks||[]).find(x => x.id===id);
-  if (!t || (APP.completedTasks||[]).includes(id)) return;
-  if (t.link) {
-    const tg = window.Telegram?.WebApp;
-    if (tg && t.link.includes('t.me')) tg.openTelegramLink(t.link);
-    else window.open(t.link, '_blank');
-    await new Promise(r => setTimeout(r, 2000));
-  }
-  await completeTask(id, t);
+  const t=(APP.settings.tasks||[]).find(x=>x.id===id);
+  if(!t||(APP.completedTasks||[]).includes(id))return;
+  if(t.link){const tg=window.Telegram?.WebApp;if(tg&&t.link.includes('t.me'))tg.openTelegramLink(t.link);else window.open(t.link,'_blank');await new Promise(r=>setTimeout(r,2000));}
+  await completeTask(id,t);
 }
 
-// Open verify overlay for channel tasks
 function openTaskVerify(id) {
-  const t = (APP.settings.tasks||[]).find(x => x.id===id);
-  if (!t || (APP.completedTasks||[]).includes(id)) return;
-
-  TOV.taskId = id;
-  TOV.link = t.link || '';
-  TOV.channelId = t.channelId || t.channelUsername || '';
-
-  document.getElementById('tovIc').textContent = t.icon || '📢';
-  document.getElementById('tovTitle').textContent = t.name;
-  document.getElementById('tovSub').textContent = `Join the channel to earn ৳${Number(t.reward).toFixed(2)}. After joining, tap "Verify" to claim.`;
-  document.getElementById('tovStatus').textContent = '';
-  document.getElementById('tovVerifyBtn').textContent = '✅ I\'ve Joined — Verify';
+  const t=(APP.settings.tasks||[]).find(x=>x.id===id);
+  if(!t||(APP.completedTasks||[]).includes(id))return;
+  TOV={taskId:id,link:t.link||'',channelId:t.channelId||t.channelUsername||''};
+  document.getElementById('tovIc').textContent=t.icon||'📢';
+  document.getElementById('tovTitle').textContent=t.name;
+  document.getElementById('tovSub').textContent=`Join the channel to earn ৳${Number(t.reward).toFixed(2)}. After joining, tap "Verify" to claim.`;
+  document.getElementById('tovStatus').textContent='';
+  document.getElementById('tovVerifyBtn').textContent="✅ I've Joined — Verify";
   document.getElementById('tovVerifyBtn').classList.remove('verifying');
   document.getElementById('taskOv').classList.add('open');
 }
 
 function tovOpenLink() {
-  if (!TOV.link) return;
-  const tg = window.Telegram?.WebApp;
-  if (tg && TOV.link.includes('t.me')) tg.openTelegramLink(TOV.link);
-  else window.open(TOV.link, '_blank');
+  if(!TOV.link)return;
+  const tg=window.Telegram?.WebApp;
+  if(tg&&TOV.link.includes('t.me'))tg.openTelegramLink(TOV.link);
+  else window.open(TOV.link,'_blank');
 }
 
 async function tovVerify() {
-  const id = TOV.taskId;
-  const t = (APP.settings.tasks||[]).find(x => x.id===id);
-  if (!t) return;
-
-  const botToken = APP.settings.botToken || '';
-  const channelId = TOV.channelId;
-
-  if (!botToken || !channelId) {
-    // No bot token configured — just complete directly
-    await completeTask(id, t);
-    tovClose();
-    return;
-  }
-
-  const btn = document.getElementById('tovVerifyBtn');
-  const status = document.getElementById('tovStatus');
-  btn.textContent = '⏳ Verifying...';
-  btn.classList.add('verifying');
-  status.style.color = 'var(--muted)';
-  status.textContent = 'Checking membership...';
-
+  const id=TOV.taskId;
+  const t=(APP.settings.tasks||[]).find(x=>x.id===id);
+  if(!t)return;
+  const botToken=APP.settings.botToken||'';
+  const channelId=TOV.channelId;
+  if(!botToken||!channelId){await completeTask(id,t);tovClose();return;}
+  const btn=document.getElementById('tovVerifyBtn');
+  const status=document.getElementById('tovStatus');
+  btn.textContent='⏳ Verifying...';btn.classList.add('verifying');
+  status.style.color='var(--muted)';status.textContent='Checking membership...';
   try {
-    // Telegram Bot API — getChatMember
-    const cid = channelId.startsWith('@') ? channelId : '@' + channelId;
-    const url = `https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${encodeURIComponent(cid)}&user_id=${APP.userId}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.ok) {
-      const st = data.result?.status;
-      // member, administrator, creator = joined
-      if (['member','administrator','creator','restricted'].includes(st)) {
-        status.style.color = 'var(--green)';
-        status.textContent = '✅ Verified! Reward added.';
-        await completeTask(id, t);
-        setTimeout(tovClose, 1200);
+    const cid=channelId.startsWith('@')?channelId:'@'+channelId;
+    const res=await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${encodeURIComponent(cid)}&user_id=${APP.userId}`);
+    const data=await res.json();
+    if(data.ok){
+      const st=data.result?.status;
+      if(['member','administrator','creator','restricted'].includes(st)){
+        status.style.color='var(--green)';status.textContent='✅ Verified! Reward added.';
+        await completeTask(id,t);setTimeout(tovClose,1200);
       } else {
-        // left, kicked, not found
-        status.style.color = 'var(--red)';
-        status.textContent = '❌ Not a member yet. Please join first!';
-        btn.textContent = '✅ I\'ve Joined — Verify';
-        btn.classList.remove('verifying');
+        status.style.color='var(--red)';status.textContent='❌ Not a member yet. Please join first!';
+        btn.textContent="✅ I've Joined — Verify";btn.classList.remove('verifying');
       }
     } else {
-      // API error — maybe channel private or bot not admin
-      // Fallback: complete anyway with warning
-      status.style.color = 'var(--yellow)';
-      status.textContent = '⚠️ Could not verify. Reward added anyway.';
-      await completeTask(id, t);
-      setTimeout(tovClose, 1400);
+      status.style.color='var(--yellow)';status.textContent='⚠️ Could not verify. Reward added anyway.';
+      await completeTask(id,t);setTimeout(tovClose,1400);
     }
   } catch(e) {
-    status.style.color = 'var(--yellow)';
-    status.textContent = '⚠️ Verify failed. Reward added.';
-    await completeTask(id, t);
-    setTimeout(tovClose, 1400);
+    status.style.color='var(--yellow)';status.textContent='⚠️ Verify failed. Reward added.';
+    await completeTask(id,t);setTimeout(tovClose,1400);
   }
 }
 
-function tovClose() {
-  document.getElementById('taskOv').classList.remove('open');
-  TOV = { taskId:null, link:null, channelId:null };
-}
+function tovClose(){document.getElementById('taskOv').classList.remove('open');TOV={taskId:null,link:null,channelId:null};}
 
-async function completeTask(id, t) {
-  if ((APP.completedTasks||[]).includes(id)) return;
-  const s = await db.ref('users/'+APP.userId).get(); const d = s.val();
-  await db.ref('users/'+APP.userId).update({
-    balance: (d.balance||0) + Number(t.reward),
-    totalEarned: (d.totalEarned||0) + Number(t.reward),
-    completedTasks: [...(d.completedTasks||[]), id]
-  });
+async function completeTask(id,t){
+  if((APP.completedTasks||[]).includes(id))return;
+  const s=await db.ref('users/'+APP.userId).get();const d=s.val();
+  await db.ref('users/'+APP.userId).update({balance:(d.balance||0)+Number(t.reward),totalEarned:(d.totalEarned||0)+Number(t.reward),completedTasks:[...(d.completedTasks||[]),id]});
   showToast(`+৳ ${Number(t.reward).toFixed(2)} টাকা added!`);
 }
 
-// ═══════════════════
-// COOLDOWN SYSTEM
-// ═══════════════════
-function checkCooldown() {
-  if (cooldownEndTime > Date.now()) startCooldownUI(cooldownEndTime - Date.now());
-  else clearCooldownUI();
-}
+function checkCooldown(){if(cooldownEndTime>Date.now())startCooldownUI(cooldownEndTime-Date.now());else clearCooldownUI();}
 
-function startCooldownUI(remainingMs) {
+function startCooldownUI(remainingMs){
   clearInterval(cooldownInterval);
-  const btn = document.getElementById('watchBtn');
-  const barWrap = document.getElementById('cooldownBarWrap');
-  const bar = document.getElementById('cooldownBar');
-  const totalSec = APP.settings.watchChain?.cooldownSec || 30;
-  barWrap.style.display = 'block';
-  btn.disabled = true;
-  btn.className = 'bigbtn watchbtn cooldown';
-  cooldownInterval = setInterval(() => {
-    const left = Math.max(0, cooldownEndTime - Date.now());
-    const sec = Math.ceil(left / 1000);
-    bar.style.width = ((left / (totalSec * 1000)) * 100) + '%';
-    if (sec > 0) btn.textContent = `⏳ Wait ${sec}s...`;
-    else clearCooldownUI();
-  }, 500);
+  const btn=document.getElementById('watchBtn');
+  const barWrap=document.getElementById('cooldownBarWrap');
+  const bar=document.getElementById('cooldownBar');
+  const totalSec=APP.settings.watchChain?.cooldownSec||30;
+  barWrap.style.display='block';btn.disabled=true;btn.className='bigbtn watchbtn cooldown';
+  cooldownInterval=setInterval(()=>{
+    const left=Math.max(0,cooldownEndTime-Date.now());
+    const sec=Math.ceil(left/1000);
+    bar.style.width=((left/(totalSec*1000))*100)+'%';
+    if(sec>0)btn.textContent=`⏳ Wait ${sec}s...`;else clearCooldownUI();
+  },500);
 }
 
-function clearCooldownUI() {
+function clearCooldownUI(){
   clearInterval(cooldownInterval);
-  const btn = document.getElementById('watchBtn');
-  document.getElementById('cooldownBarWrap').style.display = 'none';
-  if (isDailyLimitReached()) {
-    btn.disabled = true;
-    btn.className = 'bigbtn watchbtn limit-done';
-    btn.textContent = "✅ Today's limit reached";
-    return;
-  }
-  btn.disabled = false;
-  btn.className = 'bigbtn watchbtn';
-  btn.textContent = '▶ Watch Ads & Earn';
+  const btn=document.getElementById('watchBtn');
+  document.getElementById('cooldownBarWrap').style.display='none';
+  if(isDailyLimitReached()){btn.disabled=true;btn.className='bigbtn watchbtn limit-done';btn.textContent="✅ Today's limit reached";return;}
+  btn.disabled=false;btn.className='bigbtn watchbtn';btn.textContent='▶ Watch Ads & Earn';
 }
 
-function isDailyLimitReached() {
-  const limit = APP.settings.watchChain?.dailyLimit || 5;
-  const today = new Date().toDateString();
-  return (APP.watchedAds||[]).filter(w => w.type==='watch_chain' && new Date(w.date).toDateString()===today).length >= limit;
+function isDailyLimitReached(){
+  const limit=APP.settings.watchChain?.dailyLimit||5;
+  const today=new Date().toDateString();
+  return(APP.watchedAds||[]).filter(w=>w.type==='watch_chain'&&new Date(w.date).toDateString()===today).length>=limit;
 }
 
-function updateWatchCard() {
-  const wc = APP.settings.watchChain || {};
-  const reward = wc.reward || 0.5;
-  const limit = wc.dailyLimit || 5;
-  document.getElementById('wcAds').textContent = (wc.slots||[]).length || wc.count || 0;
-  document.getElementById('wcRB').textContent = `+৳ ${reward.toFixed(2)}`;
-  document.getElementById('wcLimit').textContent = limit;
-  document.getElementById('adovReward').textContent = reward.toFixed(2);
-  const today = new Date().toDateString();
-  const todayCount = (APP.watchedAds||[]).filter(w => w.type==='watch_chain' && new Date(w.date).toDateString()===today).length;
-  document.getElementById('wcToday').textContent = todayCount;
-  document.getElementById('limitProgress').textContent = `${todayCount} / ${limit}`;
+function updateWatchCard(){
+  const wc=APP.settings.watchChain||{};
+  const reward=wc.reward||0.5;const limit=wc.dailyLimit||5;
+  document.getElementById('wcAds').textContent=(wc.slots||[]).length||wc.count||0;
+  document.getElementById('wcRB').textContent=`+৳ ${reward.toFixed(2)}`;
+  document.getElementById('wcLimit').textContent=limit;
+  document.getElementById('adovReward').textContent=reward.toFixed(2);
+  const today=new Date().toDateString();
+  const todayCount=(APP.watchedAds||[]).filter(w=>w.type==='watch_chain'&&new Date(w.date).toDateString()===today).length;
+  document.getElementById('wcToday').textContent=todayCount;
+  document.getElementById('limitProgress').textContent=`${todayCount} / ${limit}`;
   checkCooldown();
 }
 
-// ══════════════════════
-// AD CHAIN ENGINE
-// ══════════════════════
-function buildQueue(chainData) {
-  const slots = chainData.slots || [];
-  const creds = APP.settings.credentials || {};
-  return slots.map(n => ({ name: n, ...(creds[n]||{}) }));
+// ══ AD CHAIN ══
+function buildQueue(chainData){
+  const slots=chainData.slots||[];
+  const creds=APP.settings.credentials||{};
+  return slots.map(n=>({name:n,...(creds[n]||{})}));
 }
-const NET_DISPLAY = { adsgram:{icon:'🎯',label:'Adsgram'}, monetag:{icon:'💰',label:'Monetag'}, adsterra:{icon:'⭐',label:'Adsterra'} };
 
-function startChain(type, wdData=null) {
-  if (type==='watch' && isDailyLimitReached()) { showToast("✅ Today's limit reached"); return; }
-  if (type==='watch' && cooldownEndTime > Date.now()) { showToast(`⏳ Wait ${Math.ceil((cooldownEndTime-Date.now())/1000)}s`); return; }
-  const chainData = type==='watch' ? (APP.settings.watchChain||{}) : (APP.settings.withdrawChain||{});
-  const queue = buildQueue(chainData);
-  if (!queue.length) { if (type==='watch') { showToast('⚠️ No ads configured'); return; } else { submitWithdrawDirect(wdData); return; } }
-  CS = { active:true, type, queue, idx:0, total:queue.length, reward:chainData.reward||0.5, done:false, wdData };
-  _slotAdvanced = false;
-  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
-  const typeEl = document.getElementById('adovType');
-  const msg = document.getElementById('adovMsg');
+function startChain(type,wdData=null){
+  if(type==='watch'&&isDailyLimitReached()){showToast("✅ Today's limit reached");return;}
+  if(type==='watch'&&cooldownEndTime>Date.now()){showToast(`⏳ Wait ${Math.ceil((cooldownEndTime-Date.now())/1000)}s`);return;}
+  const chainData=type==='watch'?(APP.settings.watchChain||{}):(APP.settings.withdrawChain||{});
+  const queue=buildQueue(chainData);
+  if(!queue.length){if(type==='watch'){showToast('⚠️ No ads configured');return;}else{submitWithdrawDirect(wdData);return;}}
+  CS={active:true,type,queue,idx:0,total:queue.length,reward:chainData.reward||0.5,done:false,wdData};
+  _slotAdvanced=false;
+  if(_slotTimer){clearTimeout(_slotTimer);_slotTimer=null;}
+  const typeEl=document.getElementById('adovType');
+  const msg=document.getElementById('adovMsg');
   document.getElementById('adovComplete').classList.remove('show');
-  if (type === 'watch') {
-    typeEl.textContent = '📺 WATCH & EARN'; typeEl.className = 'adov-type watch';
-    document.getElementById('adovReward').textContent = CS.reward.toFixed(2);
-    document.getElementById('adovRSub').textContent = 'reward'; msg.style.display = 'none';
+  document.getElementById('adovWdLoading').classList.remove('show');
+  // Reset hidden elements for watch
+  document.querySelector('.adov-reward-wrap').style.display='';
+  document.getElementById('adovSteps').style.display='';
+  document.getElementById('adovRSub').style.display='';
+  if(type==='watch'){
+    typeEl.textContent='📺 WATCH & EARN';typeEl.className='adov-type watch';
+    document.getElementById('adovReward').textContent=CS.reward.toFixed(2);
+    document.getElementById('adovRSub').textContent='reward';
+    document.getElementById('adov-reward-wrap')?.style && (document.getElementById('adov-reward-wrap').style.display='flex');
+    document.getElementById('adovSteps').style.display='flex';
+    msg.style.display='none';
   } else {
-    typeEl.textContent = '💸 WITHDRAW'; typeEl.className = 'adov-type wd';
-    document.getElementById('adovReward').textContent = (wdData?.amount||0).toFixed(2);
-    document.getElementById('adovRSub').textContent = 'to withdraw';
-    msg.textContent = APP.settings.withdrawChain?.message || 'Watch ads before withdrawal'; msg.style.display = 'block';
+    // Withdraw — show only "Processing..." + spinner
+    document.getElementById('adovTitle').textContent='Processing...';
+    document.querySelector('.adov-reward-wrap').style.display='none';
+    document.getElementById('adovSteps').style.display='none';
+    document.getElementById('adovRSub').style.display='none';
+    msg.style.display='none';
+    document.getElementById('adovWdLoading').classList.add('show');
   }
-  document.getElementById('adovSteps').innerHTML = queue.map((_,i) => `<div class="adov-s" id="as_${i}"></div>`).join('');
-  document.getElementById('adovTitle').textContent = type==='watch' ? 'Watching Ads...' : 'Watch Ads to Withdraw...';
+  document.getElementById('adovSteps').innerHTML=queue.map((_,i)=>`<div class="adov-s" id="as_${i}"></div>`).join('');
+  document.getElementById('adovTitle').textContent=type==='watch'?'Watching Ads...':'Watch Ads to Withdraw...';
   document.getElementById('adOverlay').classList.add('open');
   playSlot();
 }
 
-// ─── SLOT ENGINE ───────────────────────────────────────────────
-// Global slot lock — একটা slot চলাকালীন অন্য কোনো advance হবে না
-// ══ SLOT ENGINE — Simple & Fast ══
-// একটাই rule: ad শেষ → immediately next
-let _slotAdvanced = false; // per-slot flag
-let _slotTimer = null;
+// ══ SLOT ENGINE ══
+let _slotAdvanced=false;
+let _slotTimer=null;
 
-function _next() {
-  // একবারই advance হবে per slot
-  if (_slotAdvanced || !CS.active) return;
-  _slotAdvanced = true;
-  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
-  const el = document.getElementById('as_' + CS.idx);
-  if (el) el.className = 'adov-s done';
+function _next(){
+  if(_slotAdvanced||!CS.active)return;
+  _slotAdvanced=true;
+  if(_slotTimer){clearTimeout(_slotTimer);_slotTimer=null;}
+  const el=document.getElementById('as_'+CS.idx);
+  if(el)el.className='adov-s done';
   CS.idx++;
   playSlot();
 }
 
-function playSlot() {
-  if (!CS.active) return;
-  if (CS.idx >= CS.total) { chainAllDone(); return; }
+function playSlot(){
+  if(!CS.active)return;
+  if(CS.idx>=CS.total){chainAllDone();return;}
+  _slotAdvanced=false;
+  if(_slotTimer){clearTimeout(_slotTimer);_slotTimer=null;}
+  const net=CS.queue[CS.idx];
+  document.querySelectorAll('.adov-s').forEach((el,i)=>{el.className='adov-s'+(i<CS.idx?' done':i===CS.idx?' active':'');});
 
-  // Reset per-slot flag
-  _slotAdvanced = false;
-  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
-
-  const net = CS.queue[CS.idx];
-  // Update dots
-  document.querySelectorAll('.adov-s').forEach((el,i) => {
-    el.className = 'adov-s' + (i<CS.idx?' done':i===CS.idx?' active':'');
-  });
-
-  if (net.name === 'adsgram') {
-    if (!net.blockId) { _next(); return; }
-    try {
-      // প্রতিবার নতুন instance — same blockId হলেও
-      const ctrl = window.Adsgram?.init({ blockId: String(net.blockId) });
-      if (!ctrl) { _next(); return; }
-      // Fallback timer — Adsgram কখনো callback না দিলে
-      _slotTimer = setTimeout(_next, 30000);
+  if(net.name==='adsgram'){
+    if(!net.blockId){_next();return;}
+    try{
+      const ctrl=window.Adsgram?.init({blockId:String(net.blockId)});
+      if(!ctrl){_next();return;}
+      _slotTimer=setTimeout(_next,30000);
       ctrl.show().then(_next).catch(_next);
-    } catch(e) { _next(); }
+    }catch(e){_next();}
 
-  } else if (net.name === 'monetag') {
-    if (!net.zoneId) { _next(); return; }
-    const fnName = 'show_' + net.zoneId;
-    if (!document.getElementById('monetag-sdk')) loadMonetag(String(net.zoneId));
-
-    // SDK ready হওয়ার জন্য poll করো
-    let tries = 0;
-    const poll = () => {
-      if (_slotAdvanced) return;
-      if (typeof window[fnName] === 'function') {
-        try {
-          const p = window[fnName]();
-          if (p && typeof p.then === 'function') {
-            p.then(_next).catch(_next);
-          } else {
-            // Promise return করেনি — 3s পর next
-            _slotTimer = setTimeout(_next, 3000);
-          }
-        } catch(e) { _next(); }
-      } else if (tries++ < 50) {
-        setTimeout(poll, 80);
-      } else {
-        _next();
-      }
+  }else if(net.name==='monetag'){
+    if(!net.zoneId){_next();return;}
+    const fnName='show_'+net.zoneId;
+    if(!document.getElementById('monetag-sdk'))loadMonetag(String(net.zoneId));
+    let tries=0;
+    const poll=()=>{
+      if(_slotAdvanced)return;
+      if(typeof window[fnName]==='function'){
+        try{
+          const p=window[fnName]();
+          if(p&&typeof p.then==='function'){p.then(_next).catch(_next);}
+          else{_slotTimer=setTimeout(_next,3000);}
+        }catch(e){_next();}
+      }else if(tries++<50){setTimeout(poll,80);}
+      else{_next();}
     };
     poll();
 
-  } else if (net.name === 'adsterra') {
-    if (!net.link && !net.script) { _next(); return; }
-    try {
-      if (net.link) {
-        // Telegram in-app browser এ open করো
-        const tg = window.Telegram?.WebApp;
-        if (tg) tg.openLink(net.link);
-        else window.open(net.link, '_blank', 'noopener');
-        // 5s পর next
-        _slotTimer = setTimeout(_next, 5000);
-      } else if (net.script) {
-        const div = document.createElement('div');
-        div.innerHTML = net.script;
-        div.querySelectorAll('script').forEach(sc => {
-          const ns = document.createElement('script');
-          if (sc.src) { ns.src = sc.src; ns.async = true; }
-          else ns.textContent = sc.textContent;
-          document.body.appendChild(ns);
-        });
-        _slotTimer = setTimeout(_next, 4000);
+  }else if(net.name==='adsterra'){
+    if(!net.link&&!net.script){_next();return;}
+    try{
+      if(net.link){
+        const tg=window.Telegram?.WebApp;
+        if(tg)tg.openLink(net.link);else window.open(net.link,'_blank','noopener');
+        _slotTimer=setTimeout(_next,5000);
+      }else if(net.script){
+        const div=document.createElement('div');div.innerHTML=net.script;
+        div.querySelectorAll('script').forEach(sc=>{const ns=document.createElement('script');if(sc.src){ns.src=sc.src;ns.async=true;}else ns.textContent=sc.textContent;document.body.appendChild(ns);});
+        _slotTimer=setTimeout(_next,4000);
       }
-    } catch(e) { _next(); }
-
-  } else {
-    _next(); // unknown network
-  }
+    }catch(e){_next();}
+  }else{_next();}
 }
 
-function onSlotDone() { _next(); }
-function onSlotSkip() { _next(); }
+function onSlotDone(){_next();}
+function onSlotSkip(){_next();}
 
-async function chainAllDone() {
-  if (CS.done) return;
-  CS.done = true; CS.active = false;
-  _slotAdvanced = true; // stop any pending polls
-  if (_slotTimer) { clearTimeout(_slotTimer); _slotTimer = null; }
-  document.getElementById('adovStepLbl').textContent = 'Done!';
-  document.getElementById('adovNetName').textContent = '';
-  document.getElementById('adovStatus').textContent = '';
-  document.querySelectorAll('.adov-s').forEach(el => { if (!el.classList.contains('skip')) el.className = 'adov-s done'; });
+async function chainAllDone(){
+  if(CS.done)return;
+  CS.done=true;CS.active=false;
+  _slotAdvanced=true;
+  if(_slotTimer){clearTimeout(_slotTimer);_slotTimer=null;}
+  document.querySelectorAll('.adov-s').forEach(el=>{if(!el.classList.contains('skip'))el.className='adov-s done';});
 
-  if (CS.type === 'watch') {
-    const reward = CS.reward;
-    const cooldownSec = APP.settings.watchChain?.cooldownSec || 30;
-    const newCooldownEnd = Date.now() + (cooldownSec * 1000);
-    try {
-      const snap = await db.ref('users/'+APP.userId).get(); const d = snap.val();
-      const nw = [...(d.watchedAds||[]), { date:new Date().toISOString(), reward, type:'watch_chain' }];
-      await db.ref('users/'+APP.userId).update({ balance:(d.balance||0)+reward, totalEarned:(d.totalEarned||0)+reward, watchedAds:nw, cooldownEndTime:newCooldownEnd });
-      cooldownEndTime = newCooldownEnd;
-      document.getElementById('adovTitle').textContent = 'Balance Updated!';
-      document.getElementById('adovCompleteTxt').textContent = `+৳ ${reward.toFixed(2)} টাকা Added!`;
-      document.getElementById('adovCompleteSub').textContent = 'Your balance has been updated';
+  if(CS.type==='watch'){
+    const reward=CS.reward;
+    const cooldownSec=APP.settings.watchChain?.cooldownSec||30;
+    const newCooldownEnd=Date.now()+(cooldownSec*1000);
+    try{
+      const snap=await db.ref('users/'+APP.userId).get();const d=snap.val();
+      const nw=[...(d.watchedAds||[]),{date:new Date().toISOString(),reward,type:'watch_chain'}];
+      await db.ref('users/'+APP.userId).update({balance:(d.balance||0)+reward,totalEarned:(d.totalEarned||0)+reward,watchedAds:nw,cooldownEndTime:newCooldownEnd});
+      cooldownEndTime=newCooldownEnd;
+      document.getElementById('adovTitle').textContent='Balance Updated!';
+      document.getElementById('adovCompleteTxt').textContent=`+৳ ${reward.toFixed(2)} টাকা Added!`;
+      document.getElementById('adovCompleteSub').textContent='Your balance has been updated';
       document.getElementById('adovComplete').classList.add('show');
-      setTimeout(() => {
+      setTimeout(()=>{
         document.getElementById('adOverlay').classList.remove('open');
-        startCooldownUI(newCooldownEnd - Date.now());
+        startCooldownUI(newCooldownEnd-Date.now());
         showToast(`+৳ ${reward.toFixed(2)} টাকা added!`);
-        CS = { active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null };
-      }, 2000);
-    } catch(e) {
-      document.getElementById('adovStatus').textContent = 'Error updating balance';
-      setTimeout(() => document.getElementById('adOverlay').classList.remove('open'), 2000);
-    }
-  } else {
-    document.getElementById('adovTitle').textContent = 'Ads Complete!';
-    document.getElementById('adovStatus').textContent = 'Processing withdrawal...';
-    document.getElementById('adovComplete').classList.add('show');
-    document.getElementById('adovCompleteTxt').textContent = `৳ ${(CS.wdData?.amount||0).toFixed(2)} টাকা`;
-    document.getElementById('adovCompleteSub').textContent = 'Submitting withdrawal request...';
-    setTimeout(async () => {
+        CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
+      },2000);
+    }catch(e){setTimeout(()=>document.getElementById('adOverlay').classList.remove('open'),2000);}
+  }else{
+    document.getElementById('adovTitle').textContent='Processing...';
+    document.getElementById('adovComplete').classList.remove('show');
+    document.getElementById('adovWdLoading').classList.add('show');
+    setTimeout(async()=>{
       await submitWithdrawDirect(CS.wdData);
       document.getElementById('adOverlay').classList.remove('open');
-      CS = { active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null };
-    }, 1500);
+      CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
+    },1500);
   }
 }
 
-// ══════════
-// WITHDRAW
-// ══════════
-function updateWdBtn() {
-  const wdc = APP.settings.withdrawChain || {};
-  const info = document.getElementById('wdAdInfo'); const btn = document.getElementById('wdBtn');
-  if (wdc.enabled && (wdc.slots||[]).length > 0) {
-    info.style.display = 'block';
-    document.getElementById('wdAdInfoTxt').textContent = `${wdc.message||'সবকিছু সঠিক দিন'} (${(wdc.slots||[]).length} chek)`;
-    btn.textContent = 'Withdraw'; btn.className = 'bigbtn wdbtn-ad';
-  } else { info.style.display = 'none'; btn.textContent = 'Withdraw Now →'; btn.className = 'bigbtn wdbtn-main'; }
+// ══ WITHDRAW ══
+function updateWdBtn(){
+  const wdc=APP.settings.withdrawChain||{};
+  const btn=document.getElementById('wdBtn');
+  // Always hide the info box — user doesn't need to know about ads
+  document.getElementById('wdAdInfo').style.display='none';
+  if(wdc.enabled&&(wdc.slots||[]).length>0){
+    btn.textContent='Withdraw Now →';
+    btn.className='bigbtn wdbtn-main';
+  }else{
+    btn.textContent='Withdraw Now →';
+    btn.className='bigbtn wdbtn-main';
+  }
 }
 
-function handleWithdraw() {
-  const wallet=document.getElementById('wdWallet').value, account=document.getElementById('wdAcc').value.trim(), amount=parseFloat(document.getElementById('wdAmt').value), minWd=APP.settings.minWithdraw||50;
-  if(!wallet) return showToast('⚠️ Select payment method');
-  if(!account) return showToast('⚠️ Enter account number');
-  if(!amount||amount<minWd) return showToast(`⚠️ Minimum ৳${minWd.toFixed(2)}`);
-  if(amount>APP.balance) return showToast('⚠️ Insufficient balance');
+function handleWithdraw(){
+  const wallet=document.getElementById('wdWallet').value,account=document.getElementById('wdAcc').value.trim(),amount=parseFloat(document.getElementById('wdAmt').value),minWd=APP.settings.minWithdraw||50;
+  if(!wallet)return showToast('⚠️ Select payment method');
+  if(!account)return showToast('⚠️ Enter account number');
+  if(!amount||amount<minWd)return showToast(`⚠️ Minimum ৳${minWd.toFixed(2)}`);
+  if(amount>APP.balance)return showToast('⚠️ Insufficient balance');
   const wlMap={bkash:'bKash',nagad:'Nagad',rocket:'Rocket',binance:'Binance (USDT)',crypto:'Crypto'};
   const wdData={wallet,walletLabel:wlMap[wallet]||wallet,account,amount};
   const wdc=APP.settings.withdrawChain||{};
-  if(wdc.enabled&&(wdc.slots||[]).length>0) startChain('withdraw',wdData); else submitWithdrawDirect(wdData);
+  if(wdc.enabled&&(wdc.slots||[]).length>0)startChain('withdraw',wdData);else submitWithdrawDirect(wdData);
 }
 
-async function submitWithdrawDirect(wdData) {
-  if(!wdData) return;
-  const btn=document.getElementById('wdBtn'); const orig=btn.textContent; btn.disabled=true; btn.textContent='Processing...';
-  try {
-    await db.ref('users/'+APP.userId).update({balance:APP.balance-wdData.amount,totalWithdrawn:APP.totalWithdrawn+wdData.amount});
-    await db.ref('withdrawals').push({userId:APP.userId,userName:APP.userName,...wdData,status:'pending',reason:'',createdAt:new Date().toISOString()});
-    document.getElementById('wdWallet').value=''; document.getElementById('wdAcc').value=''; document.getElementById('wdAmt').value='';
+async function submitWithdrawDirect(wdData){
+  if(!wdData)return;
+  const btn=document.getElementById('wdBtn');
+  const orig=btn.textContent;
+  btn.disabled=true;btn.textContent='Processing...';
+  try{
+    // Fresh data from Firebase to avoid stale APP.balance
+    const snap=await db.ref('users/'+APP.userId).get();
+    const d=snap.val()||{};
+    const newBal=(d.balance||0)-wdData.amount;
+    const newWd=(d.totalWithdrawn||0)+wdData.amount;
+
+    // Update balance and push withdrawal record atomically
+    await db.ref('users/'+APP.userId).update({
+      balance:newBal,
+      totalWithdrawn:newWd
+    });
+    await db.ref('withdrawals').push({
+      userId:APP.userId,
+      userName:APP.userName,
+      wallet:wdData.wallet,
+      walletLabel:wdData.walletLabel,
+      account:wdData.account,
+      amount:wdData.amount,
+      status:'pending',
+      reason:'',
+      createdAt:new Date().toISOString()
+    });
+    document.getElementById('wdWallet').value='';
+    document.getElementById('wdAcc').value='';
+    document.getElementById('wdAmt').value='';
     showToast('✅ Withdrawal request submitted!');
-  } catch(e) { showToast('❌ Error: '+e.message); }
-  btn.disabled=false; btn.textContent=orig;
-}
-
-// ═══════════
-// SUPPORT
-// ═══════════
-function renderSupport() {
-  const cards=APP.settings.supportCards||[]; const el=document.getElementById('supGrid');
-  if(!cards.length){el.innerHTML=`<div class="empty" style="grid-column:span 2;font-family:'Hind Siliguri',sans-serif">কোনো সাপোর্ট লিংক নেই</div>`;return;}
-  el.innerHTML=cards.map(c=>`<a href="${c.link||'#'}" class="scard" target="_blank"><div class="sic" style="background:${c.bg||'var(--as)'}">${c.icon||'💬'}</div><div class="st">${c.title}</div><div class="sd">${c.desc||''}</div></a>`).join('');
-}
-
-function renderVideo() {
-  const v = APP.settings.video || {};
-  document.getElementById('vtitle').textContent = v.title || 'কিভাবে কাজ করবেন তার ভিডিও';
-  // Always show play button — no iframe
-  document.getElementById('vph').innerHTML = `
-    <div class="vplay">▶</div>
-    <div style="font-size:13px;color:rgba(255,255,255,.5);z-index:2;font-family:'Hind Siliguri',sans-serif">টিউটোরিয়াল ভিডিও</div>`;
-}
-
-function openTutorial() {
-  const v = APP.settings.video || {};
-  if (!v.url) { showToast('⚠️ Tutorial link set করা নেই'); return; }
-  const tg = window.Telegram?.WebApp;
-  if (tg) {
-    // YouTube হলে openLink, Telegram link হলে openTelegramLink
-    if (v.url.includes('t.me') || v.url.includes('telegram')) {
-      tg.openTelegramLink(v.url);
-    } else {
-      tg.openLink(v.url);
-    }
-  } else {
-    window.open(v.url, '_blank');
+  }catch(e){
+    showToast('❌ Error: '+e.message);
+    console.error('Withdraw error:',e);
   }
+  btn.disabled=false;btn.textContent=orig;
 }
 
-// ═══════════
-// REFERRAL
-// ═══════════
+function renderSupport(){const cards=APP.settings.supportCards||[];const el=document.getElementById('supGrid');if(!cards.length){el.innerHTML=`<div class="empty" style="grid-column:span 2;font-family:'Hind Siliguri',sans-serif">কোনো সাপোর্ট লিংক নেই</div>`;return;}el.innerHTML=cards.map(c=>`<a href="${c.link||'#'}" class="scard" target="_blank"><div class="sic" style="background:${c.bg||'var(--as)'}">${c.icon||'💬'}</div><div class="st">${c.title}</div><div class="sd">${c.desc||''}</div></a>`).join('');}
+function renderVideo(){const v=APP.settings.video||{};document.getElementById('vtitle').textContent=v.title||'কিভাবে কাজ করবেন তার ভিডিও';document.getElementById('vph').innerHTML=`<div class="vplay">▶</div><div style="font-size:13px;color:rgba(255,255,255,.5);z-index:2;font-family:'Hind Siliguri',sans-serif">টিউটোরিয়াল ভিডিও</div>`;}
+function openTutorial(){const v=APP.settings.video||{};if(!v.url){showToast('⚠️ Tutorial link set করা নেই');return;}const tg=window.Telegram?.WebApp;if(tg){if(v.url.includes('t.me')||v.url.includes('telegram'))tg.openTelegramLink(v.url);else tg.openLink(v.url);}else window.open(v.url,'_blank');}
 function renderRefList(){const el=document.getElementById('rList');if(!APP.referrals.length){el.innerHTML=`<div class="empty"><div class="eic">👤</div>No referrals yet</div>`;return;}el.innerHTML=[...APP.referrals].reverse().map(r=>`<div class="ritem"><div class="rava">${(r.name||'?').charAt(0).toUpperCase()}</div><div><div class="run">${r.name}</div><div class="rdt">${ta(r.date)}</div></div><div class="re">+৳ ${Number(APP.settings.referralBonus||5).toFixed(2)}</div></div>`).join('');}
 function copyRef(){const l=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;navigator.clipboard?.writeText(l).catch(()=>{});showToast('📋 Referral link copied!');}
 function shareRef(){const l=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;const tg=window.Telegram?.WebApp;const u=`https://t.me/share/url?url=${encodeURIComponent(l)}&text=${encodeURIComponent('🚀 Join Zomato Platform & earn money daily!')}`;if(tg)tg.openTelegramLink(u);else window.open(u,'_blank');}
-
-// ════════════════
-// WITHDRAW HISTORY
-// ════════════════
 function renderWdHist(items){const el=document.getElementById('wdHist');if(!items.length){el.innerHTML=`<div class="empty"><div class="eic">📭</div>No withdrawals yet</div>`;return;}const wm={bkash:{ic:'💰',bg:'rgba(220,50,120,.15)'},nagad:{ic:'💰',bg:'rgba(0,130,70,.15)'},rocket:{ic:'💰',bg:'rgba(138,0,230,.15)'},binance:{ic:'🟡',bg:'rgba(240,185,11,.15)'},crypto:{ic:'₿',bg:'rgba(247,147,26,.15)'}};const sm={pending:'sp',approved:'sa',rejected:'sr'};const sl={pending:'⏳ Pending',approved:'✓ Approved',rejected:'✗ Rejected'};el.innerHTML=items.map(h=>{const m=wm[h.wallet]||{ic:'💰',bg:'rgba(255,255,255,.08)'};return`<div class="hitem"><div class="htop"><div class="hwallet"><div class="hwic" style="background:${m.bg}">${m.ic}</div><div class="hwn">${h.walletLabel||h.wallet}</div></div><div class="hamt">৳ ${Number(h.amount).toFixed(2)}</div></div><div class="hbtm"><div class="hacc">${h.account}</div><div class="sbdg ${sm[h.status]||'sp'}">${sl[h.status]||'Pending'}</div></div><div class="ht">🕐 ${fd(h.createdAt)}</div>${h.status==='rejected'&&h.reason?`<div class="hrr">⚠️ <span>${h.reason}</span></div>`:''}</div>`;}).join('');}
-
-// ════════
-// UI
-// ════════
 function updateProfile(){document.getElementById('uname').textContent=APP.userName;document.getElementById('uid').textContent='ID: '+APP.userId;const av=document.getElementById('uava');if(APP.userPhoto)av.innerHTML=`<img src="${APP.userPhoto}" alt="a">`;else av.textContent=APP.userName.charAt(0).toUpperCase();}
 function updateUI(){document.getElementById('hbal').textContent=APP.balance.toFixed(2);document.getElementById('sEarned').textContent=APP.totalEarned.toFixed(2);document.getElementById('sWd').textContent=APP.totalWithdrawn.toFixed(2);document.getElementById('sRef').textContent=APP.referrals.length;document.getElementById('wdBal').textContent=APP.balance.toFixed(2);document.getElementById('rTotal').textContent=APP.referrals.length;document.getElementById('rCoins').textContent=`৳${(APP.referrals.length*(APP.settings.referralBonus||5)).toFixed(2)}`;document.getElementById('rActive').textContent=APP.referrals.length;document.getElementById('rLink').textContent=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;renderRefList();renderTasks();}
 function showPage(p,el){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');el.classList.add('active');}
