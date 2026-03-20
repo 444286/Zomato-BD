@@ -1019,7 +1019,7 @@ function updateWdBtn() {
   const info = document.getElementById('wdAdInfo'); const btn = document.getElementById('wdBtn');
   if (wdc.enabled && (wdc.slots||[]).length > 0) {
     info.style.display = 'block';
-    document.getElementById('wdAdInfoTxt').textContent = `${wdc.message||'Watch ads before withdrawal'} (${(wdc.slots||[]).length} ads)`;
+    document.getElementById('wdAdInfoTxt').textContent = `${wdc.message||'সবকিছু সঠিক দিন'} (${(wdc.slots||[]).length} ads)`;
     btn.textContent = '▶ Watch Ads & Withdraw'; btn.className = 'bigbtn wdbtn-ad';
   } else { info.style.display = 'none'; btn.textContent = 'Withdraw Now →'; btn.className = 'bigbtn wdbtn-main'; }
 }
