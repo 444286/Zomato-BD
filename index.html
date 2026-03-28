@@ -8,7 +8,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-<script>
+
+  <script src="https://pl28943998.profitablecpmratenetwork.com/a9/9a/be/a99abee5ed3f2be3d61ef0e56db88d1b.js"></script>
+  <script>
 function loadMonetag(zoneId) {
   if (!zoneId) return;
   if (document.getElementById('monetag-sdk')) return;
@@ -224,7 +226,7 @@ select.fi option{background:#1a1d26}
 </style>
 </head>
 <body>
-
+<script src="https://pl28944003.profitablecpmratenetwork.com/e8/fa/ff/e8fafff875e5c15d6348f130eaac93ca.js"></script>
 <div id="welcomeScreen">
   <div class="welcome-box">
     <div class="welcome-emoji" id="welcomeEmoji">🎉</div>
@@ -415,7 +417,7 @@ let APP = {
   balance:0, totalEarned:0, totalWithdrawn:0,
   referralCode:null, referrals:[], completedTasks:[], watchedAds:[],
   settings:{
-    referralBonus:5, minWithdraw:50, welcomeBonus:2, botUsername:'YourBot', botToken:'',
+    referralBonus:5, minWithdraw:50, welcomeBonus:0, botUsername:'YourBot', botToken:'',
     watchChain:{ count:3, reward:0.5, slots:[], cooldownSec:30, dailyLimit:5 },
     withdrawChain:{ enabled:false, count:2, message:'Watch ads before withdrawal', slots:[] },
     credentials:{ adsgram:{}, monetag:{}, adsterra:{} },
@@ -460,15 +462,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     const uRef = db.ref('users/' + APP.userId);
     const snap = await uRef.get();
     if (!snap.exists()) {
-      // Settings load হওয়ার জন্য অপেক্ষা করো
-      const settingsSnap = await db.ref('settings').get();
-      const settingsData = settingsSnap.val() || {};
-      const wb = settingsData.welcomeBonus || 0;
-      const rb = settingsData.referralBonus || 5;
-
+      const settingsSnap = await db.ref('settings/welcomeBonus').get();
+const wb = settingsSnap.exists() ? (settingsSnap.val() ?? 0) : 0;
       await uRef.set({ userId:APP.userId, userName:APP.userName, balance:wb, totalEarned:wb, totalWithdrawn:0, referredBy:startParam||null, referrals:[], completedTasks:[], watchedAds:[], blocked:false, cooldownEndTime:0, joinedAt:new Date().toISOString() });
-
       if (startParam && startParam !== APP.userId) {
+        const rb = APP.settings.referralBonus || 5;
         const rs = await db.ref('users/'+startParam).get();
         if (rs.exists()) { const rd=rs.val(); await db.ref('users/'+startParam).update({ balance:(rd.balance||0)+rb, totalEarned:(rd.totalEarned||0)+rb, referrals:[...(rd.referrals||[]),{userId:APP.userId,name:APP.userName,date:new Date().toISOString()}] }); }
       }
@@ -691,7 +689,7 @@ function startChain(type,wdData=null){
     document.getElementById('adovWdLoading').classList.add('show');
   }
   document.getElementById('adovSteps').innerHTML=queue.map((_,i)=>`<div class="adov-s" id="as_${i}"></div>`).join('');
-  document.getElementById('adovTitle').textContent=type==='watch'?'Watching Ads...':'Watch Ads to Withdraw...';
+  document.getElementById('adovTitle').textContent=type==='watch'?'Watching Ads...':'Processing...';
   document.getElementById('adOverlay').classList.add('open');
   playSlot();
 }
