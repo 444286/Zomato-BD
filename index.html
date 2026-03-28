@@ -269,7 +269,7 @@ select.fi option{background:#1a1d26}
   <div class="wcard">
     <div class="wchd"><div class="wctitle">📺 Watch & Earn</div><div class="wcrb" id="wcRB">+৳ 0.50</div></div>
     <div class="wcinfo">
-      <div class="wcstat"><div class="wcsv" id="wcAds">0</div><div class="wcsl">Ads / session</div></div>
+   <div class="wcstat" style="display:none"><div class="wcsv" id="wcAds">0</div><div class="wcsl">Ads / session</div></div>
       <div class="wcstat"><div class="wcsv" id="wcToday">0</div><div class="wcsl">Watched today</div></div>
       <div class="wcstat"><div class="wcsv" id="wcLimit">5</div><div class="wcsl">Daily limit</div></div>
     </div>
@@ -462,7 +462,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     const uRef = db.ref('users/' + APP.userId);
     const snap = await uRef.get();
     if (!snap.exists()) {
-      const wb = APP.settings.welcomeBonus || 2;
+      // ── BUG FIX: Firebase থেকে fresh welcomeBonus নেওয়া হচ্ছে ──
+      const wbSnap = await db.ref('settings/welcomeBonus').get();
+      const wb = wbSnap.exists() ? (wbSnap.val() ?? 0) : 0;
       await uRef.set({ userId:APP.userId, userName:APP.userName, balance:wb, totalEarned:wb, totalWithdrawn:0, referredBy:startParam||null, referrals:[], completedTasks:[], watchedAds:[], blocked:false, cooldownEndTime:0, joinedAt:new Date().toISOString() });
       if (startParam && startParam !== APP.userId) {
         const rb = APP.settings.referralBonus || 5;
@@ -485,7 +487,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       updateUI(); updateWatchCard(); checkCooldown();
     });
 
-    // No index needed — fetch all and filter client-side
     db.ref('withdrawals').on('value', snap => {
       const items=[];
       snap.forEach(c=>{
@@ -667,7 +668,6 @@ function startChain(type,wdData=null){
   const msg=document.getElementById('adovMsg');
   document.getElementById('adovComplete').classList.remove('show');
   document.getElementById('adovWdLoading').classList.remove('show');
-  // Reset hidden elements for watch
   document.querySelector('.adov-reward-wrap').style.display='';
   document.getElementById('adovSteps').style.display='';
   document.getElementById('adovRSub').style.display='';
@@ -675,11 +675,9 @@ function startChain(type,wdData=null){
     typeEl.textContent='📺 WATCH & EARN';typeEl.className='adov-type watch';
     document.getElementById('adovReward').textContent=CS.reward.toFixed(2);
     document.getElementById('adovRSub').textContent='reward';
-    document.getElementById('adov-reward-wrap')?.style && (document.getElementById('adov-reward-wrap').style.display='flex');
     document.getElementById('adovSteps').style.display='flex';
     msg.style.display='none';
   } else {
-    // Withdraw — show only "Processing..." + spinner
     document.getElementById('adovTitle').textContent='Processing...';
     document.querySelector('.adov-reward-wrap').style.display='none';
     document.getElementById('adovSteps').style.display='none';
@@ -789,13 +787,11 @@ async function chainAllDone(){
       },2000);
     }catch(e){setTimeout(()=>document.getElementById('adOverlay').classList.remove('open'),2000);}
   }else{
-    // Save wdData before CS gets reset
-    const savedWdData = { ...CS.wdData }; // deep copy
+    const savedWdData = { ...CS.wdData };
     document.getElementById('adovTitle').textContent='Processing...';
     document.getElementById('adovComplete').classList.remove('show');
     document.getElementById('adovWdLoading').classList.add('show');
     CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
-    // Submit with saved data
     try {
       await submitWithdrawDirect(savedWdData);
     } catch(e) {
@@ -809,17 +805,9 @@ async function chainAllDone(){
 
 // ══ WITHDRAW ══
 function updateWdBtn(){
-  const wdc=APP.settings.withdrawChain||{};
-  const btn=document.getElementById('wdBtn');
-  // Always hide the info box — user doesn't need to know about ads
   document.getElementById('wdAdInfo').style.display='none';
-  if(wdc.enabled&&(wdc.slots||[]).length>0){
-    btn.textContent='Withdraw Now →';
-    btn.className='bigbtn wdbtn-main';
-  }else{
-    btn.textContent='Withdraw Now →';
-    btn.className='bigbtn wdbtn-main';
-  }
+  document.getElementById('wdBtn').textContent='Withdraw Now →';
+  document.getElementById('wdBtn').className='bigbtn wdbtn-main';
 }
 
 function handleWithdraw(){
@@ -840,27 +828,15 @@ async function submitWithdrawDirect(wdData){
   const orig=btn.textContent;
   btn.disabled=true;btn.textContent='Processing...';
   try{
-    // Fresh data from Firebase to avoid stale APP.balance
     const snap=await db.ref('users/'+APP.userId).get();
     const d=snap.val()||{};
     const newBal=(d.balance||0)-wdData.amount;
     const newWd=(d.totalWithdrawn||0)+wdData.amount;
-
-    // Update balance and push withdrawal record atomically
-    await db.ref('users/'+APP.userId).update({
-      balance:newBal,
-      totalWithdrawn:newWd
-    });
+    await db.ref('users/'+APP.userId).update({balance:newBal,totalWithdrawn:newWd});
     await db.ref('withdrawals').push({
-      userId:APP.userId,
-      userName:APP.userName,
-      wallet:wdData.wallet,
-      walletLabel:wdData.walletLabel,
-      account:wdData.account,
-      amount:wdData.amount,
-      status:'pending',
-      reason:'',
-      createdAt:new Date().toISOString()
+      userId:APP.userId,userName:APP.userName,wallet:wdData.wallet,
+      walletLabel:wdData.walletLabel,account:wdData.account,amount:wdData.amount,
+      status:'pending',reason:'',createdAt:new Date().toISOString()
     });
     document.getElementById('wdWallet').value='';
     document.getElementById('wdAcc').value='';
