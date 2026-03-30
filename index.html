@@ -339,10 +339,10 @@ select.fi option{background:#1a1d26}
         <span class="sarr">▾</span>
       </div>
     </div>
-    <div class="fg"><span class="flbl">Account Number</span><input class="fi" type="text" id="wdAcc" placeholder="Enter your number..."></div>
+    <div class="fg"><span class="flbl">Account Number</span><input class="fi" type="text" id="wdAcc" placeholder="Enter your number..." inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
     <div class="fg">
       <span class="flbl">Amount</span>
-      <input class="fi" type="number" id="wdAmt" placeholder="0.00">
+     <input class="fi" type="number" id="wdAmt" placeholder="0.00" inputmode="numeric" min="0">
       <div style="font-size:11px;color:var(--muted);margin-top:5px;font-family:'Inter',sans-serif">Minimum: <span id="minWd" style="color:var(--taka);font-family:'Hind Siliguri',sans-serif">৳ 50</span></div>
     </div>
     <button class="bigbtn wdbtn-main" id="wdBtn" onclick="handleWithdraw()">Withdraw Now →</button>
