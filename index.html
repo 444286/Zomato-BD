@@ -269,7 +269,7 @@ select.fi option{background:#1a1d26}
   <div class="wcard">
     <div class="wchd"><div class="wctitle">📺 Watch & Earn</div><div class="wcrb" id="wcRB">+৳ 0.50</div></div>
     <div class="wcinfo">
-   <div class="wcstat" style="display:none"><div class="wcsv" id="wcAds">0</div><div class="wcsl">Ads / session</div></div>
+      <div class="wcstat" style="display:none"><div class="wcsv" id="wcAds">0</div><div class="wcsl">Ads / session</div></div>
       <div class="wcstat"><div class="wcsv" id="wcToday">0</div><div class="wcsl">Watched today</div></div>
       <div class="wcstat"><div class="wcsv" id="wcLimit">5</div><div class="wcsl">Daily limit</div></div>
     </div>
@@ -342,7 +342,7 @@ select.fi option{background:#1a1d26}
     <div class="fg"><span class="flbl">Account Number</span><input class="fi" type="text" id="wdAcc" placeholder="Enter your number..." inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
     <div class="fg">
       <span class="flbl">Amount</span>
-     <input class="fi" type="number" id="wdAmt" placeholder="0.00" inputmode="numeric" min="0">
+      <input class="fi" type="number" id="wdAmt" placeholder="0.00" inputmode="numeric" min="0">
       <div style="font-size:11px;color:var(--muted);margin-top:5px;font-family:'Inter',sans-serif">Minimum: <span id="minWd" style="color:var(--taka);font-family:'Hind Siliguri',sans-serif">৳ 50</span></div>
     </div>
     <button class="bigbtn wdbtn-main" id="wdBtn" onclick="handleWithdraw()">Withdraw Now →</button>
@@ -452,6 +452,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       APP.settings = { ...APP.settings, ...s };
       renderTasks(); renderSupport(); renderVideo();
       updateWatchCard(); updateWdBtn();
+      updateUI(); // ── FIX: settings load হলে UI আপডেট করো ──
       const mzid = s.credentials?.monetag?.zoneId;
       if (mzid && s.credentials?.monetag?.active) loadMonetag(mzid);
       document.getElementById('rbLbl').textContent = `৳ ${(APP.settings.referralBonus||5).toFixed(2)}`;
@@ -462,7 +463,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     const uRef = db.ref('users/' + APP.userId);
     const snap = await uRef.get();
     if (!snap.exists()) {
-      // ── BUG FIX: Firebase থেকে fresh welcomeBonus নেওয়া হচ্ছে ──
       const wbSnap = await db.ref('settings/welcomeBonus').get();
       const wb = wbSnap.exists() ? (wbSnap.val() ?? 0) : 0;
       await uRef.set({ userId:APP.userId, userName:APP.userName, balance:wb, totalEarned:wb, totalWithdrawn:0, referredBy:startParam||null, referrals:[], completedTasks:[], watchedAds:[], blocked:false, cooldownEndTime:0, joinedAt:new Date().toISOString() });
@@ -502,6 +502,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   } catch(e) { console.error(e); showToast('⚠️ Connection error'); }
 
   updateProfile();
+  updateUI();
   document.getElementById('ls').style.display = 'none';
 });
 
@@ -648,7 +649,6 @@ function updateWatchCard(){
   checkCooldown();
 }
 
-// ══ AD CHAIN ══
 function buildQueue(chainData){
   const slots=chainData.slots||[];
   const creds=APP.settings.credentials||{};
@@ -691,7 +691,6 @@ function startChain(type,wdData=null){
   playSlot();
 }
 
-// ══ SLOT ENGINE ══
 let _slotAdvanced=false;
 let _slotTimer=null;
 
@@ -721,7 +720,6 @@ function playSlot(){
       _slotTimer=setTimeout(_next,30000);
       ctrl.show().then(_next).catch(_next);
     }catch(e){_next();}
-
   }else if(net.name==='monetag'){
     if(!net.zoneId){_next();return;}
     const fnName='show_'+net.zoneId;
@@ -739,7 +737,6 @@ function playSlot(){
       else{_next();}
     };
     poll();
-
   }else if(net.name==='adsterra'){
     if(!net.link&&!net.script){_next();return;}
     try{
@@ -787,23 +784,18 @@ async function chainAllDone(){
       },2000);
     }catch(e){setTimeout(()=>document.getElementById('adOverlay').classList.remove('open'),2000);}
   }else{
-    const savedWdData = { ...CS.wdData };
+    const savedWdData={...CS.wdData};
     document.getElementById('adovTitle').textContent='Processing...';
     document.getElementById('adovComplete').classList.remove('show');
     document.getElementById('adovWdLoading').classList.add('show');
     CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
-    try {
-      await submitWithdrawDirect(savedWdData);
-    } catch(e) {
-      showToast('❌ Submit error: '+e.message);
-      console.error('Withdraw submit error:', e);
-    }
+    try{await submitWithdrawDirect(savedWdData);}
+    catch(e){showToast('❌ Submit error: '+e.message);}
     document.getElementById('adOverlay').classList.remove('open');
     document.getElementById('adovWdLoading').classList.remove('show');
   }
 }
 
-// ══ WITHDRAW ══
 function updateWdBtn(){
   document.getElementById('wdAdInfo').style.display='none';
   document.getElementById('wdBtn').textContent='Withdraw Now →';
@@ -844,7 +836,6 @@ async function submitWithdrawDirect(wdData){
     showToast('✅ Withdrawal request submitted!');
   }catch(e){
     showToast('❌ Error: '+e.message);
-    console.error('Withdraw error:',e);
   }
   btn.disabled=false;btn.textContent=orig;
 }
@@ -857,7 +848,23 @@ function copyRef(){const l=`https://t.me/${APP.settings.botUsername||'YourBot'}?
 function shareRef(){const l=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;const tg=window.Telegram?.WebApp;const u=`https://t.me/share/url?url=${encodeURIComponent(l)}&text=${encodeURIComponent('🚀 Join Zomato Platform & earn money daily!')}`;if(tg)tg.openTelegramLink(u);else window.open(u,'_blank');}
 function renderWdHist(items){const el=document.getElementById('wdHist');if(!items.length){el.innerHTML=`<div class="empty"><div class="eic">📭</div>No withdrawals yet</div>`;return;}const wm={bkash:{ic:'💰',bg:'rgba(220,50,120,.15)'},nagad:{ic:'💰',bg:'rgba(0,130,70,.15)'},rocket:{ic:'💰',bg:'rgba(138,0,230,.15)'},binance:{ic:'🟡',bg:'rgba(240,185,11,.15)'},crypto:{ic:'₿',bg:'rgba(247,147,26,.15)'}};const sm={pending:'sp',approved:'sa',rejected:'sr'};const sl={pending:'⏳ Pending',approved:'✓ Approved',rejected:'✗ Rejected'};el.innerHTML=items.map(h=>{const m=wm[h.wallet]||{ic:'💰',bg:'rgba(255,255,255,.08)'};return`<div class="hitem"><div class="htop"><div class="hwallet"><div class="hwic" style="background:${m.bg}">${m.ic}</div><div class="hwn">${h.walletLabel||h.wallet}</div></div><div class="hamt">৳ ${Number(h.amount).toFixed(2)}</div></div><div class="hbtm"><div class="hacc">${h.account}</div><div class="sbdg ${sm[h.status]||'sp'}">${sl[h.status]||'Pending'}</div></div><div class="ht">🕐 ${fd(h.createdAt)}</div>${h.status==='rejected'&&h.reason?`<div class="hrr">⚠️ <span>${h.reason}</span></div>`:''}</div>`;}).join('');}
 function updateProfile(){document.getElementById('uname').textContent=APP.userName;document.getElementById('uid').textContent='ID: '+APP.userId;const av=document.getElementById('uava');if(APP.userPhoto)av.innerHTML=`<img src="${APP.userPhoto}" alt="a">`;else av.textContent=APP.userName.charAt(0).toUpperCase();}
-function updateUI(){document.getElementById('hbal').textContent=APP.balance.toFixed(2);document.getElementById('sEarned').textContent=APP.totalEarned.toFixed(2);document.getElementById('sWd').textContent=APP.totalWithdrawn.toFixed(2);document.getElementById('sRef').textContent=APP.referrals.length||Object.values(AU||{}).filter(u=>String(u.referredBy)===String(APP.userId)).length;document.getElementById('wdBal').textContent=APP.balance.toFixed(2);document.getElementById('rTotal').textContent=APP.referrals.length;document.getElementById('rCoins').textContent=`৳${(APP.referrals.length*(APP.settings.referralBonus||5)).toFixed(2)}`;document.getElementById('rActive').textContent=APP.referrals.length;document.getElementById('rLink').textContent=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;renderRefList();renderTasks();}
+
+// ── FIX: AU reference সরিয়ে শুধু APP.referrals use করা হচ্ছে ──
+function updateUI(){
+  const refCount=APP.referrals.length;
+  document.getElementById('hbal').textContent=APP.balance.toFixed(2);
+  document.getElementById('sEarned').textContent=APP.totalEarned.toFixed(2);
+  document.getElementById('sWd').textContent=APP.totalWithdrawn.toFixed(2);
+  document.getElementById('sRef').textContent=refCount;
+  document.getElementById('wdBal').textContent=APP.balance.toFixed(2);
+  document.getElementById('rTotal').textContent=refCount;
+  document.getElementById('rCoins').textContent=`৳${(refCount*(APP.settings.referralBonus||5)).toFixed(2)}`;
+  document.getElementById('rActive').textContent=refCount;
+  document.getElementById('rLink').textContent=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;
+  renderRefList();
+  renderTasks();
+}
+
 function showPage(p,el){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');el.classList.add('active');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 function ta(iso){if(!iso)return'';const m=Math.floor((Date.now()-new Date(iso))/60000);if(m<1)return'Just now';if(m<60)return`${m}m ago`;const h=Math.floor(m/60);if(h<24)return`${h}h ago`;return`${Math.floor(h/24)}d ago`;}
