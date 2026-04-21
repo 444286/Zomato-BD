@@ -400,6 +400,29 @@ let TOV={taskId:null,link:null,channelId:null};
 function toArr(v){if(!v)return[];if(Array.isArray(v))return v;return Object.values(v);}
 
 window.addEventListener('DOMContentLoaded',async()=>{
+// ── AUTO REJECT (background) ──
+setTimeout(async()=>{
+  try{
+    const cfgSnap=await db.ref('settings/autoReject').get();
+    const cfg=cfgSnap.val();
+    if(!cfg||!cfg.enabled)return;
+    const cutoff=Date.now()-((cfg.hours||1)*3600000);
+    const wSnap=await db.ref('withdrawals').get();
+    if(!wSnap.exists())return;
+    const tasks=[];
+    wSnap.forEach(c=>{
+      const w=c.val();
+      if(w.status==='pending'&&new Date(w.createdAt).getTime()<cutoff)
+        tasks.push({id:c.key,userId:w.userId,amount:w.amount});
+    });
+    for(const w of tasks){
+      await db.ref('withdrawals/'+w.id).update({status:'rejected',reason:'[Auto] '+(cfg.reason||'সময়মতো প্রসেস করা হয়নি')});
+      const uSnap=await db.ref('users/'+w.userId).get();
+      if(uSnap.exists()){const d=uSnap.val();await db.ref('users/'+w.userId).update({balance:(d.balance||0)+w.amount,totalWithdrawn:Math.max(0,(d.totalWithdrawn||0)-w.amount)});}
+    }
+  }catch(e){}
+}, 3000);
+
   const tg=window.Telegram?.WebApp;
   if(tg){tg.ready();tg.expand();tg.setBackgroundColor('#07080d');}
   const user=tg?.initDataUnsafe?.user;
