@@ -566,7 +566,7 @@ function clearCooldownUI(){
   const btn=document.getElementById('watchBtn');
   document.getElementById('cooldownBarWrap').style.display='none';
   if(isDailyLimitReached()){btn.disabled=true;btn.className='bigbtn watchbtn limit-done';btn.textContent="✅ Today's limit reached";return;}
-  btn.disabled=false;btn.className='bigbtn watchbtn';btn.textContent='▶ বিজ্ঞাপন দেখুন;
+  btn.disabled=false;btn.className='bigbtn watchbtn';btn.textContent='▶ Watch Ads & Earn;
 }
 
 function isDailyLimitReached(){const limit=APP.settings.watchChain?.dailyLimit||5;const today=new Date().toDateString();return APP.watchedAds.filter(w=>w.type==='watch_chain'&&new Date(w.date).toDateString()===today).length>=limit;}
