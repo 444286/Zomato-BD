@@ -11,14 +11,12 @@
 
 <script src="https://pl28943998.profitablecpmratenetwork.com/a9/9a/be/a99abee5ed3f2be3d61ef0e56db88d1b.js"></script>
 <script>
-function loadMonetag(zoneId) {
-  if (!zoneId) return;
-  if (document.getElementById('monetag-sdk')) return;
+function loadGigaPub(scriptId) {
+  if (!scriptId) return;
+  if (document.getElementById('gigapub-sdk')) return;
   const sc = document.createElement('script');
-  sc.id = 'monetag-sdk';
-  sc.src = '//libtl.com/sdk.js';
-  sc.setAttribute('data-zone', String(zoneId));
-  sc.setAttribute('data-sdk', 'show_' + zoneId);
+  sc.id = 'gigapub-sdk';
+  sc.src = 'https://ad.gigapub.tech/script?id=' + scriptId;
   document.head.appendChild(sc);
 }
 </script>
@@ -390,7 +388,7 @@ const firebaseConfig={apiKey:"AIzaSyCS9W1gnMSaIV2KjH1QMBTLgTt-ew0mnTo",authDomai
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
-let APP={userId:null,userName:null,userPhoto:null,balance:0,totalEarned:0,totalWithdrawn:0,referralCode:null,referrals:[],completedTasks:[],watchedAds:[],settings:{referralBonus:5,minWithdraw:50,welcomeBonus:0,botUsername:'YourBot',botToken:'',watchChain:{count:3,reward:0.5,slots:[],cooldownSec:30,dailyLimit:5},withdrawChain:{enabled:false,count:2,message:'Watch ads before withdrawal',slots:[]},credentials:{adsgram:{},monetag:{},adsterra:{}},tasks:[],supportCards:[],video:{},welcome:{enabled:false,emoji:'🎉',title:'Welcome!',message:'Start watching ads and earn money every day!'}}};
+let APP={userId:null,userName:null,userPhoto:null,balance:0,totalEarned:0,totalWithdrawn:0,referralCode:null,referrals:[],completedTasks:[],watchedAds:[],settings:{referralBonus:5,minWithdraw:50,welcomeBonus:0,botUsername:'YourBot',botToken:'',watchChain:{count:3,reward:0.5,slots:[],cooldownSec:30,dailyLimit:5},withdrawChain:{enabled:false,count:2,message:'Watch ads before withdrawal',slots:[]},credentials:{adsgram:{},gigapub:{},adsterra:{}},tasks:[],supportCards:[],video:{},welcome:{enabled:false,emoji:'🎉',title:'Welcome!',message:'Start watching ads and earn money every day!'}}};
 
 let CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
 let cooldownInterval=null,cooldownEndTime=0;
@@ -438,8 +436,8 @@ setTimeout(async()=>{
       APP.settings={...APP.settings,...s};
       renderTasks();renderSupport();renderVideo();
       updateWatchCard();updateWdBtn();updateUI();
-      const mzid=s.credentials?.monetag?.zoneId;
-      if(mzid&&s.credentials?.monetag?.active)loadMonetag(mzid);
+      const gpid=s.credentials?.gigapub?.scriptId;
+      if(gpid&&s.credentials?.gigapub?.active)loadGigaPub(gpid);
       document.getElementById('rbLbl').textContent=`৳ ${(APP.settings.referralBonus||5).toFixed(2)}`;
       document.getElementById('minWd').textContent=`৳ ${(APP.settings.minWithdraw||50).toFixed(2)}`;
       if(!welcomeShown){welcomeShown=true;setTimeout(checkWelcomePopup,800);}
@@ -634,13 +632,20 @@ function playSlot(){
   if(net.name==='adsgram'){
     if(!net.blockId){_next();return;}
     try{const ctrl=window.Adsgram?.init({blockId:String(net.blockId)});if(!ctrl){_next();return;}_slotTimer=setTimeout(_next,30000);ctrl.show().then(_next).catch(_next);}catch(e){_next();}
-  }else if(net.name==='monetag'){
-    if(!net.zoneId){_next();return;}
-    const fnName='show_'+net.zoneId;
-    if(!document.getElementById('monetag-sdk'))loadMonetag(String(net.zoneId));
+  }else if(net.name==='gigapub'){
+    if(!net.scriptId){_next();return;}
+    if(!document.getElementById('gigapub-sdk'))loadGigaPub(String(net.scriptId));
     let tries=0;
-    const poll=()=>{if(_slotAdvanced)return;if(typeof window[fnName]==='function'){try{const p=window[fnName]();if(p&&typeof p.then==='function'){p.then(_next).catch(_next);}else{_slotTimer=setTimeout(_next,3000);}}catch(e){_next();}}else if(tries++<50){setTimeout(poll,80);}else{_next();}};
-    poll();
+    const pollGp=()=>{
+      if(_slotAdvanced)return;
+      if(typeof window.showGiga==='function'){
+        try{
+          window.showGiga().then(_next).catch(_next);
+        }catch(e){_next();}
+      }else if(tries++<60){setTimeout(pollGp,100);}
+      else{_next();}
+    };
+    pollGp();
   }else if(net.name==='adsterra'){
     if(!net.link&&!net.script){_next();return;}
     try{if(net.link){const tg=window.Telegram?.WebApp;if(tg)tg.openLink(net.link);else window.open(net.link,'_blank','noopener');_slotTimer=setTimeout(_next,5000);}else if(net.script){const div=document.createElement('div');div.innerHTML=net.script;div.querySelectorAll('script').forEach(sc=>{const ns=document.createElement('script');if(sc.src){ns.src=sc.src;ns.async=true;}else ns.textContent=sc.textContent;document.body.appendChild(ns);});_slotTimer=setTimeout(_next,4000);}}catch(e){_next();}
