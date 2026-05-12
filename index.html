@@ -10,16 +10,22 @@
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
 <script src="https://pl28943998.profitablecpmratenetwork.com/a9/9a/be/a99abee5ed3f2be3d61ef0e56db88d1b.js"></script>
+
+<!-- Monetag SDK loader (Zone ID টি Firebase থেকে লোড হয়) -->
 <script>
-function loadGigaPub(scriptId) {
-  if (!scriptId) return;
-  if (document.getElementById('gigapub-sdk')) return;
-  const sc = document.createElement('script');
-  sc.id = 'gigapub-sdk';
-  sc.src = 'https://ad.gigapub.tech/script?id=' + scriptId;
-  document.head.appendChild(sc);
+function loadMoneytag(zoneId) {
+  if (!zoneId) return;
+  if (document.getElementById('monetag-sdk')) return;
+  // Monetag Interstitial / Rewarded
+  (function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s);}catch(e){}})('glizauvo.net', zoneId, document.createElement('script'));
+  // Tag to prevent double-load
+  const tag = document.createElement('span');
+  tag.id = 'monetag-sdk';
+  tag.style.display = 'none';
+  document.head.appendChild(tag);
 }
 </script>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&family=Hind+Siliguri:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -216,7 +222,6 @@ select.fi option{background:#1a1d26}
 .adov-complete-txt{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff}
 .adov-complete-sub{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif}
 @keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
-/* ── Continue button shown after adsterra opens ── */
 .adov-continue{
   margin-top:8px;
   background:linear-gradient(135deg,var(--accent),#b06bff);
@@ -250,7 +255,7 @@ select.fi option{background:#1a1d26}
 <div id="blockedScreen">
   <div class="blocked-ic">🚫</div>
   <div class="blocked-title">No internet connection...</div>
-  <div class="blocked-sub">Chek your Network and try again</div>
+  <div class="blocked-sub">Check your Network and try again</div>
 </div>
 <div id="ls">
   <div class="ll">Zomato Platform</div>
@@ -386,7 +391,6 @@ select.fi option{background:#1a1d26}
   <div class="adov-rsub" id="adovRSub">reward</div>
   <div class="adov-msg" id="adovMsg"></div>
   <div class="adov-status" id="adovStatus"></div>
-  <!-- Shown after adsterra link opens — user taps when done -->
   <div class="adov-waiting" id="adovWaiting">বিজ্ঞাপনটি দেখা শেষ হলে<br>নিচের বাটনে ট্যাপ করুন</div>
   <button class="adov-continue" id="adovContinue" onclick="onAdsterraBack()">✅ বিজ্ঞাপন দেখা হয়েছে</button>
   <div class="adov-wd-loading" id="adovWdLoading">
@@ -405,38 +409,33 @@ const firebaseConfig={apiKey:"AIzaSyCS9W1gnMSaIV2KjH1QMBTLgTt-ew0mnTo",authDomai
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
-let APP={userId:null,userName:null,userPhoto:null,balance:0,totalEarned:0,totalWithdrawn:0,referralCode:null,referrals:[],completedTasks:[],watchedAds:[],settings:{referralBonus:5,minWithdraw:50,welcomeBonus:0,botUsername:'YourBot',botToken:'',watchChain:{count:3,reward:0.5,slots:[],cooldownSec:30,dailyLimit:5},withdrawChain:{enabled:false,count:2,message:'Watch ads before withdrawal',slots:[]},credentials:{adsgram:{},gigapub:{},adsterra:{}},tasks:[],supportCards:[],video:{},welcome:{enabled:false,emoji:'🎉',title:'Welcome!',message:'Start watching ads and earn money every day!'}}};
+let APP={userId:null,userName:null,userPhoto:null,balance:0,totalEarned:0,totalWithdrawn:0,referralCode:null,referrals:[],completedTasks:[],watchedAds:[],settings:{referralBonus:5,minWithdraw:50,welcomeBonus:0,botUsername:'YourBot',botToken:'',watchChain:{count:3,reward:0.5,slots:[],cooldownSec:30,dailyLimit:5},withdrawChain:{enabled:false,count:2,message:'Watch ads before withdrawal',slots:[]},credentials:{adsgram:{},monetag:{},adsterra:{}},tasks:[],supportCards:[],video:{},welcome:{enabled:false,emoji:'🎉',title:'Welcome!',message:'Start watching ads and earn money every day!'}}};
 
 let CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData:null};
 let cooldownInterval=null,cooldownEndTime=0;
 let TOV={taskId:null,link:null,channelId:null};
 
-// ── Firebase Array Fix ──
 function toArr(v){if(!v)return[];if(Array.isArray(v))return v;return Object.values(v);}
 
 window.addEventListener('DOMContentLoaded',async()=>{
-// ── AUTO REJECT (background) ──
-setTimeout(async()=>{
-  try{
-    const cfgSnap=await db.ref('settings/autoReject').get();
-    const cfg=cfgSnap.val();
-    if(!cfg||!cfg.enabled)return;
-    const cutoff=Date.now()-((cfg.hours||1)*3600000);
-    const wSnap=await db.ref('withdrawals').get();
-    if(!wSnap.exists())return;
-    const tasks=[];
-    wSnap.forEach(c=>{
-      const w=c.val();
-      if(w.status==='pending'&&new Date(w.createdAt).getTime()<cutoff)
-        tasks.push({id:c.key,userId:w.userId,amount:w.amount});
-    });
-    for(const w of tasks){
-      await db.ref('withdrawals/'+w.id).update({status:'rejected',reason:'[Auto] '+(cfg.reason||'সময়মতো প্রসেস করা হয়নি')});
-      const uSnap=await db.ref('users/'+w.userId).get();
-      if(uSnap.exists()){const d=uSnap.val();await db.ref('users/'+w.userId).update({balance:(d.balance||0)+w.amount,totalWithdrawn:Math.max(0,(d.totalWithdrawn||0)-w.amount)});}
-    }
-  }catch(e){}
-}, 3000);
+  // ── AUTO REJECT (background) ──
+  setTimeout(async()=>{
+    try{
+      const cfgSnap=await db.ref('settings/autoReject').get();
+      const cfg=cfgSnap.val();
+      if(!cfg||!cfg.enabled)return;
+      const cutoff=Date.now()-((cfg.hours||1)*3600000);
+      const wSnap=await db.ref('withdrawals').get();
+      if(!wSnap.exists())return;
+      const tasks=[];
+      wSnap.forEach(c=>{const w=c.val();if(w.status==='pending'&&new Date(w.createdAt).getTime()<cutoff)tasks.push({id:c.key,userId:w.userId,amount:w.amount});});
+      for(const w of tasks){
+        await db.ref('withdrawals/'+w.id).update({status:'rejected',reason:'[Auto] '+(cfg.reason||'সময়মতো প্রসেস করা হয়নি')});
+        const uSnap=await db.ref('users/'+w.userId).get();
+        if(uSnap.exists()){const d=uSnap.val();await db.ref('users/'+w.userId).update({balance:(d.balance||0)+w.amount,totalWithdrawn:Math.max(0,(d.totalWithdrawn||0)-w.amount)});}
+      }
+    }catch(e){}
+  },3000);
 
   const tg=window.Telegram?.WebApp;
   if(tg){tg.ready();tg.expand();tg.setBackgroundColor('#07080d');}
@@ -453,8 +452,11 @@ setTimeout(async()=>{
       APP.settings={...APP.settings,...s};
       renderTasks();renderSupport();renderVideo();
       updateWatchCard();updateWdBtn();updateUI();
-      const gpid=s.credentials?.gigapub?.scriptId;
-      if(gpid&&s.credentials?.gigapub?.active)loadGigaPub(gpid);
+
+      // ── Monetag SDK লোড ──
+      const mtid=s.credentials?.monetag?.zoneId;
+      if(mtid&&s.credentials?.monetag?.active)loadMoneytag(mtid);
+
       document.getElementById('rbLbl').textContent=`৳ ${(APP.settings.referralBonus||5).toFixed(2)}`;
       document.getElementById('minWd').textContent=`৳ ${(APP.settings.minWithdraw||50).toFixed(2)}`;
       if(!welcomeShown){welcomeShown=true;setTimeout(checkWelcomePopup,800);}
@@ -470,26 +472,15 @@ setTimeout(async()=>{
       await uRef.set({userId:APP.userId,userName:APP.userName,balance:wb,totalEarned:wb,totalWithdrawn:0,referredBy:startParam||null,referrals:[],completedTasks:[],watchedAds:[],blocked:false,cooldownEndTime:0,joinedAt:new Date().toISOString()});
       if(startParam&&startParam!==APP.userId){
         const rs=await db.ref('users/'+startParam).get();
-        if(rs.exists()){
-          const rd=rs.val();
-          const existingRefs=toArr(rd.referrals);
-          await db.ref('users/'+startParam).update({balance:(rd.balance||0)+rb,totalEarned:(rd.totalEarned||0)+rb,referrals:[...existingRefs,{userId:APP.userId,name:APP.userName,date:new Date().toISOString()}]});
-        }
+        if(rs.exists()){const rd=rs.val();const existingRefs=toArr(rd.referrals);await db.ref('users/'+startParam).update({balance:(rd.balance||0)+rb,totalEarned:(rd.totalEarned||0)+rb,referrals:[...existingRefs,{userId:APP.userId,name:APP.userName,date:new Date().toISOString()}]});}
       }
     }
 
     uRef.on('value',snap=>{
       const d=snap.val();if(!d)return;
-      if(d.blocked===true){
-        document.getElementById('blockedScreen').style.display='flex';
-        document.getElementById('ls').style.display='none';
-        if(window.Telegram?.WebApp)setTimeout(()=>window.Telegram.WebApp.close(),400);
-        return;
-      }
+      if(d.blocked===true){document.getElementById('blockedScreen').style.display='flex';document.getElementById('ls').style.display='none';if(window.Telegram?.WebApp)setTimeout(()=>window.Telegram.WebApp.close(),400);return;}
       APP.balance=d.balance||0;APP.totalEarned=d.totalEarned||0;APP.totalWithdrawn=d.totalWithdrawn||0;
-      APP.referrals=toArr(d.referrals);
-      APP.completedTasks=toArr(d.completedTasks);
-      APP.watchedAds=toArr(d.watchedAds);
+      APP.referrals=toArr(d.referrals);APP.completedTasks=toArr(d.completedTasks);APP.watchedAds=toArr(d.watchedAds);
       cooldownEndTime=d.cooldownEndTime||0;
       updateUI();updateWatchCard();checkCooldown();
     });
@@ -563,25 +554,19 @@ async function completeTask(id,t){
 }
 
 function checkCooldown(){if(cooldownEndTime>Date.now())startCooldownUI(cooldownEndTime-Date.now());else clearCooldownUI();}
-
 function startCooldownUI(remainingMs){
   clearInterval(cooldownInterval);
-  const btn=document.getElementById('watchBtn');
-  const barWrap=document.getElementById('cooldownBarWrap');
-  const bar=document.getElementById('cooldownBar');
+  const btn=document.getElementById('watchBtn');const barWrap=document.getElementById('cooldownBarWrap');const bar=document.getElementById('cooldownBar');
   const totalSec=APP.settings.watchChain?.cooldownSec||30;
   barWrap.style.display='block';btn.disabled=true;btn.className='bigbtn watchbtn cooldown';
   cooldownInterval=setInterval(()=>{const left=Math.max(0,cooldownEndTime-Date.now());const sec=Math.ceil(left/1000);bar.style.width=((left/(totalSec*1000))*100)+'%';if(sec>0)btn.textContent=`⏳ Wait ${sec}s...`;else clearCooldownUI();},500);
 }
-
 function clearCooldownUI(){
-  clearInterval(cooldownInterval);
-  const btn=document.getElementById('watchBtn');
+  clearInterval(cooldownInterval);const btn=document.getElementById('watchBtn');
   document.getElementById('cooldownBarWrap').style.display='none';
   if(isDailyLimitReached()){btn.disabled=true;btn.className='bigbtn watchbtn limit-done';btn.textContent="✅ Today's limit reached";return;}
   btn.disabled=false;btn.className='bigbtn watchbtn';btn.textContent='▶ বিজ্ঞাপন দেখুন';
 }
-
 function isDailyLimitReached(){const limit=APP.settings.watchChain?.dailyLimit||5;const today=new Date().toDateString();return APP.watchedAds.filter(w=>w.type==='watch_chain'&&new Date(w.date).toDateString()===today).length>=limit;}
 
 function updateWatchCard(){
@@ -610,7 +595,6 @@ function startChain(type,wdData=null){
   const typeEl=document.getElementById('adovType');const msg=document.getElementById('adovMsg');
   document.getElementById('adovComplete').classList.remove('show');
   document.getElementById('adovWdLoading').classList.remove('show');
-  // ── Reset continue button ──
   _hideContinueBtn();
   document.querySelector('.adov-reward-wrap').style.display='';
   document.getElementById('adovSteps').style.display='';
@@ -635,113 +619,62 @@ function startChain(type,wdData=null){
   playSlot();
 }
 
-// ─────────────────────────────────────────────────────────────
-//  SLOT ENGINE  — each ad type must explicitly call _next()
-//  No background timeouts that auto-advance without user action
-// ─────────────────────────────────────────────────────────────
+// ── SLOT ENGINE ──
 let _slotAdvanced=false;
-
-function _showContinueBtn(){
-  document.getElementById('adovWaiting').classList.add('show');
-  document.getElementById('adovContinue').classList.add('show');
-}
-function _hideContinueBtn(){
-  document.getElementById('adovWaiting').classList.remove('show');
-  document.getElementById('adovContinue').classList.remove('show');
-}
-
-// Called when user taps the continue button after adsterra
-function onAdsterraBack(){
-  _hideContinueBtn();
-  _next();
-}
+function _showContinueBtn(){document.getElementById('adovWaiting').classList.add('show');document.getElementById('adovContinue').classList.add('show');}
+function _hideContinueBtn(){document.getElementById('adovWaiting').classList.remove('show');document.getElementById('adovContinue').classList.remove('show');}
+function onAdsterraBack(){_hideContinueBtn();_next();}
 
 function _next(){
-  if(_slotAdvanced||!CS.active)return;
-  _slotAdvanced=true;
-  const el=document.getElementById('as_'+CS.idx);
-  if(el)el.className='adov-s done';
-  CS.idx++;
-  playSlot();
+  if(_slotAdvanced||!CS.active)return;_slotAdvanced=true;
+  const el=document.getElementById('as_'+CS.idx);if(el)el.className='adov-s done';
+  CS.idx++;playSlot();
 }
 
 function playSlot(){
   if(!CS.active)return;
   if(CS.idx>=CS.total){chainAllDone();return;}
-
-  _slotAdvanced=false;
-  _hideContinueBtn();
-
+  _slotAdvanced=false;_hideContinueBtn();
   const net=CS.queue[CS.idx];
-
-  // Mark current step active
-  document.querySelectorAll('.adov-s').forEach((el,i)=>{
-    el.className='adov-s'+(i<CS.idx?' done':i===CS.idx?' active':'');
-  });
+  document.querySelectorAll('.adov-s').forEach((el,i)=>{el.className='adov-s'+(i<CS.idx?' done':i===CS.idx?' active':'');});
 
   if(net.name==='adsgram'){
-    // ── Adsgram: SDK resolves/rejects the promise — no timeout needed ──
     if(!net.blockId){_next();return;}
     try{
       const ctrl=window.Adsgram?.init({blockId:String(net.blockId)});
       if(!ctrl){_next();return;}
-      // show() returns a promise; resolve OR reject both advance chain
       ctrl.show().then(()=>_next()).catch(()=>_next());
     }catch(e){_next();}
 
-  }else if(net.name==='gigapub'){
-    // ── Gigapub: wait for SDK then show; promise resolves/rejects ──
-    if(!net.scriptId){_next();return;}
-    if(!document.getElementById('gigapub-sdk'))loadGigaPub(String(net.scriptId));
-    let tries=0;
-    const pollGp=()=>{
-      if(_slotAdvanced)return;
-      if(typeof window.showGiga==='function'){
-        try{
-          window.showGiga().then(()=>_next()).catch(()=>_next());
-        }catch(e){_next();}
-      }else if(tries++<60){
-        setTimeout(pollGp,100);
+  }else if(net.name==='monetag'){
+    // ── Monetag: show() প্রতিশ্রুতি দেয় না তাই setTimeout ব্যবহার করে advance ──
+    if(!net.zoneId){_next();return;}
+    try{
+      // Monetag এর show ad function (SDK load হলে window.show ফাংশন থাকে)
+      if(typeof window.show==='function'){
+        window.show().then(()=>_next()).catch(()=>_next());
       }else{
-        _next();
+        // SDK এখনো লোড না হলে 3 সেকেন্ড পরে advance
+        setTimeout(()=>_next(),3000);
       }
-    };
-    pollGp();
+    }catch(e){_next();}
 
   }else if(net.name==='adsterra'){
-    // ── Adsterra: opens external link/script — user must tap Continue ──
     if(!net.link&&!net.script){_next();return;}
     try{
-      if(net.link){
-        const tg=window.Telegram?.WebApp;
-        if(tg)tg.openLink(net.link);
-        else window.open(net.link,'_blank','noopener');
-      }else if(net.script){
-        const div=document.createElement('div');
-        div.innerHTML=net.script;
-        div.querySelectorAll('script').forEach(sc=>{
-          const ns=document.createElement('script');
-          if(sc.src){ns.src=sc.src;ns.async=true;}
-          else ns.textContent=sc.textContent;
-          document.body.appendChild(ns);
-        });
-      }
+      if(net.link){const tg=window.Telegram?.WebApp;if(tg)tg.openLink(net.link);else window.open(net.link,'_blank','noopener');}
+      else if(net.script){const div=document.createElement('div');div.innerHTML=net.script;div.querySelectorAll('script').forEach(sc=>{const ns=document.createElement('script');if(sc.src){ns.src=sc.src;ns.async=true;}else ns.textContent=sc.textContent;document.body.appendChild(ns);});}
     }catch(e){}
-    // Show the manual continue button — do NOT auto-advance
     _showContinueBtn();
 
-  }else{
-    _next();
-  }
+  }else{_next();}
 }
 
-// Keep legacy callbacks in case any SDK calls them
 function onSlotDone(){_next();}
 function onSlotSkip(){_next();}
 
 async function chainAllDone(){
-  if(CS.done)return;
-  CS.done=true;CS.active=false;_slotAdvanced=true;
+  if(CS.done)return;CS.done=true;CS.active=false;_slotAdvanced=true;
   _hideContinueBtn();
   document.querySelectorAll('.adov-s').forEach(el=>{if(!el.classList.contains('skip'))el.className='adov-s done';});
   if(CS.type==='watch'){
@@ -786,8 +719,7 @@ function handleWithdraw(){
 
 async function submitWithdrawDirect(wdData){
   if(!wdData)return;
-  const btn=document.getElementById('wdBtn');const orig=btn.textContent;
-  btn.disabled=true;btn.textContent='Processing...';
+  const btn=document.getElementById('wdBtn');const orig=btn.textContent;btn.disabled=true;btn.textContent='Processing...';
   try{
     const snap=await db.ref('users/'+APP.userId).get();const d=snap.val()||{};
     await db.ref('users/'+APP.userId).update({balance:(d.balance||0)-wdData.amount,totalWithdrawn:(d.totalWithdrawn||0)+wdData.amount});
@@ -802,12 +734,7 @@ function renderSupport(){const cards=APP.settings.supportCards||[];const el=docu
 function renderVideo(){const v=APP.settings.video||{};document.getElementById('vtitle').textContent=v.title||'কিভাবে কাজ করবেন তার ভিডিও';document.getElementById('vph').innerHTML=`<div class="vplay">▶</div><div style="font-size:13px;color:rgba(255,255,255,.5);z-index:2;font-family:'Hind Siliguri',sans-serif">টিউটোরিয়াল ভিডিও</div>`;}
 function openTutorial(){const v=APP.settings.video||{};if(!v.url){showToast('⚠️ Tutorial link set করা নেই');return;}const tg=window.Telegram?.WebApp;if(tg){if(v.url.includes('t.me')||v.url.includes('telegram'))tg.openTelegramLink(v.url);else tg.openLink(v.url);}else window.open(v.url,'_blank');}
 
-function renderRefList(){
-  const el=document.getElementById('rList');
-  const refs=APP.referrals;
-  if(!refs.length){el.innerHTML=`<div class="empty"><div class="eic">👤</div>No referrals yet</div>`;return;}
-  el.innerHTML=[...refs].reverse().map(r=>`<div class="ritem"><div class="rava">${(r.name||'?').charAt(0).toUpperCase()}</div><div><div class="run">${r.name||'Unknown'}</div><div class="rdt">${ta(r.date)}</div></div><div class="re">+৳ ${Number(APP.settings.referralBonus||5).toFixed(2)}</div></div>`).join('');
-}
+function renderRefList(){const el=document.getElementById('rList');const refs=APP.referrals;if(!refs.length){el.innerHTML=`<div class="empty"><div class="eic">👤</div>No referrals yet</div>`;return;}el.innerHTML=[...refs].reverse().map(r=>`<div class="ritem"><div class="rava">${(r.name||'?').charAt(0).toUpperCase()}</div><div><div class="run">${r.name||'Unknown'}</div><div class="rdt">${ta(r.date)}</div></div><div class="re">+৳ ${Number(APP.settings.referralBonus||5).toFixed(2)}</div></div>`).join('');}
 
 function copyRef(){const l=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;navigator.clipboard?.writeText(l).catch(()=>{});showToast('📋 Referral link copied!');}
 function shareRef(){const l=`https://t.me/${APP.settings.botUsername||'YourBot'}?start=${APP.referralCode}`;const tg=window.Telegram?.WebApp;const u=`https://t.me/share/url?url=${encodeURIComponent(l)}&text=${encodeURIComponent('🚀 Join Zomato Platform & earn money daily!')}`;if(tg)tg.openTelegramLink(u);else window.open(u,'_blank');}
