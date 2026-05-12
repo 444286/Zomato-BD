@@ -216,6 +216,20 @@ select.fi option{background:#1a1d26}
 .adov-complete-txt{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff}
 .adov-complete-sub{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif}
 @keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+/* ── Continue button shown after adsterra opens ── */
+.adov-continue{
+  margin-top:8px;
+  background:linear-gradient(135deg,var(--accent),#b06bff);
+  color:#fff;border:none;border-radius:14px;
+  padding:15px 36px;font-size:15px;font-weight:700;
+  cursor:pointer;font-family:'Inter',sans-serif;
+  display:none;letter-spacing:.3px;
+  animation:popIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+.adov-continue.show{display:block}
+.adov-continue:active{transform:scale(.96)}
+.adov-waiting{font-size:12px;color:var(--muted);font-family:'Inter',sans-serif;display:none;text-align:center;line-height:1.7}
+.adov-waiting.show{display:block}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(20,24,38,.97);border:1px solid rgba(124,111,253,.3);color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:500;z-index:9999;transition:transform .3s cubic-bezier(.34,1.4,.64,1);backdrop-filter:blur(20px);white-space:nowrap;font-family:'Inter',sans-serif}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .empty{text-align:center;padding:28px 20px;color:var(--muted);font-size:13px;font-family:'Inter',sans-serif}
@@ -259,7 +273,7 @@ select.fi option{background:#1a1d26}
     </div>
   </div>
   <div class="wcard">
-    <div class="wchd"><div class="wctitle">📺 বিজ্ঞাপন দেখে আয় করুন</div><div class="wcrb" id="wcRB">+৳ 0.50</div></div>
+    <div class="wchd"><div class="wctitle">📺 বিজ্ঞাপন দেখে আয় করুন</div><div class="wcrb" id="wcRB">+৳ 0.50</div></div>
     <div class="wcinfo">
       <div class="wcstat" style="display:none"><div class="wcsv" id="wcAds">0</div><div class="wcsl">Ads / session</div></div>
       <div class="wcstat"><div class="wcsv" id="wcToday">0</div><div class="wcsl">Watched today</div></div>
@@ -372,6 +386,9 @@ select.fi option{background:#1a1d26}
   <div class="adov-rsub" id="adovRSub">reward</div>
   <div class="adov-msg" id="adovMsg"></div>
   <div class="adov-status" id="adovStatus"></div>
+  <!-- Shown after adsterra link opens — user taps when done -->
+  <div class="adov-waiting" id="adovWaiting">বিজ্ঞাপনটি দেখা শেষ হলে<br>নিচের বাটনে ট্যাপ করুন</div>
+  <button class="adov-continue" id="adovContinue" onclick="onAdsterraBack()">✅ বিজ্ঞাপন দেখা হয়েছে</button>
   <div class="adov-wd-loading" id="adovWdLoading">
     <div class="adov-wd-spinner"></div>
     <div class="adov-wd-txt">Processing your withdrawal...</div>
@@ -394,7 +411,7 @@ let CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData
 let cooldownInterval=null,cooldownEndTime=0;
 let TOV={taskId:null,link:null,channelId:null};
 
-// ── Firebase Array Fix: Firebase stores arrays as objects with numeric keys ──
+// ── Firebase Array Fix ──
 function toArr(v){if(!v)return[];if(Array.isArray(v))return v;return Object.values(v);}
 
 window.addEventListener('DOMContentLoaded',async()=>{
@@ -446,7 +463,6 @@ setTimeout(async()=>{
     const uRef=db.ref('users/'+APP.userId);
     const snap=await uRef.get();
     if(!snap.exists()){
-      // Fetch settings first to get correct welcome & referral bonus
       const settingsSnap=await db.ref('settings').get();
       const settingsData=settingsSnap.val()||{};
       const wb=settingsData.welcomeBonus??0;
@@ -471,7 +487,6 @@ setTimeout(async()=>{
         return;
       }
       APP.balance=d.balance||0;APP.totalEarned=d.totalEarned||0;APP.totalWithdrawn=d.totalWithdrawn||0;
-      // ── FIX: Firebase stores arrays as objects — convert properly ──
       APP.referrals=toArr(d.referrals);
       APP.completedTasks=toArr(d.completedTasks);
       APP.watchedAds=toArr(d.watchedAds);
@@ -592,10 +607,11 @@ function startChain(type,wdData=null){
   if(!queue.length){if(type==='watch'){showToast('⚠️ No ads configured');return;}else{submitWithdrawDirect(wdData);return;}}
   CS={active:true,type,queue,idx:0,total:queue.length,reward:chainData.reward||0.5,done:false,wdData};
   _slotAdvanced=false;
-  if(_slotTimer){clearTimeout(_slotTimer);_slotTimer=null;}
   const typeEl=document.getElementById('adovType');const msg=document.getElementById('adovMsg');
   document.getElementById('adovComplete').classList.remove('show');
   document.getElementById('adovWdLoading').classList.remove('show');
+  // ── Reset continue button ──
+  _hideContinueBtn();
   document.querySelector('.adov-reward-wrap').style.display='';
   document.getElementById('adovSteps').style.display='';
   document.getElementById('adovRSub').style.display='';
@@ -619,20 +635,62 @@ function startChain(type,wdData=null){
   playSlot();
 }
 
-let _slotAdvanced=false,_slotTimer=null;
+// ─────────────────────────────────────────────────────────────
+//  SLOT ENGINE  — each ad type must explicitly call _next()
+//  No background timeouts that auto-advance without user action
+// ─────────────────────────────────────────────────────────────
+let _slotAdvanced=false;
 
-function _next(){if(_slotAdvanced||!CS.active)return;_slotAdvanced=true;if(_slotTimer){clearTimeout(_slotTimer);_slotTimer=null;}const el=document.getElementById('as_'+CS.idx);if(el)el.className='adov-s done';CS.idx++;playSlot();}
+function _showContinueBtn(){
+  document.getElementById('adovWaiting').classList.add('show');
+  document.getElementById('adovContinue').classList.add('show');
+}
+function _hideContinueBtn(){
+  document.getElementById('adovWaiting').classList.remove('show');
+  document.getElementById('adovContinue').classList.remove('show');
+}
+
+// Called when user taps the continue button after adsterra
+function onAdsterraBack(){
+  _hideContinueBtn();
+  _next();
+}
+
+function _next(){
+  if(_slotAdvanced||!CS.active)return;
+  _slotAdvanced=true;
+  const el=document.getElementById('as_'+CS.idx);
+  if(el)el.className='adov-s done';
+  CS.idx++;
+  playSlot();
+}
 
 function playSlot(){
   if(!CS.active)return;
   if(CS.idx>=CS.total){chainAllDone();return;}
-  _slotAdvanced=false;if(_slotTimer){clearTimeout(_slotTimer);_slotTimer=null;}
+
+  _slotAdvanced=false;
+  _hideContinueBtn();
+
   const net=CS.queue[CS.idx];
-  document.querySelectorAll('.adov-s').forEach((el,i)=>{el.className='adov-s'+(i<CS.idx?' done':i===CS.idx?' active':'');});
+
+  // Mark current step active
+  document.querySelectorAll('.adov-s').forEach((el,i)=>{
+    el.className='adov-s'+(i<CS.idx?' done':i===CS.idx?' active':'');
+  });
+
   if(net.name==='adsgram'){
+    // ── Adsgram: SDK resolves/rejects the promise — no timeout needed ──
     if(!net.blockId){_next();return;}
-    try{const ctrl=window.Adsgram?.init({blockId:String(net.blockId)});if(!ctrl){_next();return;}_slotTimer=setTimeout(_next,30000);ctrl.show().then(_next).catch(_next);}catch(e){_next();}
+    try{
+      const ctrl=window.Adsgram?.init({blockId:String(net.blockId)});
+      if(!ctrl){_next();return;}
+      // show() returns a promise; resolve OR reject both advance chain
+      ctrl.show().then(()=>_next()).catch(()=>_next());
+    }catch(e){_next();}
+
   }else if(net.name==='gigapub'){
+    // ── Gigapub: wait for SDK then show; promise resolves/rejects ──
     if(!net.scriptId){_next();return;}
     if(!document.getElementById('gigapub-sdk'))loadGigaPub(String(net.scriptId));
     let tries=0;
@@ -640,25 +698,51 @@ function playSlot(){
       if(_slotAdvanced)return;
       if(typeof window.showGiga==='function'){
         try{
-          window.showGiga().then(_next).catch(_next);
+          window.showGiga().then(()=>_next()).catch(()=>_next());
         }catch(e){_next();}
-      }else if(tries++<60){setTimeout(pollGp,100);}
-      else{_next();}
+      }else if(tries++<60){
+        setTimeout(pollGp,100);
+      }else{
+        _next();
+      }
     };
     pollGp();
+
   }else if(net.name==='adsterra'){
+    // ── Adsterra: opens external link/script — user must tap Continue ──
     if(!net.link&&!net.script){_next();return;}
-    try{if(net.link){const tg=window.Telegram?.WebApp;if(tg)tg.openLink(net.link);else window.open(net.link,'_blank','noopener');_slotTimer=setTimeout(_next,5000);}else if(net.script){const div=document.createElement('div');div.innerHTML=net.script;div.querySelectorAll('script').forEach(sc=>{const ns=document.createElement('script');if(sc.src){ns.src=sc.src;ns.async=true;}else ns.textContent=sc.textContent;document.body.appendChild(ns);});_slotTimer=setTimeout(_next,4000);}}catch(e){_next();}
-  }else{_next();}
+    try{
+      if(net.link){
+        const tg=window.Telegram?.WebApp;
+        if(tg)tg.openLink(net.link);
+        else window.open(net.link,'_blank','noopener');
+      }else if(net.script){
+        const div=document.createElement('div');
+        div.innerHTML=net.script;
+        div.querySelectorAll('script').forEach(sc=>{
+          const ns=document.createElement('script');
+          if(sc.src){ns.src=sc.src;ns.async=true;}
+          else ns.textContent=sc.textContent;
+          document.body.appendChild(ns);
+        });
+      }
+    }catch(e){}
+    // Show the manual continue button — do NOT auto-advance
+    _showContinueBtn();
+
+  }else{
+    _next();
+  }
 }
 
+// Keep legacy callbacks in case any SDK calls them
 function onSlotDone(){_next();}
 function onSlotSkip(){_next();}
 
 async function chainAllDone(){
   if(CS.done)return;
   CS.done=true;CS.active=false;_slotAdvanced=true;
-  if(_slotTimer){clearTimeout(_slotTimer);_slotTimer=null;}
+  _hideContinueBtn();
   document.querySelectorAll('.adov-s').forEach(el=>{if(!el.classList.contains('skip'))el.className='adov-s done';});
   if(CS.type==='watch'){
     const reward=CS.reward;const cooldownSec=APP.settings.watchChain?.cooldownSec||30;const newCooldownEnd=Date.now()+(cooldownSec*1000);
