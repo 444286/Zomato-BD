@@ -11,20 +11,9 @@
 
 <script src="https://pl29555676.effectivecpmnetwork.com/3f/a8/20/3fa820b095c0ec8efcbb4caa9a5e73b7.js"></script>
 
-<!-- Monetag SDK loader (Zone ID টি Firebase থেকে লোড হয়) -->
-<script>
-function loadMoneytag(zoneId) {
-  if (!zoneId) return;
-  if (document.getElementById('monetag-sdk')) return;
-  // Monetag Interstitial / Rewarded
-  (function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s);}catch(e){}})('glizauvo.net', zoneId, document.createElement('script'));
-  // Tag to prevent double-load
-  const tag = document.createElement('span');
-  tag.id = 'monetag-sdk';
-  tag.style.display = 'none';
-  document.head.appendChild(tag);
-}
-</script>
+<!-- ✅ FIX: Monetag SDK সবসময় head এ থাকবে, কিন্তু auto-show বন্ধ থাকবে -->
+<!-- SDK টা শুধু chain এর ভেতরে call করলেই ads দেখাবে -->
+<script src='//libtl.com/sdk.js' data-zone='10900318' data-sdk='show_10900318'></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&family=Hind+Siliguri:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -595,6 +584,12 @@ let CS={active:false,type:null,queue:[],idx:0,total:0,reward:0,done:false,wdData
 let cooldownInterval=null,cooldownEndTime=0;
 let TOV={taskId:null,link:null,channelId:null};
 
+// ✅ FIX: Monetag SDK function name এর জন্য global variable
+// SDK load হলে window['show_10900318'] function তৈরি হয়
+// এটা শুধু chain এর ভেতর থেকে manually call করা হবে
+const MONETAG_ZONE = '10900318';
+const MONETAG_SDK_FN = 'show_' + MONETAG_ZONE;
+
 function toArr(v){if(!v)return[];if(Array.isArray(v))return v;return Object.values(v);}
 
 window.addEventListener('DOMContentLoaded',async()=>{
@@ -633,9 +628,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
       renderTasks();renderSupport();renderVideo();
       updateWatchCard();updateWdBtn();updateUI();
 
-      // ── Monetag SDK লোড ──
-      const mtid=s.credentials?.monetag?.zoneId;
-      if(mtid&&s.credentials?.monetag?.active)loadMoneytag(mtid);
+      // ✅ FIX: Monetag এর জন্য আর আলাদা loadMoneytag() call করতে হবে না
+      // SDK আগেই head এ load হয়ে গেছে, শুধু chain এ call হবে
 
       document.getElementById('rbLbl').textContent=`৳ ${(APP.settings.referralBonus||5).toFixed(2)}`;
       document.getElementById('minWd').textContent=`৳ ${(APP.settings.minWithdraw||50).toFixed(2)}`;
@@ -675,11 +669,11 @@ window.addEventListener('DOMContentLoaded',async()=>{
   }catch(e){console.error(e);showToast('⚠️ Connection error');}
 
   updateProfile();
-updateUI();
+  updateUI();
 
-setTimeout(() => {
-  document.getElementById('ls').style.display = 'none';
-}, 2500);
+  setTimeout(() => {
+    document.getElementById('ls').style.display = 'none';
+  }, 2500);
 
 });
 
@@ -824,6 +818,7 @@ function playSlot(){
   document.querySelectorAll('.adov-s').forEach((el,i)=>{el.className='adov-s'+(i<CS.idx?' done':i===CS.idx?' active':'');});
 
   if(net.name==='adsgram'){
+    // ── Adsgram: SDK দিয়ে ads দেখানো ──
     if(!net.blockId){_next();return;}
     try{
       const ctrl=window.Adsgram?.init({blockId:String(net.blockId)});
@@ -832,24 +827,45 @@ function playSlot(){
     }catch(e){_next();}
 
   }else if(net.name==='monetag'){
-    // ── Monetag: show() প্রতিশ্রুতি দেয় না তাই setTimeout ব্যবহার করে advance ──
-    if(!net.zoneId){_next();return;}
+    // ✅ FIX: Monetag সঠিকভাবে call করা
+    // SDK head এ load হয়েছে, এখন শুধু show function call করতে হবে
+    // window['show_10900318']() — এটাই monetag এর সঠিক call pattern
     try{
-      // Monetag এর show ad function (SDK load হলে window.show ফাংশন থাকে)
-      if(typeof window.show==='function'){
-        window.show().then(()=>_next()).catch(()=>_next());
-      }else{
-        // SDK এখনো লোড না হলে 3 সেকেন্ড পরে advance
-        setTimeout(()=>_next(),3000);
+      const showFn = window[MONETAG_SDK_FN];
+      if(typeof showFn === 'function'){
+        // ✅ show() একটা Promise return করে
+        showFn()
+          .then(()=>{ _next(); })
+          .catch(()=>{ _next(); });
+      } else {
+        // SDK এখনো load হয়নি, 1 সেকেন্ড পরে retry করব
+        let retryCount = 0;
+        const retryInterval = setInterval(()=>{
+          retryCount++;
+          const fn = window[MONETAG_SDK_FN];
+          if(typeof fn === 'function'){
+            clearInterval(retryInterval);
+            fn().then(()=>_next()).catch(()=>_next());
+          } else if(retryCount >= 5){
+            // 5 বার retry করেও না পেলে skip করে next এ যাও
+            clearInterval(retryInterval);
+            _next();
+          }
+        }, 1000);
       }
-    }catch(e){_next();}
+    }catch(e){
+      // কোনো error হলেও next এ যাও, chain আটকাবে না
+      _next();
+    }
 
   }else if(net.name==='adsterra'){
+    // ── Adsterra: link বা script দিয়ে ads দেখানো ──
     if(!net.link&&!net.script){_next();return;}
     try{
       if(net.link){const tg=window.Telegram?.WebApp;if(tg)tg.openLink(net.link);else window.open(net.link,'_blank','noopener');}
       else if(net.script){const div=document.createElement('div');div.innerHTML=net.script;div.querySelectorAll('script').forEach(sc=>{const ns=document.createElement('script');if(sc.src){ns.src=sc.src;ns.async=true;}else ns.textContent=sc.textContent;document.body.appendChild(ns);});}
     }catch(e){}
+    // Adsterra এর জন্য manual confirm button দেখাও
     _showContinueBtn();
 
   }else{_next();}
