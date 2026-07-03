@@ -363,6 +363,15 @@ transform:translateY(0);
 transform:translateY(-15px);
 }
 }
+
+/* ✅ NEW: Group Join / Tutorial mini cards */
+.minicard{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.minicard-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.minicard-inf{flex:1;min-width:0}
+.minicard-t{font-size:13px;font-weight:600;color:#fff;font-family:'Hind Siliguri',sans-serif}
+.minicard-d{font-size:11px;color:var(--muted);margin-top:2px;font-family:'Hind Siliguri',sans-serif}
+.minicard-btn{background:var(--as);color:var(--accent);border:1px solid rgba(124,111,253,.3);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
+.minicard-btn:active{transform:scale(.95)}
 </style>
 </head>
 <body>
@@ -457,6 +466,26 @@ style="color:#ffd54f;font-weight:700;font-size:13px;">
     <div class="cooldown-bar-wrap" id="cooldownBarWrap"><div class="cooldown-bar" id="cooldownBar" style="width:100%"></div></div>
     <div class="limit-info"><span class="limit-txt">Today's progress</span><span class="limit-val" id="limitProgress">0 / 5</span></div>
   </div>
+
+  <!-- ✅ NEW: Group Join card -->
+  <div class="minicard">
+    <div class="minicard-ic" style="background:rgba(34,158,217,.15)">📢</div>
+    <div class="minicard-inf">
+      <div class="minicard-t">আমাদের গ্রুপে জয়েন করুন</div>
+      <div class="minicard-d">আপডেট ও সাপোর্ট পেতে জয়েন করুন</div>
+    </div>
+    <button class="minicard-btn" onclick="openMiniLink(MINI_LINKS.group)">Join Now</button>
+  </div>
+  <!-- ✅ NEW: Tutorial card -->
+  <div class="minicard">
+    <div class="minicard-ic" style="background:rgba(255,200,74,.15)">🎬</div>
+    <div class="minicard-inf">
+      <div class="minicard-t">টিউটোরিয়াল ভিডিও</div>
+      <div class="minicard-d">কিভাবে কাজ করবেন দেখে নিন</div>
+    </div>
+    <button class="minicard-btn" onclick="openMiniLink(MINI_LINKS.tutorial)">Watch</button>
+  </div>
+
   <div class="sec2">⚡ Tasks</div>
   <div id="taskList"><div class="empty"><div class="eic">📋</div>No tasks yet</div></div>
 </div>
@@ -574,6 +603,12 @@ style="color:#ffd54f;font-weight:700;font-size:13px;">
 </div>
 <div class="toast" id="toast"></div>
 <script>
+// ✏️ এখানে লিংক এডিট করো (গ্রুপ লিংক ও টিউটোরিয়াল লিংক)
+const MINI_LINKS = {
+  group: 'https://t.me/your_group_username',
+  tutorial: 'https://t.me/your_channel/123'
+};
+
 const firebaseConfig={apiKey:"AIzaSyCS9W1gnMSaIV2KjH1QMBTLgTt-ew0mnTo",authDomain:"zomato-platform.firebaseapp.com",databaseURL:"https://zomato-platform-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"zomato-platform",storageBucket:"zomato-platform.firebasestorage.app",messagingSenderId:"183991686104",appId:"1:183991686104:web:247a3edcd71a1148f418ad"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
@@ -591,6 +626,14 @@ const MONETAG_ZONE = '10900318';
 const MONETAG_SDK_FN = 'show_' + MONETAG_ZONE;
 
 function toArr(v){if(!v)return[];if(Array.isArray(v))return v;return Object.values(v);}
+
+// ✅ NEW: Group / Tutorial mini card link opener
+function openMiniLink(link){
+  if(!link){showToast('⚠️ Link set করা নেই');return;}
+  const tg=window.Telegram?.WebApp;
+  if(tg){if(link.includes('t.me')||link.includes('telegram'))tg.openTelegramLink(link);else tg.openLink(link);}
+  else window.open(link,'_blank');
+}
 
 window.addEventListener('DOMContentLoaded',async()=>{
   // ── AUTO REJECT (background) ──
