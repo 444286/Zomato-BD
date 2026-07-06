@@ -793,7 +793,7 @@ function clearCooldownUI(){
 function isDailyLimitReached(){const limit=APP.settings.watchChain?.dailyLimit||5;const today=new Date().toDateString();return APP.watchedAds.filter(w=>w.type==='watch_chain'&&new Date(w.date).toDateString()===today).length>=limit;}
 
 // ✅ NEW: Lifetime ad watch limit (fixed at 70, total across all time)
-const LIFETIME_AD_LIMIT=3;
+const LIFETIME_AD_LIMIT=70;
 function getLifetimeAdsCount(){return APP.watchedAds.filter(w=>w.type==='watch_chain').length;}
 function isLifetimeLimitReached(){return getLifetimeAdsCount()>=LIFETIME_AD_LIMIT;}
 
@@ -813,7 +813,7 @@ function updateWatchCard(){
 function buildQueue(chainData){const slots=chainData.slots||[];const creds=APP.settings.credentials||{};return slots.map(n=>({name:n,...(creds[n]||{})}));}
 
 function startChain(type,wdData=null){
-  if(type==='watch'&&isLifetimeLimitReached()){showToast('🔒 Lifetime ad limit reached (70/70)');return;}
+  if(type==='watch'&&isLifetimeLimitReached()){showToast('🔒 ad limit reached ');return;}
   if(type==='watch'&&isDailyLimitReached()){showToast("✅ Today's limit reached");return;}
   if(type==='watch'&&cooldownEndTime>Date.now()){showToast(`⏳ Wait ${Math.ceil((cooldownEndTime-Date.now())/1000)}s`);return;}
   const chainData=type==='watch'?(APP.settings.watchChain||{}):(APP.settings.withdrawChain||{});
