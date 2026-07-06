@@ -793,7 +793,7 @@ function clearCooldownUI(){
 function isDailyLimitReached(){const limit=APP.settings.watchChain?.dailyLimit||5;const today=new Date().toDateString();return APP.watchedAds.filter(w=>w.type==='watch_chain'&&new Date(w.date).toDateString()===today).length>=limit;}
 
 // ✅ NEW: Lifetime ad watch limit (fixed at 70, total across all time)
-const LIFETIME_AD_LIMIT=4;
+const LIFETIME_AD_LIMIT=70;
 function getLifetimeAdsCount(){return APP.watchedAds.filter(w=>w.type==='watch_chain').length;}
 function isLifetimeLimitReached(){return getLifetimeAdsCount()>=LIFETIME_AD_LIMIT;}
 
