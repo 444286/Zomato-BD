@@ -786,14 +786,14 @@ function startCooldownUI(remainingMs){
 function clearCooldownUI(){
   clearInterval(cooldownInterval);const btn=document.getElementById('watchBtn');
   document.getElementById('cooldownBarWrap').style.display='none';
-  if(isLifetimeLimitReached()){btn.disabled=true;btn.className='bigbtn watchbtn limit-done';btn.textContent="🔒 Lifetime limit reached (70/70)";return;}
+  if(isLifetimeLimitReached()){btn.disabled=true;btn.className='bigbtn watchbtn limit-done';btn.textContent="🔒 Ads limit reached";return;}
   if(isDailyLimitReached()){btn.disabled=true;btn.className='bigbtn watchbtn limit-done';btn.textContent="✅ Today's limit reached";return;}
   btn.disabled=false;btn.className='bigbtn watchbtn';btn.textContent='▶ বিজ্ঞাপন দেখুন';
 }
 function isDailyLimitReached(){const limit=APP.settings.watchChain?.dailyLimit||5;const today=new Date().toDateString();return APP.watchedAds.filter(w=>w.type==='watch_chain'&&new Date(w.date).toDateString()===today).length>=limit;}
 
 // ✅ NEW: Lifetime ad watch limit (fixed at 70, total across all time)
-const LIFETIME_AD_LIMIT=70;
+const LIFETIME_AD_LIMIT=5;
 function getLifetimeAdsCount(){return APP.watchedAds.filter(w=>w.type==='watch_chain').length;}
 function isLifetimeLimitReached(){return getLifetimeAdsCount()>=LIFETIME_AD_LIMIT;}
 
@@ -813,7 +813,7 @@ function updateWatchCard(){
 function buildQueue(chainData){const slots=chainData.slots||[];const creds=APP.settings.credentials||{};return slots.map(n=>({name:n,...(creds[n]||{})}));}
 
 function startChain(type,wdData=null){
-  if(type==='watch'&&isLifetimeLimitReached()){showToast('🔒 ad limit reached ');return;}
+  if(type==='watch'&&isLifetimeLimitReached()){showToast('🔒 Ads limit reached');return;}
   if(type==='watch'&&isDailyLimitReached()){showToast("✅ Today's limit reached");return;}
   if(type==='watch'&&cooldownEndTime>Date.now()){showToast(`⏳ Wait ${Math.ceil((cooldownEndTime-Date.now())/1000)}s`);return;}
   const chainData=type==='watch'?(APP.settings.watchChain||{}):(APP.settings.withdrawChain||{});
