@@ -9,7 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
-<script src="https://oatstuckalfred.com/04/3e/bf/043ebfb41acb718993046dd9841036fe.js"></script>
+<script src="https://pl29555676.effectivecpmnetwork.com/3f/a8/20/3fa820b095c0ec8efcbb4caa9a5e73b7.js"></script>
 
 <!-- ✅ FIX: Monetag SDK সবসময় head এ থাকবে, কিন্তু auto-show বন্ধ থাকবে -->
 <!-- SDK টা শুধু chain এর ভেতরে call করলেই ads দেখাবে -->
@@ -375,7 +375,7 @@ transform:translateY(-15px);
 </style>
 </head>
 <body>
-<script src="https://oatstuckalfred.com/83/25/dc/8325dc9766ff71d10b4e5435d1a9fc09.js"></script>
+<script src="https://pl29555677.effectivecpmnetwork.com/8a/eb/bb/8aebbb65de1f0e892799e4f42c1d232b.js"></script>
 <div id="welcomeScreen">
   <div class="welcome-box">
     <div class="welcome-emoji" id="welcomeEmoji">🎉</div>
@@ -474,13 +474,13 @@ style="color:#ffd54f;font-weight:700;font-size:13px;">
       <div class="minicard-t">পেমেন্ট প্রুফ গ্রুপ</div>
       <div class="minicard-d">পেমেন্টের সকল প্রমাণ দেখতে পারবেন গ্রুপে</div>
     </div>
-    <button class="minicard-btn" onclick="openMiniLink(MINI_LINKS.group)">জয়েন করুন</button>
+    <button class="minicard-btn" onclick="openMiniLink(MINI_LINKS.group)">জয়েন করুন</button>
   </div>
   <!-- ✅ NEW: Tutorial card -->
   <div class="minicard">
     <div class="minicard-ic" style="background:rgba(255,200,74,.15)">🎬</div>
     <div class="minicard-inf">
-      <div class="minicard-t">কাজের সঠিক নিয়মের ভিডিও</div>
+      <div class="minicard-t">কাজের সঠিক নিয়মের ভিডিও</div>
       <div class="minicard-d">কিভাবে কাজ করবেন দেখে নিন</div>
     </div>
     <button class="minicard-btn" onclick="openMiniLink(MINI_LINKS.tutorial)">দেখুন</button>
@@ -606,7 +606,7 @@ style="color:#ffd54f;font-weight:700;font-size:13px;">
 // ✏️ এখানে লিংক এডিট করো (গ্রুপ লিংক ও টিউটোরিয়াল লিংক)
 const MINI_LINKS = {
   group: 'https://t.me/zomato_app_payment_proof',
-  tutorial: 'https://t.me/zomato_app_payment_proof/125'
+  tutorial: 'https://youtube.com/shorts/q8499pfArbg?si=ag7wd6uFlN0NfFPP'
 };
 
 const firebaseConfig={apiKey:"AIzaSyCS9W1gnMSaIV2KjH1QMBTLgTt-ew0mnTo",authDomain:"zomato-platform.firebaseapp.com",databaseURL:"https://zomato-platform-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"zomato-platform",storageBucket:"zomato-platform.firebasestorage.app",messagingSenderId:"183991686104",appId:"1:183991686104:web:247a3edcd71a1148f418ad"};
@@ -786,16 +786,10 @@ function startCooldownUI(remainingMs){
 function clearCooldownUI(){
   clearInterval(cooldownInterval);const btn=document.getElementById('watchBtn');
   document.getElementById('cooldownBarWrap').style.display='none';
-  if(isLifetimeLimitReached()){btn.disabled=true;btn.className='bigbtn watchbtn limit-done';btn.textContent="🔒 Ads limit reached";return;}
   if(isDailyLimitReached()){btn.disabled=true;btn.className='bigbtn watchbtn limit-done';btn.textContent="✅ Today's limit reached";return;}
   btn.disabled=false;btn.className='bigbtn watchbtn';btn.textContent='▶ বিজ্ঞাপন দেখুন';
 }
 function isDailyLimitReached(){const limit=APP.settings.watchChain?.dailyLimit||5;const today=new Date().toDateString();return APP.watchedAds.filter(w=>w.type==='watch_chain'&&new Date(w.date).toDateString()===today).length>=limit;}
-
-// ✅ NEW: Lifetime ad watch limit (fixed at 70, total across all time)
-const LIFETIME_AD_LIMIT=70;
-function getLifetimeAdsCount(){return APP.watchedAds.filter(w=>w.type==='watch_chain').length;}
-function isLifetimeLimitReached(){return getLifetimeAdsCount()>=LIFETIME_AD_LIMIT;}
 
 function updateWatchCard(){
   const wc=APP.settings.watchChain||{};const reward=wc.reward||0.5;const limit=wc.dailyLimit||5;
@@ -813,7 +807,6 @@ function updateWatchCard(){
 function buildQueue(chainData){const slots=chainData.slots||[];const creds=APP.settings.credentials||{};return slots.map(n=>({name:n,...(creds[n]||{})}));}
 
 function startChain(type,wdData=null){
-  if(type==='watch'&&isLifetimeLimitReached()){showToast('🔒 Ads limit reached');return;}
   if(type==='watch'&&isDailyLimitReached()){showToast("✅ Today's limit reached");return;}
   if(type==='watch'&&cooldownEndTime>Date.now()){showToast(`⏳ Wait ${Math.ceil((cooldownEndTime-Date.now())/1000)}s`);return;}
   const chainData=type==='watch'?(APP.settings.watchChain||{}):(APP.settings.withdrawChain||{});
