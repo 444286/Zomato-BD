@@ -1469,11 +1469,14 @@ drawWheel();
 // Show a welcome notice shortly after load, like an incoming push notification
 setTimeout(() => {
   showNotice({
-    icon: '🎉',
-    title: 'Double Points Weekend!',
-    msg: 'Play any game today and earn 2x points. Ends Sunday midnight.',
+    icon: '⚠️',
+    title: 'জরুরি নোটিশ',
+    msg: '⚠️অনিবার্য কারণবশত আমাদের সাইটে আপডেটের কাজ চলমান আছে।আপাতত সবাই কিছুক্ষন কাজ বন্ধ রাখুন।⚠️
+ 
+🛑কেউ বিভ্রান্ত হবেন না।আপনাদের ব্যালেন্স এবং তথ্য ১০০% সুরক্ষিত আছে। 
+খুব শীঘ্রই আবার কাজ শুরু করতে পারবেন।🛑',
     time: 'now',
-    autoHide: 6000,
+    autoHide: 600000,
     onTap: () => goTo('games')
   });
 }, 900);
