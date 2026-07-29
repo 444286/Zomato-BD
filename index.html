@@ -805,56 +805,46 @@ body {
 
 
 
-
-
-.notice-line{
-    margin:12px 0 16px;
-    height:34px;
-    display:flex;
-    align-items:center;
-    background:#11151f;
-    border:1px solid rgba(255,255,255,.06);
-    border-radius:10px;
-    overflow:hidden;
+.notice-marquee{
+  margin:14px 0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:var(--card);
+  border:1px solid rgba(200,241,53,.2);
+  border-radius:14px;
+  padding:10px 14px;
+  overflow:hidden;
 }
 
-.notice-tag{
-    padding:0 12px;
-    height:100%;
-    display:flex;
-    align-items:center;
-    background:rgba(200,241,53,.12);
-    color:var(--accent);
-    font-size:12px;
-    font-weight:700;
-    white-space:nowrap;
-    border-right:1px solid rgba(200,241,53,.2);
+.notice-label{
+  color:var(--accent);
+  font-weight:800;
+  white-space:nowrap;
+  font-size:13px;
 }
 
-.notice-scroll{
-    flex:1;
-    overflow:hidden;
-    white-space:nowrap;
+.marquee-wrap{
+  flex:1;
+  overflow:hidden;
+  white-space:nowrap;
 }
 
-.notice-text{
-    display:inline-block;
-    padding-left:100%;
-    font-size:12px;
-    color:var(--text);
-    animation:noticeMove 18s linear infinite;
+.marquee-text{
+  display:inline-block;
+  color:var(--text);
+  font-size:13px;
+  animation:noticeMove 18s linear infinite;
 }
 
 @keyframes noticeMove{
-    from{
-        transform:translateX(0);
-    }
-    to{
-        transform:translateX(-100%);
-    }
+  0%{
+    transform:translateX(100%);
+  }
+  100%{
+    transform:translateX(-100%);
+  }
 }
-
-
 
 
 </style>
@@ -864,18 +854,14 @@ body {
 <!-- ── TOP NOTICE (system-notification style) ── -->
 <div class="notice-wrap" id="noticeWrap">
   <div class="notice-card" id="noticeCard" onclick="handleNoticeTap()">
-    <div class="notice-icon" id="noticeIcon">🎉</div>
+    <div class="notice-icon" id="noticeIcon">⚠️</div>
     <div class="notice-body">
       <div class="notice-top-row">
         <div class="notice-app">Point<b>Zone</b> · now</div>
         <div class="notice-time" id="noticeTime">now</div>
       </div>
-      <div class="notice-title" id="noticeTitle"> জরুরি নোটিশ⚠️ </div>
-      <div class="notice-msg" id="noticeMsg"> ⚠️অনিবার্য কারণবশত আমাদের সাইটে আপডেটের কাজ চলমান আছে।আপাতত সবাই ১০-১২ঘন্টার মতো কাজ বন্ধ রাখুন।⚠️
- 
-🛑কেউ বিভ্রান্ত হবেন না।আপনাদের ব্যালেন্স এবং তথ্য ১০০% সুরক্ষিত আছে। 
-খুব শীঘ্রই আবার কাজ শুরু করতে পারবেন।🛑
-</div>
+      <div class="notice-title" id="noticeTitle">⚠️ জরুরি নোটিশ</div>
+      <div class="notice-msg" id="noticeMsg">⚠️অনিবার্য কারণবশত আমাদের সাইটে আপডেটের কাজ চলমান আছে। আপাতত সবাই ৮-১২ঘন্টা কাজ বন্ধ রাখুন।⚠️ 🛑কেউ বিভ্রান্ত হবেন না। আপনাদের ব্যালেন্স এবং তথ্য ১০০% সুরক্ষিত আছে। খুব শীঘ্রই আবার কাজ শুরু করতে পারবেন।🛑</div>
     </div>
     <button class="notice-close" onclick="event.stopPropagation(); hideNotice()">✕</button>
   </div>
@@ -903,15 +889,19 @@ body {
   </div>
 
 
+
+
 <div class="notice-line">
-    <span class="notice-tag">📢 Notice</span>
+    <span class="notice-tag">📢 নোটিশ</span>
 
     <div class="notice-scroll">
         <div class="notice-text">
-           অনিবার্য কারণবশত সাইট আপডেটের কাজ চলমান।তাই সকলে কিছুক্ষণ কাজ করতে পারবেন না। আপডেট শেষ হওয়া পর্যন্ত অপেক্ষা করুন। •
+           ⚠️অনিবার্য কারণবশত সাইট আপডেটের কাজ চলমান।তাই সকলে কিছুক্ষণ কাজ করতে পারবেন না। আপডেট শেষ হওয়া পর্যন্ত অপেক্ষা করুন। •
         </div>
     </div>
 </div>
+
+
 
 
   <div class="stat-strip">
@@ -1470,14 +1460,11 @@ drawWheel();
 setTimeout(() => {
   showNotice({
     icon: '⚠️',
-    title: 'জরুরি নোটিশ',
-    msg: '⚠️অনিবার্য কারণবশত আমাদের সাইটে আপডেটের কাজ চলমান আছে।আপাতত সবাই কিছুক্ষন কাজ বন্ধ রাখুন।⚠️
- 
-🛑কেউ বিভ্রান্ত হবেন না।আপনাদের ব্যালেন্স এবং তথ্য ১০০% সুরক্ষিত আছে। 
-খুব শীঘ্রই আবার কাজ শুরু করতে পারবেন।🛑',
+    title: '⚠️ জরুরি নোটিশ',
+    msg: '⚠️অনিবার্য কারণবশত আমাদের সাইটে আপডেটের কাজ চলমান আছে। আপাতত সবাই ৮-১২ঘন্টা কাজ বন্ধ রাখুন।⚠️ 🛑কেউ বিভ্রান্ত হবেন না। আপনাদের ব্যালেন্স এবং তথ্য ১০০% সুরক্ষিত আছে। খুব শীঘ্রই আবার কাজ শুরু করতে পারবেন।🛑',
     time: 'now',
     autoHide: 600000,
-    onTap: () => goTo('games')
+    onTap: null
   });
 }, 900);
 </script>
