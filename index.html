@@ -850,6 +850,8 @@ let _slotAdvanced=false;
 function _showContinueBtn(){document.getElementById('adovWaiting').classList.add('show');document.getElementById('adovContinue').classList.add('show');}
 function _hideContinueBtn(){document.getElementById('adovWaiting').classList.remove('show');document.getElementById('adovContinue').classList.remove('show');}
 function onAdsterraBack(){_hideContinueBtn();_next();}
+// প্রতিটি বিজ্ঞাপন বন্ধ/শেষ হলে পরের বিজ্ঞাপনে যাওয়ার আগে confirmation button দেখাবে
+function onAdFinished(){_showContinueBtn();}
 
 function _next(){
   if(_slotAdvanced||!CS.active)return;_slotAdvanced=true;
@@ -870,7 +872,7 @@ function playSlot(){
     try{
       const ctrl=window.Adsgram?.init({blockId:String(net.blockId)});
       if(!ctrl){_next();return;}
-      ctrl.show().then(()=>_next()).catch(()=>_next());
+      ctrl.show().then(()=>onAdFinished()).catch(()=>_next());
     }catch(e){_next();}
 
   }else if(net.name==='monetag'){
@@ -882,7 +884,7 @@ function playSlot(){
       if(typeof showFn === 'function'){
         // ✅ show() একটা Promise return করে
         showFn()
-          .then(()=>{ _next(); })
+          .then(()=>{ onAdFinished(); })
           .catch(()=>{ _next(); });
       } else {
         // SDK এখনো load হয়নি, 1 সেকেন্ড পরে retry করব
@@ -892,7 +894,7 @@ function playSlot(){
           const fn = window[MONETAG_SDK_FN];
           if(typeof fn === 'function'){
             clearInterval(retryInterval);
-            fn().then(()=>_next()).catch(()=>_next());
+            fn().then(()=>onAdFinished()).catch(()=>_next());
           } else if(retryCount >= 5){
             // 5 বার retry করেও না পেলে skip করে next এ যাও
             clearInterval(retryInterval);
