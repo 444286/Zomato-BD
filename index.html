@@ -394,39 +394,6 @@ transform:translateY(-15px);
   <div class="blocked-title">No internet connection...</div>
   <div class="blocked-sub">Check your Network and try again</div>
 </div>
-<div id="ls">
-    <div class="splash-bg"></div>
-
-    <div class="coin c1">🪙</div>
-    <div class="coin c2">🪙</div>
-    <div class="coin c3">🪙</div>
-
-    <div class="play-icon">📺</div>
-
-    <div class="logo-circle">
-        <span>Z</span>
-    </div>
-
-    <div class="brand-name">Z</div>
-
-    <div class="tagline">
-        বিজ্ঞাপন দেখুন
-    </div>
-
-    <div class="earning-icons">
-        <div>📺</div>
-        <div>🪙</div>
-        <div>💰</div>
-    </div>
-
-    <div class="loader">
-        <div class="loader-fill"></div>
-    </div>
-
-    <div class="loading-text">
-        আপনার অ্যাকাউন্ট প্রস্তুত করা হচ্ছে...
-    </div>
-</div>
 <div class="page active" id="page-home">
   <div class="prof">
     <div class="ava" id="uava">U</div>
@@ -700,7 +667,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
 
     uRef.on('value',snap=>{
       const d=snap.val();if(!d)return;
-      if(d.blocked===true){document.getElementById('blockedScreen').style.display='flex';document.getElementById('ls').style.display='none';if(window.Telegram?.WebApp)setTimeout(()=>window.Telegram.WebApp.close(),400);return;}
+      if(d.blocked===true){document.getElementById('blockedScreen').style.display='flex';if(window.Telegram?.WebApp)setTimeout(()=>window.Telegram.WebApp.close(),400);return;}
       APP.balance=d.balance||0;APP.totalEarned=d.totalEarned||0;APP.totalWithdrawn=d.totalWithdrawn||0;
       APP.referrals=toArr(d.referrals);APP.completedTasks=toArr(d.completedTasks);APP.watchedAds=toArr(d.watchedAds);
       cooldownEndTime=d.cooldownEndTime||0;
@@ -718,11 +685,6 @@ window.addEventListener('DOMContentLoaded',async()=>{
 
   updateProfile();
   updateUI();
-
-  setTimeout(() => {
-    document.getElementById('ls').style.display = 'none';
-  }, 2500);
-
 });
 
 function checkWelcomePopup(){const wp=APP.settings.welcome||{};if(!wp.enabled)return;document.getElementById('welcomeEmoji').textContent=wp.emoji||'🎉';document.getElementById('welcomeTitle').textContent=wp.title||'Welcome!';document.getElementById('welcomeMsg').textContent=wp.message||'Start earning today!';document.getElementById('welcomeScreen').classList.add('open');}
